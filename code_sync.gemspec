@@ -2,8 +2,8 @@ $:.push File.expand_path("../lib", __FILE__)
 require 'code_sync/version'
 
 Gem::Specification.new do |s|
-  s.name          = "smooth"
-  s.version       = Smooth::Version
+  s.name          = "code sync"
+  s.version       = CodeSync::Version
   s.platform      = Gem::Platform::RUBY
   s.authors       = ["Jonathan Soeder"]
   s.email         = ["jonathan.soeder@gmail.com"] 
@@ -12,7 +12,7 @@ Gem::Specification.new do |s|
   s.description   = ""
 
   s.add_dependency 'faye'
-  s.add_dependency 'listener'
+  s.add_dependency 'listen'
   s.add_dependency 'sprockets'
 
   s.files         = `git ls-files`.split("\n")
