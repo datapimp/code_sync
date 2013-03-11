@@ -4,6 +4,7 @@ module CodeSync
   require 'code_sync/version'
   require 'code_sync/publisher'
   require 'code_sync/server'
+  require 'code_sync/temp_asset'
   require 'code_sync/sprockets_adapter'
   require 'code_sync/watcher'
 end

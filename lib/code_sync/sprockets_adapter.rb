@@ -4,23 +4,48 @@ module CodeSync
   class SprocketsAdapter
     attr_accessor :env, :options
 
-    def initialize options={}
+    def initialize sprockets, options=nil
+      if options.nil? and sprockets.is_a?(Hash)
+        options = sprockets
+        sprockets = nil
+      end
+
       @options = options
 
-      options[:root] ||= Dir.pwd()
-      @env = Sprockets::Environment.new(options[:root])
+      @env = sprockets || Sprockets::Environment.new(options[:root] ||= Dir.pwd())
 
-      append_asset_paths() if env.paths.length == 0
+      append_asset_paths()
+    end
 
+    def compile content, options={}
+      create_asset(content,options).to_s
+    end
+
+    def create_asset content, options={}
+      TempAsset.create_from(content, options.merge(env: env)) 
+    end
+
+    def method_missing meth, *args, &block
+      env.send(meth, *args, &block)
     end
 
     protected
 
+      def tmpdir
+        @tmpdir ||= Dir.tmpdir
+      end
+
+      def append_temporary_path
+        env.prepend_path(tmpdir)
+      end
+
       def append_asset_paths base_path=nil
         base_path ||= env.root
 
+        env.append_path tmpdir
+
         %w{lib vendor app}.each do |base|
-          path = File.join(env.root, base, 'assets' )
+          path = File.join(env.root, base, 'assets')
 
           if File.exists?(path)
             %w{images stylesheets javascripts}.each do |type|

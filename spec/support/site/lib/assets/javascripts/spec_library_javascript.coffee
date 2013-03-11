@@ -1,0 +1,3 @@
+SpecLib = 
+  util:
+    method: ()-> true

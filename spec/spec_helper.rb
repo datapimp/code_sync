@@ -1,22 +1,21 @@
-require 'machinist/active_record'
-require 'sham'
-require 'faker'
+unless defined?(CodeSync)
+  Bundler.require(:test)
+end
 
-require File.expand_path('../support/schema.rb', __FILE__)
-require File.expand_path('../support/models.rb', __FILE__)
+require 'code_sync'
 
-Sham.define do
-  name     { Faker::Name.name }  
-  salary   {|index| 30000 + (index * 1000)}
+module CodeSync
+  class << self
+    attr_accessor :spec_root
+  end
+
+  self.spec_root = File.dirname(__FILE__) 
 end
 
 RSpec.configure do |config|
   config.before(:suite) do
-    Models.make
-  end
 
-  config.before(:all)   { Sham.reset(:before_all) }
-  config.before(:each)  { Sham.reset(:before_each) }  
+  end
 end
 
-require 'smooth'
+
