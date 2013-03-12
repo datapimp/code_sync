@@ -1,3 +1,9 @@
+CodeSync is a utility which live reloads asset pipeline assets in their running browser sessions, and an
+in-browser IDE which allows you to edit your pre-compiled assets (coffeescript, sass, etc) in the browser
+and save them to disk.
+
+### TODO / In Progress
+
 - Sync asset pipeline changes with browser
 
   - File system watcher to detect changes to asset pipeline

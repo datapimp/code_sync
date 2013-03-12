@@ -39,6 +39,7 @@ module CodeSync
       puts "Detected changes in #{ (modified + added).inspect }"
       begin 
         payload = change_payload_for(modified + added)
+        puts payload.inspect
         notifier.publish("/code-sync", payload)
       rescue e
         puts "Error publishing payload: #{ $! }"
@@ -47,7 +48,13 @@ module CodeSync
 
     def change_payload_for paths     
       paths.inject({}) do |memo, path| 
-        binding.pry        
+        if asset = assets.find_asset(path)
+          memo[asset.logical_path] = {
+            name:   asset.logical_path,
+            path:   asset.digest_path,
+            source: asset.to_s
+          }
+        end
       end
     end
 

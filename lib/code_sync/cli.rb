@@ -45,7 +45,7 @@ module CodeSync
       desc "start", "Starts this shit" 
       def start
         server  = CodeSync::Server.new(root: Dir.pwd())          
-        watcher = CodeSync::Watcher.new(root: Dir.pwd(), assets: server.assets)
+        watcher = CodeSync::Watcher.new(root: Dir.pwd(), assets: server.assets, faye:)
 
         fork do        
           server.start(9295)
