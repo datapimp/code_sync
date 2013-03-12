@@ -5,5 +5,7 @@ $:.unshift File.join(File.dirname(__FILE__), '..', 'lib')
 require 'rubygems'
 require 'faye'
 require 'listen'
+require 'code_sync'
+require 'code_sync/cli'
 
 CodeSync::Cli::Base.start

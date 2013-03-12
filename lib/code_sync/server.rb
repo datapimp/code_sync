@@ -1,10 +1,14 @@
 module CodeSync
-  module Server
-
-    attr_reader :assets
+  class Server < Faye::RackAdapter
+    attr_accessor :assets
 
     def initialize options={}
-      @assets = CodeSync::SprocketsAdapter.new()
+      super
+      @assets = CodeSync::SprocketsAdapter.new(root:Dir.pwd())
     end
-  end  
+
+    def start port=9295
+      listen(port)
+    end 
+  end
 end
