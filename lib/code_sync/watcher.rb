@@ -8,9 +8,12 @@ module CodeSync
 
     def initialize(options={})
       @options  = options
-      @notifier = Publisher.new(options[:url] || "//localhost:9295/faye")
-      @assets   = SprocketsAdapter.new(root: Dir.pwd())
       @id       = rand(36**36).to_s(36).slice(0,8)
+
+      faye      = options[:faye]
+
+      @notifier ||= Publisher.new(client: faye, url: "http://localhost:9295/faye")
+      @assets   ||= SprocketsAdapter.new(root: Dir.pwd())
 
       @listener = Listen.to(assets_directory)
                     .filter(options[:filter] || /(\.coffee|\.css|\.jst|\.mustache)/)
@@ -39,7 +42,6 @@ module CodeSync
       puts "Detected changes in #{ (modified + added).inspect }"
       begin 
         payload = change_payload_for(modified + added)
-        puts payload.inspect
         notifier.publish("/code-sync", payload)
       rescue e
         puts "Error publishing payload: #{ $! }"
@@ -60,6 +62,22 @@ module CodeSync
 
     def start
       @listener.start
+    end
+
+    def status
+      {
+        root: Dir.pwd(),
+        is_rails: rails?,
+        is_middleman: middleman?
+      }
+    end
+
+    def rails?
+      false      
+    end
+
+    def middleman?
+      false
     end
   end
 

@@ -14,7 +14,7 @@ CodeSync.util.loadScript = (url, options={}, callback) ->
 
   head= document.getElementsByTagName('head')[0];
   script = document.createElement("script")
-  script.url = url
+  script.src = url
   script.type = "text/javascript"
 
   that = @
@@ -22,7 +22,11 @@ CodeSync.util.loadScript = (url, options={}, callback) ->
     if typeof(callback) is "function"
       callback.call(that, url, options, script) 
 
-    head.removeChild(script)
+    try
+      head.removeChild(script)
+    catch e
+      true  
+      
     loaded[url] = true
 
   if options.once is true && loaded[url]

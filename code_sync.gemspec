@@ -2,7 +2,7 @@ $:.push File.expand_path("../lib", __FILE__)
 require 'code_sync/version'
 
 Gem::Specification.new do |s|
-  s.name          = "code sync"
+  s.name          = "code_sync"
   s.version       = CodeSync::Version
   s.platform      = Gem::Platform::RUBY
   s.authors       = ["Jonathan Soeder"]
@@ -12,6 +12,7 @@ Gem::Specification.new do |s|
   s.description   = ""
 
   s.add_dependency 'faye'
+  s.add_dependency 'thin'
   s.add_dependency 'listen'
   s.add_dependency 'sprockets'
 

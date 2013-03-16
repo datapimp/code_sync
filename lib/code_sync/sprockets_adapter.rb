@@ -1,6 +1,37 @@
 require 'sprockets'
+require 'coffee-script'
+require 'sass'
 
 module CodeSync
+  class AssetPipelineGems
+    TestPaths = %w{
+      assets
+      app/assets
+      lib/assets
+      vendor/assets
+    }
+
+    def self.gems
+      return @gems if !@gems.nil?
+
+      gems = ::Gem::Specification.latest_specs 
+
+      gems.select! do |gemspec|
+        base = gemspec.full_gem_path
+        TestPaths.detect {|folder| File.exists?(File.join(base,folder))}
+      end
+    end
+
+    def self.paths
+      paths = gems.flat_map do |gemspec|
+        base = gemspec.full_gem_path
+        TestPaths.map {|folder| File.join(base, folder)}
+      end
+
+      paths.select {|dir| File.exists?(dir) }
+    end
+  end
+
   class SprocketsAdapter
     attr_accessor :env, :options
 
@@ -35,6 +66,10 @@ module CodeSync
         @tmpdir ||= Dir.tmpdir
       end
 
+      def append_gem_paths
+        AssetPipelineGems.paths.each {|path| env.append_path(path) }
+      end
+
       def append_temporary_path
         env.prepend_path(tmpdir)
       end
@@ -42,7 +77,11 @@ module CodeSync
       def append_asset_paths base_path=nil
         base_path ||= env.root
 
+        append_gem_paths
+
         env.append_path tmpdir
+
+        env.append_path CodeSync.gem_assets_root
 
         %w{lib vendor app}.each do |base|
           path = File.join(env.root, base, 'assets')

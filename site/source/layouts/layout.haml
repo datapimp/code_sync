@@ -1,0 +1,21 @@
+!!!5
+/[if lt IE 7] <html class="no-js lt-ie9 lt-ie8 lt-ie7">
+/[if IE 7] <html class="no-js lt-ie9 lt-ie8">
+/[if IE 8] <html class="no-js lt-ie9">
+%html.no-js
+  %head
+    %meta{:charset => "utf-8"}
+    %meta{:content => "IE=edge,chrome=1", "http-equiv" => "X-UA-Compatible"}
+    
+    -# To set titles and descriptions globally and for each individual page, see /DOCS.md
+    %title CodeSync.io 
+    %meta{:content => "Development utility for live reloading of your asset pipeline", :name => "description"}
+    
+    %meta{:content => "width=device-width", :name => "viewport"}
+    
+  %body
+    = javascript_include_tag "all"
+    %script{:type=>"text/javascript"}
+      window.codeSync = new CodeSync.Client()
+
+
