@@ -34,11 +34,8 @@ module CodeSync
 
     class FayeMonitor
       def incoming(message,callback)
-        puts "Received incoming message"
-        puts message.inspect
         callback.call(message)
       end
-
     end
 
     class ServerInfo

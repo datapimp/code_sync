@@ -5,10 +5,18 @@ require 'sass'
 module CodeSync
   class AssetPipelineGems
     TestPaths = %w{
-      assets
-      app/assets
-      lib/assets
-      vendor/assets
+      assets/stylesheets
+      assets/javascripts
+      assets/images
+      app/assets/javascripts
+      lib/assets/javascripts
+      vendor/assets/javascripts
+      app/assets/stylesheets
+      lib/assets/stylesheets
+      vendor/assets/stylesheets
+      app/assets/images
+      lib/assets/images
+      vendor/assets/images
     }
 
     def self.gems

@@ -16,7 +16,6 @@ module CodeSync
     end
 
     def publish channel="/code-sync", message="{status:'ok'}"
-      binding.pry
       puts "Publishing to #{ channel } #{ message.length }"
       EM.run do
         pub    = client.publish( channel, message )

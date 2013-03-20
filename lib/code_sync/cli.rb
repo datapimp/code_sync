@@ -47,6 +47,7 @@ module CodeSync
         server      = CodeSync::Server.new(root: Dir.pwd())          
         watcher     = CodeSync::Watcher.new(root: Dir.pwd(), assets: server.assets, faye: server.faye)
         runner      = CodeSync::CommandRunner.new(client: server.faye.get_client, assets: server.assets)
+        publisher   = watcher.notifier
 
         fork do        
           server.start(9295)
@@ -59,6 +60,8 @@ module CodeSync
         fork do
           runner.start()        
         end
+
+        Pry.start(binding, quiet: true)
 
         Process.waitpid
       end
