@@ -4,9 +4,11 @@ source 'https://rubygems.org'
 
 gem "haml"
 gem "sass"
+gem "haml_assets"
+
 gem "coffee-script"
 gem "middleman-sprockets"
 gem "pry"
 gem "code_sync", path: "/Users/jonathan/Projects/code_sync"
 
-gem "middleman", "~>3.0.12"
+gem "middleman"

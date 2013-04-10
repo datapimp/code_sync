@@ -4,13 +4,16 @@ if defined?(Middleman)
 
 
   module CodeSync::MiddlemanExtension
-    class << self  
+    class << self
       def registered app
-        puts "CodeSync"
-        app.send :include, InstanceMethods
+        app.after_configuration do
+
+        end
       end
     end
+
     module InstanceMethods
+
     end
   end
 

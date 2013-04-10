@@ -1,1 +1,3 @@
-//= require 'code_sync/client'
+//= require code_sync
+
+CodeSync.setSequence('sync')

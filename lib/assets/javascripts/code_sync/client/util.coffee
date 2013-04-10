@@ -1,12 +1,11 @@
 CodeSync.util ||= {}
 
-
 loadedScripts = {}
 scriptTimers = {}
 
 CodeSync.util.loadScript = (url, options={}, callback) ->
-  loaded = loadedScripts 
-  timers = scriptTimers 
+  loaded = loadedScripts
+  timers = scriptTimers
 
   if _.isFunction(options) and !callback?
     callback = options
@@ -20,13 +19,13 @@ CodeSync.util.loadScript = (url, options={}, callback) ->
   that = @
   onLoad = ()->
     if typeof(callback) is "function"
-      callback.call(that, url, options, script) 
+      callback.call(that, url, options, script)
 
     try
       head.removeChild(script)
     catch e
-      true  
-      
+      true
+
     loaded[url] = true
 
   if options.once is true && loaded[url]

@@ -1,6 +1,6 @@
 require 'haml'
 require 'middleman-sprockets'
-require "code_sync"
+
 
 # Per-page layout changes:
 #
@@ -34,16 +34,15 @@ require "code_sync"
 #   end
 # end
 
-set :css_dir, 'assets/stylesheets'
+set :css_dir, 'app/assets/stylesheets'
 
-set :js_dir, 'assets/javascripts'
+set :js_dir, 'app/assets/javascripts'
 
 set :images_dir, 'assets/images'
 
 # Use relative URLs
 activate :relative_assets
 activate :sprockets
-activate :code_sync
 
 # Build-specific configuration
 configure :build do
