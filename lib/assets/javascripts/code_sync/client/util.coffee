@@ -22,7 +22,7 @@ CodeSync.util.loadScript = (url, options={}, callback) ->
   loaded = loadedScripts
   timers = scriptTimers
 
-  if _.isFunction(options) and !callback?
+  if typeof(options) is "function" and !callback?
     callback = options
     options = {}
 

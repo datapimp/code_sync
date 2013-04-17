@@ -4,12 +4,13 @@
 class CodeSync.Client
   constructor: ()->
     CodeSync.util.loadScript "http://localhost:9295/faye/client.js", _.once ()=>
-
       _.delay ()=>
-        @setupSocket()
+        @setupSocket() if Faye?
       , 25
 
   setupSocket: ()->
+    return unless Faye?
+
     @socket = new Faye.Client("http://localhost:9295/faye")
 
     @socket.subscribe "/code-sync", (notification)=>
@@ -21,14 +22,36 @@ class CodeSync.Client
       if notification.name?.match(/\.css$/)
         @onStylesheetNotification.call(@, notification)
 
+  javascriptCallbacks: []
+
+  stylesheetCallbacks: []
+
+  afterJavascriptChange: (callback)->
+    @javascriptCallbacks.push(callback)
+
+  afterStylesheetChange: (callback)->
+    @stylesheetCallbacks.push(callback)
+
   onJavascriptNotification: (notification)->
+    client = @
+
+    if notification.source
+      eval(notification.source)
+
+      for callback in client.javascriptCallbacks when callback.call?
+        callback.call(client, notification)
+      return
+
     if notification.path
       CodeSync.util.loadScript "http://localhost:9295/assets/#{ notification.path }", ()->
-        console.log "Processed JS Notification", notification
+        console.log "Loaded JS Notification", client.javascriptCallbacks
+        for callback in client.javascriptCallbacks when callback.call?
+          callback.call(@, notification)
 
   onStylesheetNotification: (notification)->
+    client = @
+
     if notification.path && notification.name
       CodeSync.util.loadStylesheet "http://localhost:9295/assets/#{ notification.path }", tracker: notification.name, ()->
-        console.log "Processed CSS Notification", notification
-
-
+        for callback in client.stylesheetCallbacks when callback.call?
+          callback.call(@, notification)
