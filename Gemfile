@@ -9,7 +9,6 @@ gem "coffee-script"
 gem "thin"
 gem "faye"
 gem "thor"
-gem "timeout"
 
 group :development, :test do
   gem 'rspec'

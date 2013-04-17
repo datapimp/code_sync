@@ -3,7 +3,6 @@
 
 class CodeSync.Client
   constructor: ()->
-    console.log "Creating the codesync client"
     CodeSync.util.loadScript "http://localhost:9295/faye/client.js", _.once ()=>
 
       _.delay ()=>
@@ -13,10 +12,8 @@ class CodeSync.Client
   setupSocket: ()->
     @socket = new Faye.Client("http://localhost:9295/faye")
 
-    console.log "Subscribing to code-sync channel", @socket
-
     @socket.subscribe "/code-sync", (notification)=>
-      console.log "Received Notification", notification
+      console.log "notification", notification
 
       if notification.name?.match(/\.js$/)
         @onJavascriptNotification.call(@,notification)
@@ -25,9 +22,13 @@ class CodeSync.Client
         @onStylesheetNotification.call(@, notification)
 
   onJavascriptNotification: (notification)->
-    console.log "Received Notification of Javascript Change", notification
+    if notification.path
+      CodeSync.util.loadScript "http://localhost:9295/assets/#{ notification.path }", ()->
+        console.log "Processed JS Notification", notification
 
   onStylesheetNotification: (notification)->
-    console.log "Received Notification Of Stylesheet Change", notification
+    if notification.path && notification.name
+      CodeSync.util.loadStylesheet "http://localhost:9295/assets/#{ notification.path }", tracker: notification.name, ()->
+        console.log "Processed CSS Notification", notification
 
 

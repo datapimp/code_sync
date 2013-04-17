@@ -3,6 +3,21 @@ CodeSync.util ||= {}
 loadedScripts = {}
 scriptTimers = {}
 
+CodeSync.util.loadStylesheet = (url, options={}, callback)->
+  ss = document.createElement("link")
+  ss.type = "text/css"
+  ss.rel = "stylesheet"
+  ss.href = url
+  ss.className = "code-sync-asset"
+
+  if options.tracker
+    $("link[data-tracker='#{ options.tracker }']").remove()
+    ss.setAttribute("data-tracker", options.tracker )
+
+  document.getElementsByTagName("head")[0].appendChild(ss);
+
+  callback?.call?(@)
+
 CodeSync.util.loadScript = (url, options={}, callback) ->
   loaded = loadedScripts
   timers = scriptTimers
