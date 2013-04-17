@@ -1,6 +1,7 @@
 require 'thor'
 require "thor/group"
 require "pry"
+require "timeout"
 
 module CodeSync
   module Cli
@@ -44,8 +45,6 @@ module CodeSync
 
       desc "start", "Starts this shit"
 
-      method_option :pry, :type => :boolean, :default => false
-
       def start
         puts "Running code sync with #{ options.inspect }"
         server      = CodeSync::Server.new(root: Dir.pwd())
@@ -54,20 +53,20 @@ module CodeSync
 
         publisher   = watcher.notifier
 
-        fork do
+        pids = []
+
+
+        pids << fork do
           server.start(9295)
         end
 
-        fork do
+        pids << fork do
           watcher.start()
         end
 
-        fork do
-        #  runner.start()
-        end
-
-        if options['pry']
-          Pry.start(binding, silent: true)
+        trap('SIGINT') do
+          puts "Exiting: killing #{ pids.inspect }"
+          pids.each {|p| Process.kill(9,p) }
         end
 
         Process.waitpid

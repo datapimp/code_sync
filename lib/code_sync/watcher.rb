@@ -37,10 +37,10 @@ module CodeSync
 
     def notify modified, added, removed
       return if throttle?
-      @last_change_detected_at = Time.now.to_i 
+      @last_change_detected_at = Time.now.to_i
 
       puts "Detected changes in #{ (modified + added).inspect }"
-      begin 
+      begin
         payload = change_payload_for(modified + added)
         notifier.publish("/code-sync", payload)
       rescue e
@@ -48,8 +48,8 @@ module CodeSync
       end
     end
 
-    def change_payload_for paths     
-      paths.inject({}) do |memo, path| 
+    def change_payload_for paths
+      paths.inject({}) do |memo, path|
         if asset = assets.find_asset(path)
           memo[asset.logical_path] = {
             name:   asset.logical_path,
@@ -73,7 +73,7 @@ module CodeSync
     end
 
     def rails?
-      false      
+      false
     end
 
     def middleman?

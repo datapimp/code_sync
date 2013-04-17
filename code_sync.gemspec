@@ -6,7 +6,7 @@ Gem::Specification.new do |s|
   s.version       = CodeSync::Version
   s.platform      = Gem::Platform::RUBY
   s.authors       = ["Jonathan Soeder"]
-  s.email         = ["jonathan.soeder@gmail.com"] 
+  s.email         = ["jonathan.soeder@gmail.com"]
   s.homepage      = "http://codesync.io"
   s.summary       = "Turn your browser into a coffeescript / sass canvas"
   s.description   = ""
@@ -15,6 +15,7 @@ Gem::Specification.new do |s|
   s.add_dependency 'thin'
   s.add_dependency 'listen'
   s.add_dependency 'sprockets'
+  s.add_dependency 'thor'
 
   s.files         = `git ls-files`.split("\n")
   s.test_files    = `git ls-files -- {test,spec,features}/*`.split("\n")

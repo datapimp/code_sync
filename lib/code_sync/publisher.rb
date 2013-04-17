@@ -7,8 +7,7 @@ module CodeSync
     end
 
     def client
-      @client = nil if @client && !@client.is_a?(::Faye::Client)
-      @client ||= ::Faye::Client.new(url)
+      @client = ::Faye::Client.new(url)
     end
 
     def shutdown
@@ -16,10 +15,11 @@ module CodeSync
     end
 
     def publish channel="/code-sync", message="{status:'ok'}"
-      puts "Publishing to #{ channel } #{ message.length }"
       EM.run do
-        pub    = client.publish( channel, message )
-        pub.callback { EM.stop }
+        pub = client.publish(channel,message)
+        pub.callback do
+          EM.stop
+        end
         pub.errback { EM.stop }
       end
     end
