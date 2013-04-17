@@ -1,7 +1,6 @@
 require 'thor'
 require "thor/group"
-require "pry"
-require "timeout"
+require "faye"
 
 module CodeSync
   module Cli
@@ -43,66 +42,11 @@ module CodeSync
         end
       end
 
-      desc "start", "Starts this shit"
+      desc "start", "Starts the codesync project side server"
+      method_option :root, :default => Dir.pwd(), :required => false
 
       def start
-        pidfile = File.join(Dir.tmpdir,"codesync.pid")
-
-        puts "Starting CodeSync: #{ CodeSync::Version } #{ pidfile }"
-
-        server      = CodeSync::Server.new(root: Dir.pwd())
-        watcher     = CodeSync::Watcher.new(root: Dir.pwd(), assets: server.assets, faye: server.faye)
-        #runner      = CodeSync::CommandRunner.new(client: server.faye.get_client, assets: server.assets)
-
-        publisher   = watcher.notifier
-
-        pids = []
-
-        pids << fork do
-          server.start(9295)
-        end
-
-        pids << fork do
-          watcher.start()
-        end
-
-        if File.exists?(pidfile)
-          existing = IO.read(pidfile).split(',')
-
-          existing.each do |pid|
-            puts "Found stale process pid: #{pid}"
-
-            begin
-              Process.kill(9,pid)
-            rescue
-              puts "Failed to kill #{ pid }"
-              puts "Error: #{ $! }"
-            end
-          end
-
-          FileUtils.rm_f(pidfile)
-        end
-
-        File.open(pidfile,'w+') do |fh|
-          fh.puts pids.join(",")
-        end
-
-        trap('SIGSEGV') do
-          puts "Why is this segfaulting?"
-          pids.each {|p| Process.kill(9,p) }
-          FileUtils.rm_f(pidfile)
-        end
-
-        trap('SIGINT') do
-          puts "Exiting: killing #{ pids.inspect }"
-          pids.each {|p| Process.kill(9,p) }
-          FileUtils.rm_f(pidfile)
-        end
-
-        puts "Monitoring #{ pids }"
-
-        Process.waitall
-        FileUtils.rm_f(pidfile)
+        CodeSync::Manager.start(options)
       end
 
       def method_missing(meth, *args)
@@ -115,7 +59,6 @@ module CodeSync
         klass, task = Thor::Util.find_class_and_task_by_namespace("#{meth}:#{meth}")
 
         if klass.nil?
-          super
         else
           args.unshift(task) if task
           klass.start(args, :shell => self.shell)
