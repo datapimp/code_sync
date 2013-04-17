@@ -38,7 +38,7 @@ class CodeSync.Client
     client = @
 
     if notification.source
-      eval(notification.source)
+      sourceEval.call(window, notification.source)
 
       for callback in client.javascriptCallbacks when callback.call?
         callback.call(client, notification)
@@ -57,3 +57,7 @@ class CodeSync.Client
       CodeSync.util.loadStylesheet "http://localhost:9295/assets/#{ notification.path }", tracker: notification.name, ()->
         for callback in client.stylesheetCallbacks when callback.call?
           callback.call(@, notification)
+
+
+sourceEval = (source)->
+  eval(source)

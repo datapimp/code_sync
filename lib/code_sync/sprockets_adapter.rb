@@ -1,6 +1,7 @@
 require 'sprockets'
 require 'coffee-script'
 require 'sass'
+require 'ejs'
 
 module CodeSync
   class AssetPipelineGems
@@ -22,7 +23,7 @@ module CodeSync
     def self.gems
       return @gems if !@gems.nil?
 
-      gems = ::Gem::Specification.latest_specs 
+      gems = ::Gem::Specification.latest_specs
 
       gems.select! do |gemspec|
         base = gemspec.full_gem_path
@@ -61,7 +62,7 @@ module CodeSync
     end
 
     def create_asset content, options={}
-      TempAsset.create_from(content, options.merge(env: env)) 
+      TempAsset.create_from(content, options.merge(env: env))
     end
 
     def method_missing meth, *args, &block
@@ -101,7 +102,7 @@ module CodeSync
               end
             end
           end
-        end        
+        end
       end
   end
 end

@@ -9,7 +9,7 @@ if typeof(exports) isnt "undefined"
 else
   CodeSync = root.CodeSync = {}
 
-CodeSync.VERSION = "0.0.6"
+CodeSync.VERSION = "0.0.7"
 
 CodeSync.setSequence = (sequence="sync")->
   KeyLauncher.onSequence sequence, ()->

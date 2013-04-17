@@ -46,7 +46,10 @@ module CodeSync
       desc "start", "Starts this shit"
 
       def start
-        puts "Running code sync with #{ options.inspect }"
+        pidfile = File.join(Dir.tmpdir,"codesync.pid")
+
+        puts "Starting CodeSync: #{ CodeSync::Version } #{ pidfile }"
+
         server      = CodeSync::Server.new(root: Dir.pwd())
         watcher     = CodeSync::Watcher.new(root: Dir.pwd(), assets: server.assets, faye: server.faye)
         #runner      = CodeSync::CommandRunner.new(client: server.faye.get_client, assets: server.assets)
@@ -54,7 +57,6 @@ module CodeSync
         publisher   = watcher.notifier
 
         pids = []
-
 
         pids << fork do
           server.start(9295)
@@ -64,12 +66,43 @@ module CodeSync
           watcher.start()
         end
 
+        if File.exists?(pidfile)
+          existing = IO.read(pidfile).split(',')
+
+          existing.each do |pid|
+            puts "Found stale process pid: #{pid}"
+
+            begin
+              Process.kill(9,pid)
+            rescue
+              puts "Failed to kill #{ pid }"
+              puts "Error: #{ $! }"
+            end
+          end
+
+          FileUtils.rm_f(pidfile)
+        end
+
+        File.open(pidfile,'w+') do |fh|
+          fh.puts pids.join(",")
+        end
+
+        trap('SIGSEGV') do
+          puts "Why is this segfaulting?"
+          pids.each {|p| Process.kill(9,p) }
+          FileUtils.rm_f(pidfile)
+        end
+
         trap('SIGINT') do
           puts "Exiting: killing #{ pids.inspect }"
           pids.each {|p| Process.kill(9,p) }
+          FileUtils.rm_f(pidfile)
         end
 
-        Process.waitpid
+        puts "Monitoring #{ pids }"
+
+        Process.waitall
+        FileUtils.rm_f(pidfile)
       end
 
       def method_missing(meth, *args)
