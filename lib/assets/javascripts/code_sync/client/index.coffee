@@ -2,7 +2,7 @@
 #= require ./util
 
 class CodeSync.Client
-  VERSION: "0.0.6"
+  VERSION: CodeSync.VERSION
 
   constructor: ()->
     CodeSync.util.loadScript "http://localhost:9295/faye/client.js", _.once ()=>
