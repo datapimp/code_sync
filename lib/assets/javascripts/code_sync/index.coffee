@@ -1,4 +1,3 @@
-#= require ./keylauncher.min
 #= require_self
 #= require code_sync/client
 #= require code_sync/editor

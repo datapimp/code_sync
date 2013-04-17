@@ -42,14 +42,19 @@ module CodeSync
         end
       end
 
-      desc "start", "Starts this shit" 
+      desc "start", "Starts this shit"
+
+      method_option :pry, :type => :boolean, :default => false
+
       def start
-        server      = CodeSync::Server.new(root: Dir.pwd())          
+        puts "Running code sync with #{ options.inspect }"
+        server      = CodeSync::Server.new(root: Dir.pwd())
         watcher     = CodeSync::Watcher.new(root: Dir.pwd(), assets: server.assets, faye: server.faye)
-        runner      = CodeSync::CommandRunner.new(client: server.faye.get_client, assets: server.assets)
+        #runner      = CodeSync::CommandRunner.new(client: server.faye.get_client, assets: server.assets)
+
         publisher   = watcher.notifier
 
-        fork do        
+        fork do
           server.start(9295)
         end
 
@@ -58,10 +63,12 @@ module CodeSync
         end
 
         fork do
-          runner.start()        
+        #  runner.start()
         end
 
-        Pry.start(binding, quiet: true)
+        if options['pry']
+          Pry.start(binding, silent: true)
+        end
 
         Process.waitpid
       end

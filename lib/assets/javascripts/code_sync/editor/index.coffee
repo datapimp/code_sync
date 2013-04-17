@@ -1,46 +1,51 @@
-#= require ./dependencies
-#= require_self
-
-class CodeSync.AssetEditor
-
-  @instances: {}
-
-  @getInstance: (options={})->
-    @instances.main ||= new CodeSync.AssetEditor(options)
-
+CodeSync.AssetEditor = Backbone.View.extend
   visible: false
 
-  constructor: (@options={})->
-    el = @editorElement()
+  initialize: (@options={})->
+    _.extend(@, @options)
 
+    @render()
 
-    CodeMirror el[0],
-      height: 500
-      width: 500
-      mode: 'coffeescript'
-      theme: 'lesser-dark'
-      value: ''
-      lineNumbers: true
-      autofocus: true
+  render: ()->
+    return @ if @rendered is true
 
-  editorElement: ()->
-    el = $('#codesync-editor-element')
+    @$el.append("<div class='codesync-editor-wrapper' />")
+    @$('.codesync-editor-wrapper').append("<div class='codesync-asset-editor' />")
+    $('body').append(@$el)
 
-    return el if el.length isnt 0
+    @codeMirror = CodeMirror @$('.codesync-asset-editor')[0], @getCodeMirrorOptions()
+    @codeMirror.swapDoc(@getCurrentDocument())
 
-    $('body').append "<div id='codesync-editor-wrapper'><div id='codesync-editor-element'></div></div>"
+    @rendered = true
+    @visible  = false
 
-    el = $('#codesync-editor-element')
+    @
 
-  toggle: ()->
-    if @visible then @hide() else @show()
+  getCurrentDocument: ()->
+    unless @document?
+      @document = CodeMirror.Doc("","coffeescript", 0)
+
+    @document
+
+  hide: ()->
+    @$el.hide()
+    @visible = false
+    @
 
   show: ()->
-    $('#codesync-editor-wrapper').show()
+    @$el.show()
     @visible = true
     @
 
-  hide: ()->
-    $('#codesync-editor-wrapper').hide()
-    @visible = false
-    @
+  toggle: ()->
+    if @visible is false then @show() else @hide()
+
+  getCodeMirrorOptions: ()->
+    theme: 'lesser-dark'
+    lineNumbers: true
+    autofocus: true
+    mode: "coffeescript"
+
+CodeSync.AssetEditor.getInstance = (options={})->
+  instances = CodeSync.AssetEditor._instances ||= {}
+  instances.main ||= new CodeSync.AssetEditor(options)

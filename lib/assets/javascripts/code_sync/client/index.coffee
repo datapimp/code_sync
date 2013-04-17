@@ -1,5 +1,3 @@
-#= require ./dependencies
-
 #= require_self
 #= require ./util
 
