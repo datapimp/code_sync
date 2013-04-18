@@ -7,7 +7,8 @@ if defined?(Middleman)
     class << self
       def registered app
         app.after_configuration do
-
+          puts "Middleman App Configured.  I supposed we could start the manager?"
+          puts app.sprockets
         end
       end
     end

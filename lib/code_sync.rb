@@ -2,13 +2,7 @@ $:.unshift File.dirname(__FILE__)
 
 module CodeSync
   require 'code_sync/version'
-  require 'code_sync/publisher'
-  require 'code_sync/server'
-  require 'code_sync/temp_asset'
-  require 'code_sync/sprockets_adapter'
   require 'code_sync/manager'
-  require 'code_sync/watcher'
-  require 'code_sync/command_runner'
   require 'middleman_extension'
 
   def self.gem_assets_root

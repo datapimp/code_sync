@@ -52,9 +52,21 @@ module CodeSync
 
       @options = options
 
-      @env = sprockets || Sprockets::Environment.new(options[:root] ||= Dir.pwd())
+      @env = options[:sprockets] || Sprockets::Environment.new(options[:root] ||= Dir.pwd())
 
       append_asset_paths()
+    end
+
+    def process_changes_to assets=[]
+      assets.map do |path|
+        if asset = env.find_asset(path)
+          notification = {
+            name:asset.logical_path,
+            path:asset.digest_path,
+            source: asset.to_s
+          }
+        end
+      end.compact
     end
 
     def compile content, options={}

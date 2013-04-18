@@ -23,10 +23,10 @@ module CodeSync
     def start port=9295
       assets = @assets.env
       faye   = @faye
-      
+
       app = Rack::URLMap.new "/assets" => assets, "/" => faye, "/info" => ServerInfo.new(sprockets:assets)
-      Rack::Server.start(app:app,:Port=>9295,:server=>'thin')
-    end 
+      Rack::Server.start(app:app,:Port=>port,:server=>'thin')
+    end
 
     class Middleware
 
@@ -34,6 +34,10 @@ module CodeSync
 
     class FayeMonitor
       def incoming(message,callback)
+        if message['channel'] == "/meta/subscribe" and message['subscription']
+          puts "CodeSync.Client subscription: #{ message['clientId'] }"
+        end
+
         callback.call(message)
       end
     end
@@ -42,12 +46,12 @@ module CodeSync
       attr_accessor :faye, :sprockets
 
       def initialize options={}
-        @sprockets  = options[:sprockets]  
+        @sprockets  = options[:sprockets]
         @faye       = options[:faye]
       end
 
       def call(env)
-        [200, {"Content-Type" => "application/json"}, JSON.generate(paths:sprockets.paths)]        
+        [200, {"Content-Type" => "application/json"}, JSON.generate(paths:sprockets.paths)]
       end
     end
   end

@@ -1,3 +1,7 @@
+require "code_sync/server"
+require "code_sync/sprockets_adapter"
+require "pry"
+
 # In order to support the live-editing and immediate preview of
 # of precompiled assets in the browser or in the developers IDE
 # we need a background process that can integrate the file system
@@ -6,15 +10,46 @@ module CodeSync
   class Manager
 
     def self.start options={}
-      new(options)
+      manager = new(options)
+
+      if options[:auto_start] == false
+        return manager
+      else
+        manager.start
+      end
+
+      manager
+    end
+
+    attr_accessor :sprockets, :server, :client_manager, :options, :processes
+
+    def start
+      $0 = "codesync process: manager"
+
+      @pids = processes.map do |config|
+        fork do
+          name, block = config
+
+          $0 = "codesync process: #{ name }"
+          block.call
+        end
+      end
+
+      trap("SIGINT") do
+        @pids.each {|p| Process.kill(9,p) }
+      end
+
+      Process.waitall do
+        puts "Waitall"
+      end
+
+      puts "All child processes exited cleanly."
     end
 
     protected
 
       def initialize options={}
-        # we want to watch for changes to asset pipeline assets
-        # from within the project we're running the codesync command from
-        create_project_root_file_watcher(root: options[:root])
+        @options = options.dup
 
         # we want to match the sprockets environment that would be
         # available to this rails, or middleman project.  this means
@@ -22,20 +57,81 @@ module CodeSync
         # the same source paths
         create_sprockets_environment()
 
-        # we want a webserver that can provide the faye client javascript
-        # and serve as a connection endpoint for faye pub/sub. this server
-        # should also provide HTTP access to the sprockets environment.
-        create_async_webserver_capable_of_supporting_faye()
+        create_pubsub_server()
 
-        # whenever a file changes, we should compile it and send the data over
-        # the pubsub.  the client should have the option of viewing both precompiled /
-        # and compiled code, and a save in either the developers IDE or in the in-browser
-        # code sync editor.
-        publish_changes_detected_by_the_watcher_to_the_faye_pub_sub_channel()
+        #expose_via_rack(sprockets, pubsub)
 
-        # allow the in-editor browser to edit precompiled assets and save the changes they
-        # make to them to the file system.
-        listen_for_changes_to_assets_made_in_browser_editor()
+        listen_for_changes_on_the_filesystem do |changed_assets|
+          changed_assets.each do |asset|
+            notify_clients_of_change_to(asset)
+          end
+        end
+
+        listen_for_changes_from_clients do |changed_assets|
+          changed_assets.each do |asset|
+            record_changes_made_to(asset)
+            notify_clients_of_change_to(asset)
+          end
+        end
+      end
+
+      def create_pubsub_server
+        @server = CodeSync::Server.new(assets: sprockets, root: root)
+
+        manage_child_process("server") do
+          server.start()
+        end
+      end
+
+      def create_sprockets_environment
+        @sprockets = options[:sprockets] || SprocketsAdapter.new(root: root)
+      end
+
+      def notify_clients_of_change_to asset
+        payload = JSON.generate(asset)
+        EM.run do
+          pub = client.publish("/code-sync", asset)
+          pub.callback { EM.stop }
+        end
+      end
+
+      def client
+        @client = ::Faye::Client.new("http://localhost:9295/faye")
+      end
+
+      def listen_for_changes_on_the_filesystem &handler
+        manage_child_process("watcher") do
+          watcher.change do |modified,added,removed|
+            handler.call process_changes_to(modified+added)
+          end
+
+          watcher.start
+        end
+      end
+
+      def manage_child_process name, &block
+        @processes ||= []
+        @processes << [name,block]
+      end
+
+      def process_changes_to assets
+        sprockets.process_changes_to(assets)
+      end
+
+      def root
+        options[:root] || options[:assets_directory] || Dir.pwd()
+      end
+
+      def watcher
+        @watcher ||= Listen.to(root)
+                      .filter(assets_filter)
+                      .latency(1)
+      end
+
+      # TODO
+      # Provide for configurability
+      def assets_filter
+       /(\.coffee|\.css|\.jst|\.mustache)/
       end
 
       def method_missing meth, *args, &block
