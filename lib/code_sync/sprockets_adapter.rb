@@ -13,6 +13,9 @@ module CodeSync
       app/assets/images
       lib/assets/images
       vendor/assets/images
+      javascripts
+      stylesheets
+      images
     }
 
     def self.gems
@@ -105,6 +108,7 @@ module CodeSync
           if File.exists?(path)
             %w{images stylesheets javascripts}.each do |type|
               if File.exists?(File.join(path, type))
+                puts File.join(path, type)
                 env.append_path(File.join(path, type))
               end
             end

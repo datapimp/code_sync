@@ -17,4 +17,5 @@ CodeSync.setSequence = (sequence="sync")->
 
 CodeSync.setHotKey = (hotkey="command+j")->
   KeyLauncher.on hotkey, ()->
-    CodeSync.AssetEditor.getInstance().toggle()
+    CodeSync.util.loadStylesheet "http://localhost:9295/assets/code_sync.css", {}, ()->
+      CodeSync.AssetEditor.getInstance().toggle()

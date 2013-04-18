@@ -75,7 +75,7 @@ module CodeSync
       end
 
       def create_sprockets_environment
-        @sprockets = options[:sprockets] || SprocketsAdapter.new(root: root)
+        @sprockets = SprocketsAdapter.new(root: root, sprockets: options[:sprockets])
       end
 
       def notify_clients_of_change_to asset

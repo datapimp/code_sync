@@ -7,10 +7,12 @@ module CodeSync
   class Server
     attr_accessor :assets,
                   :faye,
-                  :root
+                  :root,
+                  :options
 
 
     def initialize options={}
+      @options = options.dup
       @assets = options[:assets] || CodeSync::SprocketsAdapter.new(root:Dir.pwd())
       @root   = options[:root]
 
@@ -24,7 +26,7 @@ module CodeSync
       assets = @assets.env
       faye   = @faye
 
-      app = Rack::URLMap.new "/assets" => assets, "/" => faye, "/info" => ServerInfo.new(sprockets:assets)
+      app = Rack::URLMap.new "/assets" => assets, "/" => faye, "/info" => ServerInfo.new(sprockets:assets, options: options, root: root)
       Rack::Server.start(app:app,:Port=>port,:server=>'thin')
     end
 
@@ -43,15 +45,16 @@ module CodeSync
     end
 
     class ServerInfo
-      attr_accessor :faye, :sprockets
+      attr_accessor :faye, :sprockets, :options
 
       def initialize options={}
         @sprockets  = options[:sprockets]
         @faye       = options[:faye]
+        @options    = options.dup
       end
 
       def call(env)
-        [200, {"Content-Type" => "application/json"}, JSON.generate(paths:sprockets.paths)]
+        [200, {"Content-Type" => "application/json"}, JSON.generate(codesync_version: CodeSync::Version,paths:sprockets.paths, root:@options[:root])]
       end
     end
   end

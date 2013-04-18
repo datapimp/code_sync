@@ -8,8 +8,18 @@ if defined?(Middleman)
       def registered app
         app.after_configuration do
           fork do
-            CodeSync::Manager.start(root: File.join(app.root,app.source),parent:'middleman')
+            source = begin
+              File.join(app.root, app.source)
+            rescue
+              File.join(Dir.pwd(),'source')
+            end
+
+            CodeSync::Manager.start(root: source, sprockets: (sprockets rescue nil), parent:'middleman')
           end
+        end
+
+        trap("SIGINT") do
+          puts "Caught sigint"
         end
       end
     end
