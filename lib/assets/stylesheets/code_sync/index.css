@@ -1,5 +1,5 @@
 /*
  *= require codemirror
  *= require codemirror-lesserdark
- *= require_tree .
-*/ 
+ *= require_tree ./editor
+*/

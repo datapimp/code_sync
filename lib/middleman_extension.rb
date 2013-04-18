@@ -6,8 +6,9 @@ if defined?(Middleman)
   module CodeSync::MiddlemanExtension
     class << self
       def registered app
+
         app.after_configuration do
-          fork do
+          pid = fork do
             source = begin
               File.join(app.root, app.source)
             rescue
@@ -19,7 +20,7 @@ if defined?(Middleman)
         end
 
         trap("SIGINT") do
-          puts "Caught sigint"
+          Process.kill(9,pid) rescue nil
         end
       end
     end

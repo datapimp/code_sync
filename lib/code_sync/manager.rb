@@ -58,12 +58,12 @@ module CodeSync
           end
         end
 
-        listen_for_changes_from_clients do |changed_assets|
-          changed_assets.each do |asset|
-            record_changes_made_to(asset)
-            notify_clients_of_change_to(asset)
-          end
-        end
+        # listen_for_changes_from_clients do |changed_assets|
+        #   changed_assets.each do |asset|
+        #     record_changes_made_to(asset)
+        #     notify_clients_of_change_to(asset)
+        #   end
+        # end
       end
 
       def create_pubsub_server
