@@ -1,7 +1,11 @@
-require 'sprockets'
-require 'coffee-script'
-require 'sass'
-require 'ejs'
+begin
+  require 'sprockets'
+  require 'coffee-script'
+  require 'sass'
+  require 'ejs'
+rescue
+  nil
+end
 
 module CodeSync
   class AssetPipelineGems

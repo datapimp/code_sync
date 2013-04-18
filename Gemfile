@@ -1,7 +1,6 @@
 source "https://rubygems.org"
 
 gem "sprockets"
-
 gem "sass"
 gem "haml"
 gem "ejs"
@@ -9,6 +8,7 @@ gem "coffee-script"
 gem "thin"
 gem "faye"
 gem "thor"
+gem "listen"
 
 group :development, :test do
   gem 'rspec'
