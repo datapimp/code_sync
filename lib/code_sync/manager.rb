@@ -1,7 +1,6 @@
 require "code_sync/server"
 require "code_sync/sprockets_adapter"
 require "listen"
-require "pry"
 
 # In order to support the live-editing and immediate preview of
 # of precompiled assets in the browser or in the developers IDE
