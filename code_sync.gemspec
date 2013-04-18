@@ -16,6 +16,7 @@ Gem::Specification.new do |s|
   s.add_dependency 'listen'
   s.add_dependency 'sprockets'
   s.add_dependency 'thor'
+  s.add_dependency 'rb-fsevent', '~> 0.9'
 
   s.files         = `git ls-files`.split("\n")
   s.test_files    = `git ls-files -- {test,spec,features}/*`.split("\n")

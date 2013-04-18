@@ -1,5 +1,6 @@
 require "code_sync/server"
 require "code_sync/sprockets_adapter"
+require "listen"
 require "pry"
 
 # In order to support the live-editing and immediate preview of
@@ -11,14 +12,7 @@ module CodeSync
 
     def self.start options={}
       manager = new(options)
-
-      if options[:auto_start] == false
-        return manager
-      else
-        manager.start
-      end
-
-      manager
+      manager.start
     end
 
     attr_accessor :sprockets, :server, :client_manager, :options, :processes
@@ -39,11 +33,9 @@ module CodeSync
         @pids.each {|p| Process.kill(9,p) }
       end
 
-      Process.waitall do
-        puts "Waitall"
-      end
+      Process.waitall
 
-      puts "All child processes exited cleanly."
+      puts "== All CodeSync processes exited cleanly."
     end
 
     protected
@@ -88,7 +80,10 @@ module CodeSync
       end
 
       def notify_clients_of_change_to asset
+        puts "== CodeSync detected change to #{ asset[:name] }"
+
         payload = JSON.generate(asset)
+
         EM.run do
           pub = client.publish("/code-sync", asset)
           pub.callback { EM.stop }

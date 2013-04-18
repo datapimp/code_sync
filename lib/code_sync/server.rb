@@ -35,7 +35,7 @@ module CodeSync
     class FayeMonitor
       def incoming(message,callback)
         if message['channel'] == "/meta/subscribe" and message['subscription']
-          puts "CodeSync.Client subscription: #{ message['clientId'] }"
+          puts "== A CodeSync enabled browser has connected"
         end
 
         callback.call(message)
