@@ -53,9 +53,6 @@ GEM
     listen (0.7.3)
     lumberjack (1.0.2)
     method_source (0.8.1)
-    middleman (0.13.1)
-      rack
-      thin
     multi_json (1.6.1)
     pry (0.9.12)
       coderay (~> 1.0.5)
@@ -103,7 +100,6 @@ DEPENDENCIES
   guard-rspec
   haml
   listen
-  middleman
   pry
   rake
   rb-fsevent

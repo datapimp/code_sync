@@ -3,7 +3,14 @@ $:.unshift File.dirname(__FILE__)
 module CodeSync
   require 'code_sync/version'
   require 'code_sync/manager'
-  require 'middleman_extension'
+
+  if defined?(Middleman)
+    require 'middleman_extension'
+  end
+
+  if defined?(::Rails)
+    require "code_sync/rails"
+  end
 
   def self.gem_assets_root
     File.join(File.dirname(__FILE__), '..')
@@ -12,7 +19,7 @@ end
 
 # When using outside of Rails.
 # Allows for using Rails asset pipline gems.
-unless defined? Rails
+unless defined? ::Rails
   module Rails
     def self.env
       Class.new do

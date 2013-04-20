@@ -42,11 +42,11 @@ class CodeSync.Client
 
       for callback in client.javascriptCallbacks when callback.call?
         callback.call(client, notification)
+
       return
 
     if notification.path
       CodeSync.util.loadScript "http://localhost:9295/assets/#{ notification.path }", ()->
-        console.log "Loaded JS Notification", client.javascriptCallbacks
         for callback in client.javascriptCallbacks when callback.call?
           callback.call(@, notification)
 

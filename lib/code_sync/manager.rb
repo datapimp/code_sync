@@ -11,12 +11,24 @@ module CodeSync
 
     def self.start options={}
       manager = new(options)
-      manager.start
+
+      if options[:forked]
+        pid = fork do
+          manager.start
+        end
+
+        Process.detach(pid)
+      end
     end
 
-    attr_accessor :sprockets, :server, :client_manager, :options, :processes
+    attr_accessor :sprockets, :server, :client_manager, :options, :processes, :pids
 
-    def start
+    def start options={}
+
+      if already_running?
+        return
+      end
+
       $0 = "codesync process: manager"
 
       @pids = processes.map do |config|
@@ -29,7 +41,7 @@ module CodeSync
       end
 
       trap("SIGINT") do
-        @pids.each {|p| Process.kill(9,p) }
+        exit_gracefully # :)
       end
 
       Process.waitall
@@ -38,6 +50,15 @@ module CodeSync
     end
 
     protected
+      def already_running?
+        test = `ps aux |grep "c[o]desync process: manager"`
+
+        test.match(/manager/)
+      end
+
+      def exit_gracefully
+        @pids.each {|p| Process.kill(9,p) }
+      end
 
       def initialize options={}
         @options = options.dup
@@ -79,8 +100,6 @@ module CodeSync
       end
 
       def notify_clients_of_change_to asset
-        puts "== CodeSync detected change to #{ asset[:name] }"
-
         payload = JSON.generate(asset)
 
         EM.run do
@@ -96,6 +115,7 @@ module CodeSync
       def listen_for_changes_on_the_filesystem &handler
         manage_child_process("watcher") do
           watcher.change do |modified,added,removed|
+            puts "Watcher: #{ modified } #{ added }"
             handler.call process_changes_to(modified+added)
           end
 
@@ -113,10 +133,12 @@ module CodeSync
       end
 
       def root
-        options[:root] || options[:assets_directory] || Dir.pwd()
+        base = options[:root] || options[:assets_directory] || Dir.pwd()
       end
 
       def watcher
+        puts "Codesync watch is looking for assets in: #{ root }"
+
         @watcher ||= Listen.to(root)
                       .filter(assets_filter)
                       .latency(1)
@@ -125,7 +147,7 @@ module CodeSync
       # TODO
       # Provide for configurability
       def assets_filter
-       /(\.coffee|\.css|\.jst|\.mustache)/
+       /(\.coffee|\.css|\.jst|\.mustache\.js)/
       end
 
       def method_missing meth, *args, &block

@@ -56,15 +56,19 @@ module CodeSync
     end
 
     def process_changes_to assets=[]
-      assets.map do |path|
-        if asset = env.find_asset(path)
-          notification = {
-            name:asset.logical_path,
-            path:asset.digest_path,
-            source: asset.to_s
-          }
-        end
-      end.compact
+      begin
+        assets.map do |path|
+          if asset = env.find_asset(path)
+            notification = {
+              name:asset.logical_path,
+              path:asset.digest_path,
+              source: asset.to_s
+            }
+          end
+        end.compact
+      rescue
+        puts "Error processing asset change: #{ $! }"
+      end
     end
 
     def compile content, options={}
@@ -108,7 +112,6 @@ module CodeSync
           if File.exists?(path)
             %w{images stylesheets javascripts}.each do |type|
               if File.exists?(File.join(path, type))
-                puts File.join(path, type)
                 env.append_path(File.join(path, type))
               end
             end
