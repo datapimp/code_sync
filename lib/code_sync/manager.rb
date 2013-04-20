@@ -18,6 +18,8 @@ module CodeSync
         end
 
         Process.detach(pid)
+      else
+        manager.start(options)
       end
     end
 
@@ -26,6 +28,7 @@ module CodeSync
     def start options={}
 
       if already_running?
+        puts "== Codesync is already running"
         return
       end
 
