@@ -5,10 +5,17 @@ class CodeSync.Client
   VERSION: CodeSync.VERSION
 
   constructor: ()->
-    CodeSync.util.loadScript "http://localhost:9295/faye/client.js", _.once ()=>
-      _.delay ()=>
-        @setupSocket() if Faye?
+    CodeSync.util.loadScript "http://localhost:9295/faye/client.js", ()=>
+      return if @clientLoaded is true
+
+      setTimeout ()=>
+        try
+          @setupSocket()
+        catch e
+          console.log "Error setting up codesync client"
       , 25
+
+      @clientLoaded = true
 
   setupSocket: ()->
     return unless Faye?
@@ -16,8 +23,6 @@ class CodeSync.Client
     @socket = new Faye.Client("http://localhost:9295/faye")
 
     @socket.subscribe "/code-sync", (notification)=>
-      console.log "notification", notification
-
       if notification.name?.match(/\.js$/)
         @onJavascriptNotification.call(@,notification)
 
@@ -27,6 +32,12 @@ class CodeSync.Client
   javascriptCallbacks: []
 
   stylesheetCallbacks: []
+
+  removeJavascriptCallbacks: ()->
+    @javascriptCallbacks = []
+
+  removeStylesheetCallbacks: ()->
+    @stylesheetCalbacks = []
 
   afterJavascriptChange: (callback)->
     @javascriptCallbacks.push(callback)

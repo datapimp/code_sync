@@ -17,7 +17,6 @@ gem 'code_sync', git: "git@github.com:datapimp/code_sync.git"
 
 ```coffeescript
 # asset manifest
-#= require 'code_sync/dependencies'
 #= require 'code_sync'
 #= require_self
 

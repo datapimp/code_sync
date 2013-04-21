@@ -49,3 +49,12 @@ CodeSync.AssetEditor = Backbone.View.extend
 CodeSync.AssetEditor.getInstance = (options={})->
   instances = CodeSync.AssetEditor._instances ||= {}
   instances.main ||= new CodeSync.AssetEditor(options)
+
+CodeSync.setSequence = (sequence="sync")->
+  KeyLauncher.onSequence sequence, ()->
+    CodeSync.AssetEditor.getInstance().toggle()
+
+CodeSync.setHotKey = (hotkey="command+j")->
+  KeyLauncher.on hotkey, ()->
+    CodeSync.util.loadStylesheet "http://localhost:9295/assets/code_sync.css", {}, ()->
+      CodeSync.AssetEditor.getInstance().toggle()
