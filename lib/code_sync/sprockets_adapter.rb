@@ -56,7 +56,7 @@ module CodeSync
     end
 
     def process_changes_to assets=[]
-      begin
+      results = begin
         assets.map do |path|
           if asset = env.find_asset(path)
             notification = {
@@ -68,7 +68,10 @@ module CodeSync
         end.compact
       rescue
         puts "Error processing asset change: #{ $! }"
+        nil
       end
+
+      results.compact
     end
 
     def compile content, options={}
