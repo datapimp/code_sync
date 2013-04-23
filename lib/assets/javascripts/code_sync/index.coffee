@@ -8,18 +8,14 @@ if typeof(exports) isnt "undefined"
 else
   CodeSync = root.CodeSync = {}
 
-_.extend CodeSync,
+CodeSync.VERSION    = "0.2.2"
 
-  VERSION: "0.2.2"
+CodeSync.backends   = {}
 
-  backends: {}
+CodeSync.util       = {}
 
-  util: {}
+CodeSync.set = (setting, value)->
+  CodeSync._config[setting] = value
 
-  _config: {}
-
-  set: (setting, value)->
-    CodeSync._config[setting] = value
-
-  get: (setting)->
-    CodeSync._config[setting]
+CodeSync.get = (setting)->
+  CodeSync._config[setting]
