@@ -48,11 +48,15 @@ class CodeSync.Client
   onJavascriptNotification: (notification)->
     client = @
 
+    CodeSync.processing = true
+
     if notification.source
       sourceEval.call(window, notification.source)
 
       for callback in client.javascriptCallbacks when callback.call?
         callback.call(client, notification)
+
+      CodeSync.processing = false
 
       return
 
