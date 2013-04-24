@@ -115,11 +115,18 @@ module CodeSync
         @client = ::Faye::Client.new("http://localhost:9295/faye")
       end
 
+      require 'pry'
+
       def listen_for_changes_on_the_filesystem &handler
         manage_child_process("watcher") do
           watcher.change do |modified,added,removed|
             puts "Watcher: #{ modified } #{ added }"
-            handler.call process_changes_to(modified+added)
+
+            begin
+              handler.call process_changes_to(modified+added)
+            rescue
+              puts "Error handling changes: #{ $! }"
+            end
           end
 
           watcher.start

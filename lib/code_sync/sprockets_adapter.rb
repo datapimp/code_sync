@@ -1,3 +1,4 @@
+require 'pry'
 module CodeSync
   class AssetPipelineGems
     TestPaths = %w{
@@ -56,22 +57,18 @@ module CodeSync
     end
 
     def process_changes_to assets=[]
-      results = begin
-        assets.map do |path|
-          if asset = env.find_asset(path)
-            notification = {
-              name:asset.logical_path,
-              path:asset.digest_path,
-              source: asset.to_s
-            }
-          end
-        end.compact
-      rescue
-        puts "Error processing asset change: #{ $! }"
-        nil
+
+      results = Array(assets).map do |path|
+        asset = env.find_asset(path)
+
+        asset && notification = {
+          name:asset.logical_path,
+          path:asset.digest_path,
+          source: (asset.to_s rescue nil)
+        }
       end
 
-      results.compact
+      Array(results)
     end
 
     def compile content, options={}
