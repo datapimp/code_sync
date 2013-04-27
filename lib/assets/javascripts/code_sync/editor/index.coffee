@@ -79,6 +79,7 @@ CodeSync.AssetEditor = Backbone.View.extend
   show: ()->
     @$el.show()
     @setupCodeMirror()
+    window.scrollTo(0,0)
     @
 
   toggle: ()->
