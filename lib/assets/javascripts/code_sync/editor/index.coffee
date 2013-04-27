@@ -117,11 +117,11 @@ CodeSync.AssetEditor = Backbone.View.extend
 
 
 key 'ctrl+j', _.debounce ()->
-  if window.codeSync?
-    window.codeSync.slideToggle()
+  if window.codeSyncEditor?
+    window.codeSyncEditor.slideToggle()
   else
-    window.codeSync = new CodeSync.AssetEditor()
-    window.codeSync.slideIn()
+    window.codeSyncEditor = new CodeSync.AssetEditor()
+    window.codeSyncEditor.slideIn()
 , 500
 
 
