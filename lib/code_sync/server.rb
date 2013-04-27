@@ -23,15 +23,12 @@ module CodeSync
     end
 
     def start port=9295
-      assets = @assets.env
-      faye   = @faye
+      app = Rack::URLMap.new  "/assets" => assets.env,
+                              "/" => faye,
+                              "/info" => ServerInfo.new(sprockets:assets, options: options, root: root),
+                              "/source" => SourceProvider.new(sprockets:assets)
 
-      app = Rack::URLMap.new "/assets" => assets, "/" => faye, "/info" => ServerInfo.new(sprockets:assets, options: options, root: root)
       Rack::Server.start(app:app,:Port=>port,:server=>'thin')
-    end
-
-    class Middleware
-
     end
 
     class FayeMonitor
@@ -41,6 +38,37 @@ module CodeSync
         end
 
         callback.call(message)
+      end
+    end
+
+    class SourceProvider
+      attr_accessor :sprockets
+
+      def initialize options={}
+        @sprockets = options[:sprockets]
+      end
+
+      def call(env)
+        if env['REQUEST_METHOD'] == "POST"
+          query = Rack::Utils.parse_query( env['rack.input'].read )
+
+          if File.exists?(query["path"]) && query["contents"]
+            File.open(query["path"],"w+") do |fh|
+              fh.puts(query["contents"])
+            end
+          end
+
+        else
+          query = Rack::Utils.parse_query env['QUERY_STRING']
+        end
+
+        path = query["path"]
+
+        if sprockets.project_assets.include?(path)
+          [200, {"Access-Control-Allow-Origin"=>"*","Content-Type" => "application/json"}, JSON.generate(path: path, contents: IO.read(path)) ]
+        else
+          [404, {}, "{}"]
+        end
       end
     end
 
@@ -54,7 +82,7 @@ module CodeSync
       end
 
       def call(env)
-        [200, {"Content-Type" => "application/json"}, JSON.generate(codesync_version: CodeSync::Version,paths:sprockets.paths, root:@options[:root])]
+        [200, {"Access-Control-Allow-Origin"=>"*","Content-Type" => "application/json"}, JSON.generate(project_assets: sprockets.project_assets, codesync_version: CodeSync::Version,paths:sprockets.env.paths, root:@options[:root])]
       end
     end
   end

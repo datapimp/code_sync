@@ -82,12 +82,12 @@ module CodeSync
           end
         end
 
-        # listen_for_changes_from_clients do |changed_assets|
+        listen_for_changes_from_clients do |changed_assets|
         #   changed_assets.each do |asset|
         #     record_changes_made_to(asset)
         #     notify_clients_of_change_to(asset)
         #   end
-        # end
+        end
       end
 
       def create_pubsub_server
@@ -106,7 +106,7 @@ module CodeSync
         payload = JSON.generate(asset)
 
         EM.run do
-          pub = client.publish("/code-sync", asset)
+          pub = client.publish("/code-sync/outbound", asset)
           pub.callback { EM.stop }
         end
       end
@@ -115,13 +115,20 @@ module CodeSync
         @client = ::Faye::Client.new("http://localhost:9295/faye")
       end
 
-      require 'pry'
+      def listen_for_changes_from_clients &handler
+        manage_child_process("listener") do
+          EM.run do
+            client.subscribe("/code-sync/inbound") do |message|
+              puts "Received Code-Sync Inbound"
+              puts message.inspect
+            end
+          end
+        end
+      end
 
       def listen_for_changes_on_the_filesystem &handler
         manage_child_process("watcher") do
           watcher.change do |modified,added,removed|
-            puts "Watcher: #{ modified } #{ added }"
-
             begin
               handler.call process_changes_to(modified+added)
             rescue

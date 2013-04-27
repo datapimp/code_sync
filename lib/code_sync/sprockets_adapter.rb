@@ -79,6 +79,22 @@ module CodeSync
       TempAsset.create_from(content, options.merge(env: env))
     end
 
+    def project_asset_directories
+      directories = env.paths.select {|path| path.include?(root) }
+    end
+
+    def project_assets
+      files = project_asset_directories.inject([]) do |memo, path|
+        memo += Dir.glob("#{path}/**/*")
+      end
+
+      files.reject! {|path| path.match(/\.min\.js/) || path.match(/\-min\.js/) }
+      files.select! {|path| path.match(/\.jst|\.coffee|\.css|\.js/)}
+
+      files
+    end
+
+
     def method_missing meth, *args, &block
       env.send(meth, *args, &block)
     end

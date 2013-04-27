@@ -22,7 +22,7 @@ class CodeSync.Client
 
     @socket = new Faye.Client("http://localhost:9295/faye")
 
-    @socket.subscribe "/code-sync", (notification)=>
+    @socket.subscribe "/code-sync/outbound", (notification)=>
       if notification.name?.match(/\.js$/)
         @onJavascriptNotification.call(@,notification)
 
@@ -40,10 +40,10 @@ class CodeSync.Client
     @stylesheetCalbacks = []
 
   afterJavascriptChange: (callback)->
-    @javascriptCallbacks.push(callback)
+    @javascriptCallbacks = [callback]
 
   afterStylesheetChange: (callback)->
-    @stylesheetCallbacks.push(callback)
+    @stylesheetCallbacks = [callback]
 
   onJavascriptNotification: (notification)->
     client = @
