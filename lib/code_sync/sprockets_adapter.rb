@@ -1,4 +1,3 @@
-require 'pry'
 module CodeSync
   class AssetPipelineGems
     TestPaths = %w{
