@@ -58,6 +58,12 @@ module CodeSync
             end
           end
 
+          if query["path"].to_s.length == 0 && query["contents"]
+            # TODO
+            # Handle compilation of asset content
+            # that isn't saved in the project assets
+          end
+
         else
           query = Rack::Utils.parse_query env['QUERY_STRING']
         end

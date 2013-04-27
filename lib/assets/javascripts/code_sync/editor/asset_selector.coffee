@@ -5,6 +5,8 @@ CodeSync.AssetSelector = Backbone.View.extend
     "keyup input": "keyHandler"
     "click .search-result": "loadAsset"
 
+  activeSearchResultIndex: -1
+
   initialize:(options={})->
     Backbone.View::initialize.apply(@, arguments)
 
@@ -19,6 +21,40 @@ CodeSync.AssetSelector = Backbone.View.extend
   keyHandler: (e)->
     if e.keyCode is 27
       @hide()
+      return
+
+    count = @$('.search-result').length
+
+    if e.keyCode is 40
+      @activeSearchResultIndex += 1
+
+      if @activeSearchResultIndex >= count - 1
+        @activeSearchResultIndex = count - 1
+
+        @activeEl = @$('.search-result').eq(@activeSearchResultIndex)
+        @$('.search-result').removeClass('active').eq(@activeSearchResultIndex).addClass('active')
+
+      return
+
+    if e.keyCode is 38
+      @activeSearchResultIndex -= 1
+
+      if @activeSearchResultIndex <= 0
+        @activeSearchResultIndex = 0
+
+      @activeEl = @$('.search-result').eq(@activeSearchResultIndex)
+      @$('.search-result').removeClass('active').eq(@activeSearchResultIndex).addClass('active')
+
+      return
+
+    if e.keyCode is 13 and @activeSearchResultIndex >= 0
+      path = @activeEl.data('path')
+      @editor.loadAsset(path)
+      @hide()
+      return
+
+    if e.keyCode is 13 or e.keyCode is 38 or e.keyCode is 40
+      e.preventDefault()
       return
 
     value = @$('input').val()
