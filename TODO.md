@@ -1,4 +1,9 @@
 - the client side editor needs configurability
+  - switch modes on demand
+  - switch keybindings
+  - theme changing
+  - position
+  - split panels
 
 - the client sends asset changes to the browser and
   the browser sends asset changes back to the server.
