@@ -19,6 +19,11 @@ CodeSync.AssetEditor = Backbone.View.extend
 
     @assetsCollection = new CodeSync.ProjectAssets()
 
+    client = CodeSync.Client.get()
+
+    client.onNotification = (notification)=>
+      console.log "Editor trapping notification", @currentPath, notification
+
     @render() unless @autoRender is false
 
   render: ()->

@@ -2,9 +2,22 @@
 #= require ./util
 
 class CodeSync.Client
+
+  @_clients: []
+
+  @get: ()->
+    CodeSync.Client._clients[0]
+
   VERSION: CodeSync.VERSION
 
-  constructor: ()->
+  logLevel: 0
+
+  constructor: (options={})->
+
+    @logLevel = options.logLevel || 0
+
+    CodeSync.Client._clients.push(@)
+
     CodeSync.util.loadScript "http://localhost:9295/faye/client.js", ()=>
       return if @clientLoaded is true
 
@@ -23,6 +36,12 @@ class CodeSync.Client
     @socket = new Faye.Client("http://localhost:9295/faye")
 
     @socket.subscribe "/code-sync/outbound", (notification)=>
+
+      if @logLevel > 0
+        console.log "Received notification on outbound channel", notification
+
+      @onNotification?.call?(@, notification)
+
       if notification.name?.match(/\.js$/)
         @onJavascriptNotification.call(@,notification)
 
@@ -39,11 +58,15 @@ class CodeSync.Client
   removeStylesheetCallbacks: ()->
     @stylesheetCalbacks = []
 
-  afterJavascriptChange: (callback)->
-    @javascriptCallbacks = [callback]
+  afterJavascriptChange: (callback, clearExisting=false)->
+    @javascriptCallbacks ||= []
+    @javascriptCallbacks = [] if clearExisting is true
+    @javascriptCallbacks.push(callback)
 
-  afterStylesheetChange: (callback)->
-    @stylesheetCallbacks = [callback]
+  afterStylesheetChange: (callback, clearExisting=false)->
+    @stylesheetCallbacks ||= []
+    @stylesheetCallbacks = [] if clearExisting is true
+    @stylesheetCallbacks.push(callback)
 
   onJavascriptNotification: (notification)->
     client = @
