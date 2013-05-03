@@ -3,9 +3,7 @@ CodeSync.AssetSelector = Backbone.View.extend
 
   events:
     "keyup input": "keyHandler"
-    "click .search-result": "loadAsset"
-
-  activeSearchResultIndex: -1
+    "click .search-result": "selectSearchResult"
 
   initialize:(options={})->
     Backbone.View::initialize.apply(@, arguments)
@@ -14,56 +12,55 @@ CodeSync.AssetSelector = Backbone.View.extend
 
     _.bindAll(@,"keyHandler","loadAsset")
 
-    @sizeWrapper = _.debounce (units)=>
-      @wrapper.animate height:"#{ units * 40 }px"
-    , 1000
+    @selected = new Backbone.Model(index: -1)
+
+    @selected.on "change:index", (model,value)=>
+      console.log "change", value
+      @$('.search-result').removeClass('active')
+      @$('.search-result').eq(value).addClass('active')
+
 
   keyHandler: (e)->
-    if e.keyCode is 27
+    switch e.keyCode
+      when 13
+        @openCurrentSearchResult()
+      when 27
+        @hide()
+      when 38
+        @previousSearchResult()
+      when 40
+        @nextSearchResult()
+      else
+        @filterAssetsBy @$('input').val()
+
+  openCurrentSearchResult: ()->
+    {index} = @selected.attributes
+
+    if asset = @searchResults[index]
+      @selected.set('index',0,silent:true)
+
+      _.delay ()=>
+        @loadAsset @searchResults[index].get('path')
+      , 10
       @hide()
-      return
 
-    count = @$('.search-result').length
+  previousSearchResult: ()->
+    {index} = @selected.attributes
+    index -= 1
+    index = 0 if index < 0
+    @selected.set {index}
 
-    if e.keyCode is 40
-      @activeSearchResultIndex += 1
+  nextSearchResult: ()->
+    {index} = @selected.attributes
+    index += 1
+    index = 0 if index > @searchResults.length
+    @selected.set {index}
 
-      if @activeSearchResultIndex >= count - 1
-        @activeSearchResultIndex = count - 1
+  selectSearchResult: (e)->
+    loadAsset $(e.target)?.data('path')
 
-        @activeEl = @$('.search-result').eq(@activeSearchResultIndex)
-        @$('.search-result').removeClass('active').eq(@activeSearchResultIndex).addClass('active')
-
-      return
-
-    if e.keyCode is 38
-      @activeSearchResultIndex -= 1
-
-      if @activeSearchResultIndex <= 0
-        @activeSearchResultIndex = 0
-
-      @activeEl = @$('.search-result').eq(@activeSearchResultIndex)
-      @$('.search-result').removeClass('active').eq(@activeSearchResultIndex).addClass('active')
-
-      return
-
-    if e.keyCode is 13 and @activeSearchResultIndex >= 0
-      path = @activeEl.data('path')
-      @editor.loadAsset(path)
-      @hide()
-      return
-
-    if e.keyCode is 13 or e.keyCode is 38 or e.keyCode is 40
-      e.preventDefault()
-      return
-
-    value = @$('input').val()
-
-    @filterAssetsBy(value)
-
-  loadAsset: (e)->
-    el = @$(e.target)
-    if path = el.data('path')
+  loadAsset: (path)->
+    if path
       @editor.loadAsset(path)
       @hide()
 
@@ -71,39 +68,40 @@ CodeSync.AssetSelector = Backbone.View.extend
     return if value.length <= 1
 
     wrapper = @showSearchResults()
+    wrapper.empty()
 
-    models = @editor.assetsCollection.select (model)->
+    @selected.set('index',-1, silent: true)
+
+    @searchResults = @editor.assetsCollection.select (model)->
       regex = new RegExp("#{value}")
       model.get("description")?.match(regex) || model.get("path")?.match(regex)
 
-    wrapper.empty()
+    @searchResults = @searchResults.slice(0,5)
 
-    for model in models
+    for model,index in @searchResults
       wrapper.append "<div data-path='#{ model.get('path') }' class='search-result'>#{ model.get('description') }</div>"
 
-    wrapper.height( models.length * 40 )
-
+    wrapper.height( @searchResults.length * 40 )
 
   showSearchResults: ()->
-    @wrapper.fadeIn()
-    @wrapper.height(0)
-    @wrapper
+    @wrapper.show()
+
+  hideSearchResults: ()->
+    @wrapper.hide()
 
   toggle: ()->
-    if @visible isnt true
-      @$el.animate {top:'0px'}, ()=> @show()
-    else
-      @$el.animate {top:'-50px'}, ()=> @hide()
+    if @visible then @hide() else @show()
 
   show: ()->
     @wrapper.empty()
     @visible = true
     @$el.show()
+    @hideSearchResults()
     @$('input').val('').focus()
 
   hide: ()->
-    @$('input').blur()
-    @wrapper.height(0)
+    #@$('input').blur()
+    #@wrapper.height(0)
     @$el.hide()
     @visible = false
     @editor.codeMirror.focus()

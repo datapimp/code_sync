@@ -3,7 +3,7 @@ CodeSync.ProjectAssets = Backbone.Collection.extend
     "http://localhost:9295/info"
 
   parse: (response)->
-    models = for path in response.project_assets
+    models = for path in _.uniq(response.project_assets)
       description = path.replace(response.root,'')
       {path,description}
 

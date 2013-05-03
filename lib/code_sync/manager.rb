@@ -1,6 +1,7 @@
 require "code_sync/server"
 require "code_sync/sprockets_adapter"
 require "listen"
+require "pty"
 
 # In order to support the live-editing and immediate preview of
 # of precompiled assets in the browser or in the developers IDE
@@ -12,6 +13,8 @@ module CodeSync
     def self.start options={}
       manager = new(options)
 
+      cleanup_stale_processes
+
       if options[:forked]
         pid = fork do
           manager.start
@@ -20,6 +23,18 @@ module CodeSync
         Process.detach(pid)
       else
         manager.start(options)
+      end
+    end
+
+    # FIXME:
+    # You know this aint right
+    def self.cleanup_stale_processes
+      PTY.spawn("ps aux |grep 'codesyn[c]'") do |stdin,stdout,pid|
+        stdin.each do |output|
+          if pid = output.split[1]
+            `kill -9 #{ pid }`
+          end
+        end
       end
     end
 
@@ -105,6 +120,8 @@ module CodeSync
       def notify_clients_of_change_to asset
         payload = JSON.generate(asset)
 
+        puts "== Codesync detected change: #{ asset[:name] }"
+
         EM.run do
           pub = client.publish("/code-sync/outbound", asset)
           pub.callback { EM.stop }
@@ -164,7 +181,7 @@ module CodeSync
       # TODO
       # Provide for configurability
       def assets_filter
-       /(\.coffee|\.css|\.jst|\.mustache\.js)/
+       /(\.coffee|\.css|\.jst|\.mustache\.js|\.sass)/
       end
 
       def method_missing meth, *args, &block
