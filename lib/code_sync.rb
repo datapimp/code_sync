@@ -21,6 +21,10 @@ end
 # Allows for using Rails asset pipline gems.
 unless defined? ::Rails
   module Rails
+    def self.version
+      "3.2.13"
+    end
+
     def self.env
       Class.new do
         def test?
