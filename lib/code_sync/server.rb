@@ -77,8 +77,8 @@ module CodeSync
               response[:contents] = query["contents"]
               response[:compiled] = asset.to_s
             rescue
-              puts "Error generating temp asset: #{ $! }"
               response[:success] = false
+              response[:error] = $!
             end
           end
 

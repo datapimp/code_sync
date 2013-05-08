@@ -48,7 +48,8 @@ CodeSync.AssetEditor = Backbone.View.extend
       $.ajax
         type: "POST"
         url: "http://localhost:9295/source"
-        data:
+        contentType: "application/json"
+        data: JSON.stringify
           path: @currentPath
           contents: contents
 
