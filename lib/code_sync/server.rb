@@ -2,6 +2,7 @@ require 'thin'
 require 'faye'
 require 'rack'
 require 'json'
+require "code_sync/temp_asset"
 
 module CodeSync
   class Server
@@ -49,29 +50,46 @@ module CodeSync
       end
 
       def call(env)
-        if env['REQUEST_METHOD'] == "POST"
-          query = Rack::Utils.parse_query( env['rack.input'].read )
+        response = {}
 
-          if File.exists?(query["path"]) && query["contents"]
-            File.open(query["path"],"w+") do |fh|
-              fh.puts(query["contents"])
-            end
+        if env['REQUEST_METHOD'] == "POST"
+          env['rack.input'].rewind
+          body = env['rack.input'].read
+
+          query = begin
+           JSON.parse(body)
+          rescue
+            puts "Error Parsing Query: #{ $! }"
+            {}
           end
 
-          if query["path"].to_s.length == 0 && query["contents"]
-            # TODO
-            # Handle compilation of asset content
-            # that isn't saved in the project assets
+          if query["path"]
+            if File.exists?(query["path"]) && query["contents"]
+              File.open(query["path"],"w+") do |fh|
+                fh.puts(query["contents"])
+              end
+            end
+          elsif (query["name"] && query["extension"] && query["contents"])
+            begin
+              asset = TempAsset.create_from(query["contents"], env: sprockets, filename: query["name"], extension: query["extension"] )
+
+              response[:success] = true
+              response[:contents] = query["contents"]
+              response[:compiled] = asset.to_s
+            rescue
+              puts "Error generating temp asset: #{ $! }"
+              response[:success] = false
+            end
           end
 
         else
           query = Rack::Utils.parse_query env['QUERY_STRING']
+          response.merge! success: true, contents: IO.read(query["path"])
         end
 
-        path = query["path"]
 
-        if sprockets.project_assets.include?(path)
-          [200, {"Access-Control-Allow-Origin"=>"*","Content-Type" => "application/json"}, JSON.generate(path: path, contents: IO.read(path)) ]
+        if response[:success]
+          [200, {"Access-Control-Allow-Origin"=>"*","Content-Type" => "application/json"}, [JSON.generate(response)] ]
         else
           [404, {}, "{}"]
         end
