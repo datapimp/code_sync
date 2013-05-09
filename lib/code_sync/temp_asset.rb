@@ -1,4 +1,4 @@
-require 'sprockets' unless defined?(Sprockets)
+require 'sprockets'
 
 module CodeSync
   class TempAsset < Sprockets::BundledAsset

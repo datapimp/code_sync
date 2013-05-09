@@ -49,6 +49,10 @@ module CodeSync
         @sprockets = options[:sprockets]
       end
 
+      def to_s
+        "codesync source gateway"
+      end
+
       def call(env)
         response = {}
 
@@ -84,14 +88,19 @@ module CodeSync
 
         else
           query = Rack::Utils.parse_query env['QUERY_STRING']
-          response.merge! success: true, contents: IO.read(query["path"])
+
+          if query['path']
+            response.merge! success: true, contents: IO.read(query["path"])
+          else
+            response.merge! success: false, error: "Must specify an asset path"
+          end
         end
 
 
         if response[:success]
           [200, {"Access-Control-Allow-Origin"=>"*","Content-Type" => "application/json"}, [JSON.generate(response)] ]
         else
-          [404, {}, "{}"]
+          [404, {}, ["{}"]]
         end
       end
     end
@@ -105,8 +114,13 @@ module CodeSync
         @options    = options.dup
       end
 
+      def to_s
+        "codesync server info"
+      end
+
       def call(env)
-        [200, {"Access-Control-Allow-Origin"=>"*","Content-Type" => "application/json"}, JSON.generate(project_assets: sprockets.project_assets, codesync_version: CodeSync::Version,paths:sprockets.env.paths, root:@options[:root])]
+        response = JSON.generate(project_assets: sprockets.project_assets, codesync_version: CodeSync::Version,paths:sprockets.env.paths, root:@options[:root])
+        [200, {"Access-Control-Allow-Origin"=>"*","Content-Type" => "application/json"}, [response]]
       end
     end
   end
