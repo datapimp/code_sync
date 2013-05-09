@@ -43,10 +43,11 @@ module CodeSync
     end
 
     class SourceProvider
-      attr_accessor :sprockets
+      attr_accessor :sprockets, :root
 
       def initialize options={}
         @sprockets = options[:sprockets]
+        @root = options[:root] || Dir.pwd()
       end
 
       def to_s
@@ -57,6 +58,7 @@ module CodeSync
         response = {}
 
         if env['REQUEST_METHOD'] == "POST"
+
           env['rack.input'].rewind
           body = env['rack.input'].read
 
@@ -68,11 +70,26 @@ module CodeSync
           end
 
           if query["path"]
-            if File.exists?(query["path"]) && query["contents"]
-              File.open(query["path"],"w+") do |fh|
-                fh.puts(query["contents"])
+
+            begin
+              if !query["path"].match(/^\//)
+                query["path"] = root + '/' + query["path"]
               end
+
+              if File.exists?(query["path"]) && query["contents"]
+                File.open(query["path"],"w+") do |fh|
+                  fh.puts(query["contents"])
+                end
+                response[:success] = true
+              else
+                response[:success] = false
+                response[:error] = "No file found: #{ query['path;'] }"
+              end
+            rescue
+              response[:success] = false
+              response[:error] = $!
             end
+
           elsif (query["name"] && query["extension"] && query["contents"])
             begin
               asset = TempAsset.create_from(query["contents"], env: sprockets, filename: query["name"], extension: query["extension"] )
@@ -100,7 +117,7 @@ module CodeSync
         if response[:success]
           [200, {"Access-Control-Allow-Origin"=>"*","Content-Type" => "application/json"}, [JSON.generate(response)] ]
         else
-          [404, {}, ["{}"]]
+          [406, {"Access-Control-Allow-Origin"=>"*","Content-Type" => "application/json"}, [JSON.generate(response)] ]
         end
       end
     end
