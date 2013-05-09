@@ -91,17 +91,17 @@ module CodeSync
 
         #expose_via_rack(sprockets, pubsub)
 
-        listen_for_changes_on_the_filesystem do |changed_assets|
-          changed_assets.each do |asset|
-            notify_clients_of_change_to(asset)
+        unless options[:disable_watcher]
+          listen_for_changes_on_the_filesystem do |changed_assets|
+            changed_assets.each do |asset|
+              notify_clients_of_change_to(asset)
+            end
           end
         end
 
-        listen_for_changes_from_clients do |changed_assets|
-        #   changed_assets.each do |asset|
-        #     record_changes_made_to(asset)
-        #     notify_clients_of_change_to(asset)
-        #   end
+        unless options[:disable_listener]
+          listen_for_changes_from_clients do |changed_assets|
+          end
         end
       end
 

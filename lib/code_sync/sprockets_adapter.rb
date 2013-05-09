@@ -19,13 +19,17 @@ module CodeSync
     }
 
     def self.gems
-      return @gems if !@gems.nil?
+      begin
+        return @gems if !@gems.nil?
 
-      gems = ::Gem::Specification.latest_specs
+        gems = ::Gem::Specification.latest_specs
 
-      gems.select! do |gemspec|
-        base = gemspec.full_gem_path
-        TestPaths.detect {|folder| File.exists?(File.join(base,folder))}
+        gems.select! do |gemspec|
+          base = gemspec.full_gem_path
+          TestPaths.detect {|folder| File.exists?(File.join(base,folder))}
+        end
+      rescue
+        []
       end
     end
 
