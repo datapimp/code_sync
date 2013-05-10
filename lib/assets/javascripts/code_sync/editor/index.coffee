@@ -62,7 +62,7 @@ CodeSync.AssetEditor = Backbone.View.extend
         extension: @defaultExtension
         contents: @codeMirror.getValue()
       success: (response)=>
-        console.log "Compile Contents Success", response
+        console.log "Compile Contents Success", response, name, @defaultExtension
         if response.success && response.compiled? && handler
           handler(response.compiled)
 
