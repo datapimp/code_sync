@@ -112,6 +112,8 @@ CodeSync.AssetEditor = Backbone.View.extend
     @$el.css('top':"#{ -1 * @height }px")
     @height ||= @$el.height()
 
+    @$('.keyboard-shortcut-info').html CodeSync.AssetEditor.keyboardShortcutInfo
+
     @
 
   saveAsset: ()->
@@ -156,7 +158,7 @@ CodeSync.AssetEditor = Backbone.View.extend
 
   getCurrentDocument: ()->
     unless @document?
-      @document = CodeMirror.Doc("","coffeescript", 0)
+      @document = CodeMirror.Doc(CodeSync.AssetEditor.helpText,"coffeescript", 0)
 
     @document
 
@@ -258,6 +260,30 @@ CodeSync.AssetEditor = Backbone.View.extend
 
 
 # Private Helpers
+CodeSync.AssetEditor.helpText = """
+# Welcome to the CodeSync Asset Editor
+#
+# This editor allows you to edit compiled asset pipeline assets in
+# your project.  It supports most of the languages we love, such as
+# coffeescript, sass, skim and jst for client side templating.
+#
+# Try it out now.  Uncomment the following line:
+#
+# window.location = 'http://twitter.com/soederpop'
+#
+# You can switch languages using preferences, or intelligently by filename.
+#
+# Keyboard Shortcuts:
+#
+# Ctrl + J -- Toggle the editor
+# Ctrl + N -- New Asset
+# Ctrl + T -- Find Asset
+# Ctrl + S -- Save Asset
+"""
+
+CodeSync.AssetEditor.keyboardShortcutInfo = """
+ctrl+j: toggle editor ctrl+t: open asset
+"""
 
 CodeSync.AssetEditor.toggleEditor = ()->
   if window.codeSyncEditor?
