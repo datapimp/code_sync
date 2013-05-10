@@ -23,12 +23,53 @@
     margin: 0px auto;
   }
 
+  .asset-name-input {
+    input {
+      width: 100%;
+    }
+    position: absolute;
+    width: 420px;
+    bottom: 20px;
+    right: 240px;
+    z-index: 4000;
+  }
+
   .asset-save-controls {
     position: absolute;
     z-index: 4000;
     bottom: 20px;
     right: 10px;
     opacity: 0.9;
+    width: 50%;
+
+    .preferences-wrapper {
+      float: right;
+      padding-left: 4px;
+    }
+
+    .file-options-wrapper {
+      float: right;
+    }
+  }
+
+  .preferences-panel {
+    margin-bottom: 4px;
+    margin-right: 4px;
+    background: rgba(255,255,255,0.2);
+    padding: 8px;
+    box-shadow: 0 0 6px rgba(255,255,255,0.2);
+    border-radius: 3px;
+    position: absolute;
+    z-index: 4000;
+    bottom: 55px;
+    right: 10px;
+
+    h5 {
+      text-decoration: underline;
+    }
+    label, h5 {
+      color: #fff;
+    }
   }
 
   .codesync-asset-selector {

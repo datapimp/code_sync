@@ -1,0 +1,10 @@
+#= require codemirror
+#= require codemirror-ruby
+#= require codemirror-coffeescript
+#= require codemirror-css
+#= require codemirror-xml
+#= require codemirror-javascript
+#= require codemirror-htmlmixed
+#= require codemirror-sass
+#= require codemirror-haml
+#= require codemirror-vim

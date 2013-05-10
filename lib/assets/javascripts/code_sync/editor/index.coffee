@@ -1,4 +1,4 @@
-#= require ./dependencies
+#= require keylauncher
 #= require_tree .
 #= require_self
 
@@ -10,9 +10,12 @@ CodeSync.AssetEditor = Backbone.View.extend
 
   autoRender: true
 
+  assetCompilationEndpoint: "http://localhost:9295/source"
+
   events:
     "click .asset-save-controls .save-button" : "saveAsset"
     "click .asset-save-controls .open-button" : "toggleAssetSelector"
+    "click .toggle-preferences"               : "togglePreferencesPanel"
 
   initialize: (@options={})->
     _.extend(@, @options)
@@ -33,6 +36,12 @@ CodeSync.AssetEditor = Backbone.View.extend
 
     @$el.html JST["code_sync/templates/asset_editor"]()
 
+    @_nameInput = new CodeSync.NameInput(editor: @)
+    @_preferencesPanel = new CodeSync.PreferencesPanel(editor:@)
+
+    @$('.asset-save-controls').before( @_nameInput.render().el )
+    @$el.append( @_preferencesPanel.render().el )
+
     @rendered = true
     @visible  = false
 
@@ -44,14 +53,21 @@ CodeSync.AssetEditor = Backbone.View.extend
     @
 
   saveAsset: ()->
-    if @currentPath? and contents = @codeMirror.getValue()
-      $.ajax
-        type: "POST"
-        url: "http://localhost:9295/source"
-        contentType: "application/json"
-        data: JSON.stringify
-          path: @currentPath
-          contents: contents
+    if !@currentPath || !@currentName?
+      @toggleNameInput()
+
+    debugger
+
+    params =
+      contents: @codeMirror.getValue()
+      path: @currentPath
+      name: @currentName
+
+    $.ajax
+      type: "POST"
+      url: @assetCompilationEndpoint
+      contentType: "application/json"
+      data: JSON.stringify(params)
 
   loadAsset: (@currentPath)->
     $.ajax
@@ -59,8 +75,10 @@ CodeSync.AssetEditor = Backbone.View.extend
       url: "http://localhost:9295/source?path=#{ @currentPath }"
       success: (response)=>
 
+        @_nameInput.setValue(@currentPath)
+
         if response.path?
-          @codeMirror.setOption 'mode', determineModeFor(response.path)
+          @determineModeFor(response.path)
 
         if response.contents?
           @codeMirror.setValue(response.contents)
@@ -96,9 +114,19 @@ CodeSync.AssetEditor = Backbone.View.extend
     @codeMirror = CodeMirror @$('.codesync-asset-editor')[0], @getCodeMirrorOptions()
     @codeMirror.swapDoc(@getCurrentDocument())
 
+    changeHandler = (changeObj)=>
+      @trigger "editor:change", @codeMirror.getValue(), changeObj
+
+    @codeMirror.on "change", _.debounce(@changeHandler, 800)
+
+    @
+
   slideToggle: ()->
     top = @$el.css('top')
     if top is "0px" then @slideOut() else @slideIn()
+
+  toggleNameInput: ()->
+    @_nameInput?.toggle()
 
   toggleAssetSelector: ()->
     if !@_assetSelector
@@ -106,6 +134,9 @@ CodeSync.AssetEditor = Backbone.View.extend
       @$el.prepend(@_assetSelector.render().el)
 
     @_assetSelector.toggle()
+
+  togglePreferencesPanel: ()->
+    @_preferencesPanel?.toggle()
 
   getCodeMirrorOptions: ()->
     theme: 'lesser-dark'
@@ -116,24 +147,40 @@ CodeSync.AssetEditor = Backbone.View.extend
       "Ctrl-S": ()=>
         @saveAsset()
 
+      "Ctrl-N": ()=>
+        @currentPath = @currentName = undefined
+        @toggleNameInput()
+        @_nameInput.$('input').focus()
+
       "Ctrl-J": ()=>
         @slideToggle()
 
       "Ctrl-T": ()=>
         @toggleAssetSelector()
 
+  determineModeFor: (path)->
+    mode = if path.match(/\.coffee/)
+      "coffeescript"
+    else if (path.match(/\.skim/) || path.match(/\.haml/))
+      "haml"
+    else if path.match(/\.sass/)
+      "sass"
+    else if path.match(/\.scss/)
+      "css"
 
-key 'ctrl+j', _.debounce ()->
+    @codeMirror.setOption 'mode', mode
+
+
+
+
+
+# Private Helpers
+
+toggleEditor = ()->
   if window.codeSyncEditor?
     window.codeSyncEditor.slideToggle()
   else
     window.codeSyncEditor = new CodeSync.AssetEditor()
     window.codeSyncEditor.slideIn()
-, 500
 
-
-determineModeFor = (path)->
-  if path.match(/\.coffee/)
-    "coffeescript"
-  else if path.match(/\.scss/)
-    "css"
+key('ctrl+j', toggleEditor)
