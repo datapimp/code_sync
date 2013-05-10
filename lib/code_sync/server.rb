@@ -2,7 +2,10 @@ require 'thin'
 require 'faye'
 require 'rack'
 require 'json'
+require 'pry'
+
 require "code_sync/temp_asset"
+require "code_sync/sprockets_adapter"
 
 module CodeSync
   class Server
@@ -73,16 +76,27 @@ module CodeSync
         end
       end
 
-      def handle_adhoc_compilation(params={}, response)
+      def handle_adhoc_compilation(params={}, response={})
         contents, filename, extension = params.values_at("contents", "name", "extension")
 
         begin
           asset = TempAsset.create_from(contents, env: sprockets, filename: filename, extension: extension)
           response[:contents] = contents
-          response[:compiled] = asset.to_s
+          response[:compiled] = process_compiled_asset(asset.to_s,filename,extension)
         rescue
           response[:error] = $!
           response[:success] = false
+        end
+
+        response
+      end
+
+      def process_compiled_asset contents, filename, extension
+        begin
+          processor = CodeSync.lookup_processor_for_extension(extension)
+          processor.process(contents,filename,extension)
+        rescue
+          contents
         end
       end
 
@@ -137,7 +151,7 @@ module CodeSync
         if response[:success]
           [200, {"Access-Control-Allow-Origin"=>"*","Content-Type" => "application/json"}, [JSON.generate(response)] ]
         else
-          [406, {"Access-Control-Allow-Origin"=>"*","Content-Type" => "application/json"}, [JSON.generate(response)] ]
+          [200, {"Access-Control-Allow-Origin"=>"*","Content-Type" => "application/json"}, [JSON.generate(response)] ]
         end
       end
     end

@@ -37,6 +37,8 @@ class CodeSync.Client
 
     @socket.subscribe "/code-sync/outbound", (notification)=>
 
+      console.log "notification", notification
+
       if @logLevel > 0
         console.log "Received notification on outbound channel", notification
 
@@ -84,6 +86,7 @@ class CodeSync.Client
       return
 
     if notification.path
+      console.log "notification", notification.path
       CodeSync.util.loadScript "#{ CodeSync.get("sprocketsEndpoint") }/#{ notification.path }", ()->
         for callback in client.javascriptCallbacks when callback.call?
           callback.call(@, notification)

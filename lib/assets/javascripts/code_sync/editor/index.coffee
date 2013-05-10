@@ -80,7 +80,7 @@ CodeSync.AssetEditor = Backbone.View.extend
       when "sass"
         ".css.sass"
       when "coffeescript"
-        ".coffeescript"
+        ".coffee"
       when "javascript"
         ".js"
       when "ruby"

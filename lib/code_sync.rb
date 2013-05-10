@@ -3,6 +3,7 @@ $:.unshift File.dirname(__FILE__)
 module CodeSync
   require 'code_sync/version'
   require 'code_sync/manager'
+  require 'code_sync/processors'
 
   if defined?(Middleman)
     require 'middleman_extension'

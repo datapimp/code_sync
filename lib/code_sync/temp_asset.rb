@@ -7,19 +7,6 @@ module CodeSync
 
       filename    = filename || "compiled"
 
-      if options[:type]
-        filename    += "-#{options[:type]}"
-
-        extension   ||= case options[:type]
-        when "coffeescript"
-          ".coffee"
-        when "scss"
-          ".css.scss"
-        else
-          options[:type]
-        end
-      end
-
       tempfile        = Tempfile.new([filename, extension])
 
       tempfile.write(content) && tempfile.rewind
