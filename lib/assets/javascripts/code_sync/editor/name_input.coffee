@@ -39,5 +39,6 @@ CodeSync.NameInput = Backbone.View.extend
   toggle: ()->
     if @getValue()?.length is 0
       @editor.setDefaultExtension()
+      @editor.currentName = @editor.currentPath = undefined
 
     @$el.toggle()
