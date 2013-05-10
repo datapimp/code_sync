@@ -1,6 +1,6 @@
 CodeSync.ProjectAssets = Backbone.Collection.extend
   url: ()->
-    "http://localhost:9295/info"
+    CodeSync.get("serverInfoEndpoint")
 
   parse: (response)->
     models = for path in _.uniq(response.project_assets)

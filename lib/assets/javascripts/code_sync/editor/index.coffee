@@ -10,7 +10,7 @@ CodeSync.AssetEditor = Backbone.View.extend
 
   autoRender: true
 
-  assetCompilationEndpoint: "http://localhost:9295/source"
+  assetCompilationEndpoint: CodeSync.get("assetCompilationEndpoint")
 
   defaultExtension: ".coffee"
 
@@ -259,11 +259,11 @@ CodeSync.AssetEditor = Backbone.View.extend
 
 # Private Helpers
 
-toggleEditor = ()->
+CodeSync.AssetEditor.toggleEditor = ()->
   if window.codeSyncEditor?
     window.codeSyncEditor.slideToggle()
   else
     window.codeSyncEditor = new CodeSync.AssetEditor()
     window.codeSyncEditor.slideIn()
 
-key('ctrl+j', toggleEditor)
+CodeSync.AssetEditor.setHotKey = (hotKey)-> key(hotKey, CodeSync.AssetEditor.toggleEditor)

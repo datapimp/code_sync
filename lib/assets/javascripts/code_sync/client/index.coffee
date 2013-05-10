@@ -18,7 +18,7 @@ class CodeSync.Client
 
     CodeSync.Client._clients.push(@)
 
-    CodeSync.util.loadScript "http://localhost:9295/faye/client.js", ()=>
+    CodeSync.util.loadScript "#{ CodeSync.get("socketEndpoint") }/client.js", ()=>
       return if @clientLoaded is true
 
       setTimeout ()=>
@@ -33,7 +33,7 @@ class CodeSync.Client
   setupSocket: ()->
     return unless Faye?
 
-    @socket = new Faye.Client("http://localhost:9295/faye")
+    @socket = new Faye.Client(CodeSync.get("socketEndpoint"))
 
     @socket.subscribe "/code-sync/outbound", (notification)=>
 
@@ -84,7 +84,7 @@ class CodeSync.Client
       return
 
     if notification.path
-      CodeSync.util.loadScript "http://localhost:9295/assets/#{ notification.path }", ()->
+      CodeSync.util.loadScript "#{ CodeSync.get("sprocketsEndpoint") }/#{ notification.path }", ()->
         for callback in client.javascriptCallbacks when callback.call?
           callback.call(@, notification)
 
@@ -92,7 +92,7 @@ class CodeSync.Client
     client = @
 
     if notification.path && notification.name
-      CodeSync.util.loadStylesheet "http://localhost:9295/assets/#{ notification.path }", tracker: notification.name, ()->
+      CodeSync.util.loadStylesheet "#{ CodeSync.get("sprocketsEndpoint") }/#{ notification.path }", tracker: notification.name, ()->
         for callback in client.stylesheetCallbacks when callback.call?
           callback.call(@, notification)
 
