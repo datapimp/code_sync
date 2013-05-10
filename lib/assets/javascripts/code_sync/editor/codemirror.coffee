@@ -7,4 +7,5 @@
 #= require codemirror-htmlmixed
 #= require codemirror-sass
 #= require codemirror-haml
+#= require codemirror-skim
 #= require codemirror-vim

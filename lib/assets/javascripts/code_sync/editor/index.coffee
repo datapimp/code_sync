@@ -52,22 +52,33 @@ CodeSync.AssetEditor = Backbone.View.extend
 
     @
 
+  processCompiledResponse:(content,name,extension)->
+    console.log "Processing Compiled Response", arguments
+
   saveAsset: ()->
-    if !@currentPath || !@currentName?
+    if !@currentPath && !@currentName?
       @toggleNameInput()
+      return
 
-    debugger
-
-    params =
-      contents: @codeMirror.getValue()
-      path: @currentPath
-      name: @currentName
+    [name,rest...] = (@currentPath || @currentName).split('.')
+    extension = rest.join('.')
 
     $.ajax
       type: "POST"
       url: @assetCompilationEndpoint
-      contentType: "application/json"
-      data: JSON.stringify(params)
+
+      error: (response)=>
+        console.log "Error Response", arguments
+
+      success: (response)=>
+        if response.success && response.compiled?
+          @processCompiledResponse(response.compiled, extension, name)
+
+      data: JSON.stringify
+        contents: @codeMirror.getValue()
+        path: @currentPath
+        name: (if !@currentPath? && @currentName? then name else @currentName)
+        extension: ".#{extension}"
 
   loadAsset: (@currentPath)->
     $.ajax
@@ -171,7 +182,9 @@ CodeSync.AssetEditor = Backbone.View.extend
       "htmlmixed"
     else if path.match(/.less/)
       "less"
-    else if (path.match(/\.skim/) || path.match(/\.haml/))
+    else if path.match(/\.skim/)
+      "skim"
+    else if path.match(/\.haml/)
       "haml"
     else if path.match(/\.sass/)
       "sass"
@@ -180,9 +193,6 @@ CodeSync.AssetEditor = Backbone.View.extend
 
     @codeMirror.setOption 'mode', mode
     @_preferencesPanel.syncWithEditorOptions()
-
-
-
 
 
 # Private Helpers

@@ -3,6 +3,7 @@ require 'faye'
 require 'rack'
 require 'json'
 require "code_sync/temp_asset"
+require "pry"
 
 module CodeSync
   class Server
@@ -35,7 +36,6 @@ module CodeSync
     class FayeMonitor
       def incoming(message,callback)
         if message['channel'] == "/meta/subscribe" and message['subscription']
-          puts "== A CodeSync enabled browser has connected"
         end
 
         callback.call(message)
@@ -54,65 +54,88 @@ module CodeSync
         "codesync source gateway"
       end
 
-      def call(env)
-        response = {}
+      def handle_file_write(params={}, response)
+        path, contents = params.values_at "path", "contents"
 
-        if env['REQUEST_METHOD'] == "POST"
-
-          env['rack.input'].rewind
-          body = env['rack.input'].read
-
-          query = begin
-           JSON.parse(body)
-          rescue
-            puts "Error Parsing Query: #{ $! }"
-            {}
-          end
-
-          if query["path"]
-
-            begin
-              if !query["path"].match(/^\//)
-                query["path"] = root + '/' + query["path"]
-              end
-
-              if File.exists?(query["path"]) && query["contents"]
-                File.open(query["path"],"w+") do |fh|
-                  fh.puts(query["contents"])
-                end
-                response[:success] = true
-              else
-                response[:success] = false
-                response[:error] = "No file found: #{ query['path;'] }"
-              end
-            rescue
-              response[:success] = false
-              response[:error] = $!
-            end
-
-          elsif (query["name"] && query["extension"] && query["contents"])
-            begin
-              asset = TempAsset.create_from(query["contents"], env: sprockets, filename: query["name"], extension: query["extension"] )
-
-              response[:success] = true
-              response[:contents] = query["contents"]
-              response[:compiled] = asset.to_s
-            rescue
-              response[:success] = false
-              response[:error] = $!
-            end
-          end
-
-        else
-          query = Rack::Utils.parse_query env['QUERY_STRING']
-
-          if query['path']
-            response.merge! success: true, contents: IO.read(query["path"])
-          else
-            response.merge! success: false, error: "Must specify an asset path"
-          end
+        unless path.match(/^\//)
+          path = File.join(root,path)
         end
 
+        begin
+          if File.exists?(path)
+            File.open(path,"w+") {|fh| fh.puts(contents)}
+          else
+            response[:success] = false
+            response[:error] = "File not found: #{ path } :: #{ $! }"
+          end
+        rescue
+          response[:error] = "#{ $! }"
+          response[:success] = false
+        end
+      end
+
+      def handle_adhoc_compilation(params={}, response)
+        contents, filename, extension = params.values_at("contents", "name", "extension")
+
+        begin
+          asset = TempAsset.create_from(contents, env: sprockets, filename: filename, extension: extension)
+          response[:contents] = contents
+          response[:compiled] = asset.to_s
+        rescue
+          response[:error] = $!
+          response[:success] = false
+        end
+      end
+
+      def handle_post(env)
+        response = {success: true}
+
+        env['rack.input'].rewind
+        body = env['rack.input'].read
+
+        binding.pry
+
+        params = begin
+         JSON.parse(body)
+        rescue
+          response[:success] = false
+          response[:error] = $!
+          response[:body] = body
+          return response
+        end
+
+        if params["path"] && params["contents"]
+          handle_file_write(params, response)
+        end
+
+        if params["name"] && params["extension"] && params["contents"]
+          handle_adhoc_compilation(params, response)
+        end
+
+        response
+      end
+
+      def handle_get(env)
+        response = {success: true}
+
+        query = Rack::Utils.parse_query env['QUERY_STRING']
+
+        if query['path']
+          response.merge! success: true, contents: IO.read(query["path"])
+        else
+          response.merge! success: false, error: "Must specify an asset path"
+        end
+
+        response
+      end
+
+      # Why am I not just using Sinatra here?
+      def call(env)
+        response = if env['REQUEST_METHOD'] == "POST"
+          handle_post(env)
+        else
+          handle_get(env)
+        end
 
         if response[:success]
           [200, {"Access-Control-Allow-Origin"=>"*","Content-Type" => "application/json"}, [JSON.generate(response)] ]

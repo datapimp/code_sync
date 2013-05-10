@@ -53,6 +53,7 @@ markup = """
         <option value="haml">Haml</option>
         <option value="sass">Sass</option>
         <option value="scss">SCSS</option>
+        <option value="skim">Skim</option>
         <option value="css">CSS</option>
         <option value="htmlmixed">HTML</option>
         <option value="ruby">Ruby</option>
