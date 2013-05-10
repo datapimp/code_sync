@@ -33,5 +33,11 @@ CodeSync.NameInput = Backbone.View.extend
   setValue: (value)->
     @$('input').val value
 
+  getValue: ()->
+    @$('input').val()
+
   toggle: ()->
+    if @getValue()?.length is 0
+      @editor.setDefaultExtension()
+
     @$el.toggle()

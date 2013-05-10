@@ -14,16 +14,21 @@ CodeSync.PreferencesPanel = Backbone.View.extend
     Backbone.View::initialize.apply(@, arguments)
 
   updateEditor: ()->
-    for setting, value of @values() when setting isnt "asset-url"
+    values = @values()
+    for setting, value of values when setting isnt "asset-url"
       @editor.codeMirror.setOption(setting, value)
 
-    @editor.assetCompilationEndpoint = @values()["asset-url"]
+    @editor.assetCompilationEndpoint = values["asset-url"]
 
-    @
+    @setDefaultExtension()
+
+  setDefaultExtension: (values)->
+    @editor.setDefaultExtension()
 
   syncWithEditorOptions: ()->
     @$(":input[name='keyMap']").val @editor.codeMirror.getOption('keyMap')
     @$(":input[name='mode']").val @editor.codeMirror.getOption('mode')
+    @$(":input[name='theme']").val @editor.codeMirror.getOption('theme')
     @$(":input[name='asset-url']").val @editor.assetCompilationEndpoint
 
   values: ()->

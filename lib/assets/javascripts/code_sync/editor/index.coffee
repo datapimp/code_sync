@@ -12,6 +12,8 @@ CodeSync.AssetEditor = Backbone.View.extend
 
   assetCompilationEndpoint: "http://localhost:9295/source"
 
+  defaultExtension: ".coffee"
+
   events:
     "click .asset-save-controls .save-button" : "saveAsset"
     "click .asset-save-controls .open-button" : "toggleAssetSelector"
@@ -29,6 +31,65 @@ CodeSync.AssetEditor = Backbone.View.extend
 
     @render() unless @autoRender is false
 
+    @on "editor:change", _.debounce(@editorChangeHandler, 1200), @
+
+  editorChangeHandler: ()->
+    return if @currentPath?
+
+    if !@currentName? || @currentName?.length is 0 && @defaultExtension?
+      @compileEditorContentsAndReload()
+
+  processStyleContent: (content)->
+    $('head style[data-ad-hoc]').remove()
+    $('head').append "<style type='text/css' data-ad-hoc=true>#{ content }</style>"
+
+  processScriptContent: (code)->
+    evalRunner = (code)-> eval(code)
+    evalRunner.call(window, code)
+
+  compileEditorContentsAndReload: ()->
+    handler = switch @codeMirror.getOption('mode')
+      when "css","sass","scss"
+        @processStyleContent
+      when "coffeescript","javascript","skim","haml","jst"
+        @processScriptContent
+
+    $.ajax
+      type: "POST"
+      url: @assetCompilationEndpoint
+      data: JSON.stringify
+        name: "adhoc"
+        extension: @defaultExtension
+        contents: @codeMirror.getValue()
+      success: (response)=>
+        console.log "Compile Contents Success", response
+        if response.success && response.compiled? && handler
+          handler(response.compiled)
+
+      error: (response)=>
+        console.log "Compile Contents Error", response
+
+  setDefaultExtension: ()->
+    @defaultExtension = switch @codeMirror.getOption('mode')
+      when "skim"
+        ".jst.skim"
+      when "haml"
+        ".jst.haml"
+      when "css"
+        ".css.scss"
+      when "sass"
+        ".css.sass"
+      when "coffeescript"
+        ".coffeescript"
+      when "javascript"
+        ".js"
+      when "ruby"
+        ".rb"
+      else
+        ".coffee"
+
+    @
+
   render: ()->
     return @ if @rendered is true
 
@@ -36,11 +97,12 @@ CodeSync.AssetEditor = Backbone.View.extend
 
     @$el.html JST["code_sync/templates/asset_editor"]()
 
-    @_nameInput = new CodeSync.NameInput(editor: @)
-    @_preferencesPanel = new CodeSync.PreferencesPanel(editor:@)
+    unless @options.simpleMode
+      @_nameInput = new CodeSync.NameInput(editor: @)
+      @_preferencesPanel = new CodeSync.PreferencesPanel(editor:@)
 
-    @$('.asset-save-controls').before( @_nameInput.render().el )
-    @$el.append( @_preferencesPanel.render().el )
+      @$('.asset-save-controls').before( @_nameInput.render().el )
+      @$el.append( @_preferencesPanel.render().el )
 
     @rendered = true
     @visible  = false
@@ -51,9 +113,6 @@ CodeSync.AssetEditor = Backbone.View.extend
     @height ||= @$el.height()
 
     @
-
-  processCompiledResponse:(content,name,extension)->
-    console.log "Processing Compiled Response", arguments
 
   saveAsset: ()->
     if !@currentPath && !@currentName?
@@ -191,8 +250,11 @@ CodeSync.AssetEditor = Backbone.View.extend
     else if path.match(/\.scss/)
       "css"
 
-    @codeMirror.setOption 'mode', mode
+    @setMode(mode)
     @_preferencesPanel.syncWithEditorOptions()
+
+  setMode: (mode)->
+    @codeMirror.setOption 'mode', mode
 
 
 # Private Helpers

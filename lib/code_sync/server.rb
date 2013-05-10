@@ -3,7 +3,6 @@ require 'faye'
 require 'rack'
 require 'json'
 require "code_sync/temp_asset"
-require "pry"
 
 module CodeSync
   class Server
@@ -92,8 +91,6 @@ module CodeSync
 
         env['rack.input'].rewind
         body = env['rack.input'].read
-
-        binding.pry
 
         params = begin
          JSON.parse(body)
