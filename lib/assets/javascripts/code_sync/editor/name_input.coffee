@@ -28,10 +28,9 @@ CodeSync.NameInput = Backbone.View.extend
     if assetName.match(/\./)
       @editor.currentName = assetName
 
-      if mode = @editor.determineModeFor(assetName)
-        @editor.focus()
+      mode = @editor.determineModeFor(assetName)
 
-  setValue: (val)->
+  setValue: (value)->
     @$('input').val value
 
   toggle: ()->

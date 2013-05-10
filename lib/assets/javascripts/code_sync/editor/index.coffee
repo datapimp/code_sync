@@ -117,7 +117,7 @@ CodeSync.AssetEditor = Backbone.View.extend
     changeHandler = (changeObj)=>
       @trigger "editor:change", @codeMirror.getValue(), changeObj
 
-    @codeMirror.on "change", _.debounce(@changeHandler, 800)
+    @codeMirror.on "change", _.debounce(changeHandler, 800)
 
     @
 
@@ -161,6 +161,16 @@ CodeSync.AssetEditor = Backbone.View.extend
   determineModeFor: (path)->
     mode = if path.match(/\.coffee/)
       "coffeescript"
+    else if path.match(/\.js$/)
+      "javascript"
+    else if path.match(/\.css$/)
+      "css"
+    else if path.match(/.rb$/)
+      "ruby"
+    else if path.match(/.html$/)
+      "htmlmixed"
+    else if path.match(/.less/)
+      "less"
     else if (path.match(/\.skim/) || path.match(/\.haml/))
       "haml"
     else if path.match(/\.sass/)
@@ -169,6 +179,7 @@ CodeSync.AssetEditor = Backbone.View.extend
       "css"
 
     @codeMirror.setOption 'mode', mode
+    @_preferencesPanel.syncWithEditorOptions()
 
 
 

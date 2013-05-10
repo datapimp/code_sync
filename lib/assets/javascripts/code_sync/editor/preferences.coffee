@@ -21,6 +21,11 @@ CodeSync.PreferencesPanel = Backbone.View.extend
 
     @
 
+  syncWithEditorOptions: ()->
+    @$(":input[name='keyMap']").val @editor.codeMirror.getOption('keyMap')
+    @$(":input[name='mode']").val @editor.codeMirror.getOption('mode')
+    @$(":input[name='asset-url']").val @editor.assetCompilationEndpoint
+
   values: ()->
     values = {}
 
@@ -31,6 +36,7 @@ CodeSync.PreferencesPanel = Backbone.View.extend
     values
 
   toggle: ()->
+    @syncWithEditorOptions()
     @$el.toggle()
 
   render: ()->
@@ -39,7 +45,6 @@ CodeSync.PreferencesPanel = Backbone.View.extend
 
 
 markup = """
-  <h5>Editor Settings</h5>
   <div class='mode-selector control-group'>
     <label>Mode</label>
     <div class='controls'>
@@ -54,16 +59,26 @@ markup = """
       </select>
     </div>
   </div>
-  <div class="keymap-selector contorl-group">
+  <div class="keymap-selector control-group">
     <label>Keybindings</label>
     <select name="keyMap">
       <option value="default">Default</option>
       <option value="vim">Vim</option>
     </select>
   </div>
-  <h5>Asset Compilation Endpoint</h5>
+  <div class="theme-selector control-group">
+    <label>Theme</label>
+    <div class='controls'>
+      <select name="theme">
+        <option value="ambiance">Ambiance</option>
+        <option value="lesser-dark">Lesser Dark</option>
+        <option value="monokai">Monokai</option>
+        <option value="xq-light">XQ Light</option>
+      </select>
+    </div>
+  </div>
   <div class="asset-compilation-endpoint control-group">
-    <label>URL</label>
+    <label>Asset Compilation URL</label>
     <input type="text" name="asset-url" />
   </div>
 """

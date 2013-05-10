@@ -15,7 +15,6 @@ CodeSync.AssetSelector = Backbone.View.extend
     @selected = new Backbone.Model(index: -1)
 
     @selected.on "change:index", (model,value)=>
-      console.log "change", value
       @$('.search-result').removeClass('active')
       @$('.search-result').eq(value).addClass('active')
 
@@ -57,7 +56,7 @@ CodeSync.AssetSelector = Backbone.View.extend
     @selected.set {index}
 
   selectSearchResult: (e)->
-    loadAsset $(e.target)?.data('path')
+    @loadAsset $(e.target)?.data('path')
 
   loadAsset: (path)->
     if path
