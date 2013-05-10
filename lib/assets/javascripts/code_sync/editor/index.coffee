@@ -10,7 +10,6 @@ CodeSync.AssetEditor = Backbone.View.extend
 
   autoRender: true
 
-  assetCompilationEndpoint: CodeSync.get("assetCompilationEndpoint")
 
   defaultExtension: ".coffee"
 
@@ -21,6 +20,8 @@ CodeSync.AssetEditor = Backbone.View.extend
 
   initialize: (@options={})->
     _.extend(@, @options)
+
+    @assetCompilationEndpoint = CodeSync.get("assetCompilationEndpoint")
 
     @assetsCollection = new CodeSync.ProjectAssets()
 
@@ -143,7 +144,7 @@ CodeSync.AssetEditor = Backbone.View.extend
   loadAsset: (@currentPath)->
     $.ajax
       type: "GET"
-      url: "http://localhost:9295/source?path=#{ @currentPath }"
+      url: "#{ CodeSync.get("assetCompilationEndpoint") }?path=#{ @currentPath }"
       success: (response)=>
 
         @_nameInput.setValue(@currentPath)
