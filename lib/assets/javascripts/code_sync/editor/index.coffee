@@ -24,10 +24,9 @@ CodeSync.AssetEditor = Backbone.View.extend
 
     @assetsCollection = new CodeSync.ProjectAssets()
 
-    client = CodeSync.Client.get()
-
-    client.onNotification = (notification)=>
-      console.log "Editor trapping notification", @currentPath, notification
+    #if client = CodeSync.Client.get()
+    #  client.onNotification = (notification)=>
+    #    console.log "Editor trapping notification", @currentPath, notification
 
     @render() unless @autoRender is false
 
@@ -292,4 +291,5 @@ CodeSync.AssetEditor.toggleEditor = ()->
     window.codeSyncEditor = new CodeSync.AssetEditor()
     window.codeSyncEditor.slideIn()
 
-CodeSync.AssetEditor.setHotKey = (hotKey)-> key(hotKey, CodeSync.AssetEditor.toggleEditor)
+CodeSync.AssetEditor.setHotKey = (hotKey)->
+  key(hotKey, CodeSync.AssetEditor.toggleEditor)
