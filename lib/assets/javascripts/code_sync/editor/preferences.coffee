@@ -15,12 +15,12 @@ CodeSync.PreferencesPanel = Backbone.View.extend
 
   updateEditor: ()->
     values = @values()
-    for setting, value of values when setting isnt "asset-url"
-      @editor.codeMirror.setOption(setting, value)
 
     @editor.assetCompilationEndpoint = values["asset-url"]
 
-    @setDefaultExtension()
+    @editor.setTheme(values.theme)
+    @editor.setKeyMap(values.keyMap)
+    @editor.setMode(values.mode)
 
   setDefaultExtension: (values)->
     @editor.setDefaultExtension()
@@ -55,12 +55,14 @@ markup = """
     <div class='controls'>
       <select name="mode">
         <option value="coffeescript">Coffeescript</option>
-        <option value="haml">Haml</option>
-        <option value="sass">Sass</option>
-        <option value="scss">SCSS</option>
-        <option value="skim">Skim</option>
         <option value="css">CSS</option>
+        <option value="haml">Haml</option>
         <option value="htmlmixed">HTML</option>
+        <option value="javascript">Javascript</option>
+        <option value="markdown">Markdown</option>
+        <option value="sass">Sass</option>
+        <option value="css">SCSS</option>
+        <option value="skim">Skim</option>
         <option value="ruby">Ruby</option>
       </select>
     </div>

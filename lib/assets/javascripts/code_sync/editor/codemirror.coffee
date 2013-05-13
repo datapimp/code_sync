@@ -9,3 +9,4 @@
 #= require codemirror-haml
 #= require codemirror-skim
 #= require codemirror-vim
+#= require codemirror-markdown

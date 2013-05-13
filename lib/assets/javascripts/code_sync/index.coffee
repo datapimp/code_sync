@@ -1,5 +1,4 @@
 #= require_self
-#= require code_sync/client
 
 root = @
 
@@ -8,7 +7,7 @@ if typeof(exports) isnt "undefined"
 else
   CodeSync = root.CodeSync = {}
 
-CodeSync.VERSION    = "0.5.1"
+CodeSync.VERSION    = "0.5.2"
 
 CodeSync.backends   = {}
 

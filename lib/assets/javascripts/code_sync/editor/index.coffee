@@ -10,8 +10,9 @@ CodeSync.AssetEditor = Backbone.View.extend
 
   autoRender: true
 
-
   defaultExtension: ".coffee"
+
+  position: "top"
 
   events:
     "click .asset-save-controls .save-button" : "saveAsset"
@@ -28,6 +29,8 @@ CodeSync.AssetEditor = Backbone.View.extend
     #if client = CodeSync.Client.get()
     #  client.onNotification = (notification)=>
     #    console.log "Editor trapping notification", @currentPath, notification
+
+    @$el.addClass "#{ @position }-positioned"
 
     @render() unless @autoRender is false
 
@@ -57,38 +60,19 @@ CodeSync.AssetEditor = Backbone.View.extend
     $.ajax
       type: "POST"
       url: @assetCompilationEndpoint
+
       data: JSON.stringify
-        name: "adhoc"
+        name: (@currentName || "adhoc").replace(@defaultExtension,'')
         extension: @defaultExtension
         contents: @codeMirror.getValue()
+
       success: (response)=>
-        console.log "Compile Contents Success", response, name, @defaultExtension
-        if response.success && response.compiled? && handler
+        if response.success is false and response.error?
+          @showStatusMessage(type:"error",message:response.error.message)
+
+        if response.success is true && (response.compiled? && handler)
+          @$('.status-message').remove()
           handler(response.compiled)
-
-      error: (response)=>
-        console.log "Compile Contents Error", response
-
-  setDefaultExtension: ()->
-    @defaultExtension = switch @codeMirror.getOption('mode')
-      when "skim"
-        ".jst.skim"
-      when "haml"
-        ".jst.haml"
-      when "css"
-        ".css.scss"
-      when "sass"
-        ".css.sass"
-      when "coffeescript"
-        ".coffee"
-      when "javascript"
-        ".js"
-      when "ruby"
-        ".rb"
-      else
-        ".coffee"
-
-    @
 
   render: ()->
     return @ if @rendered is true
@@ -128,12 +112,11 @@ CodeSync.AssetEditor = Backbone.View.extend
       type: "POST"
       url: @assetCompilationEndpoint
 
-      error: (response)=>
-        console.log "Error Response", arguments
-
       success: (response)=>
-        if response.success && response.compiled?
-          @processCompiledResponse(response.compiled, extension, name)
+        if response.success is false
+          @showStatusMessage(type:"error",message:response.error?.message)
+        else if response.success is true && response.compiled?
+          @showStatusMessage(type:"success",message:"Successfully saved #{ @currentPath }")
 
       data: JSON.stringify
         contents: @codeMirror.getValue()
@@ -155,6 +138,14 @@ CodeSync.AssetEditor = Backbone.View.extend
         if response.contents?
           @codeMirror.setValue(response.contents)
 
+  showStatusMessage:(options={})->
+    @$('.status-message').remove()
+    @$el.prepend "<div class='status-message #{ options.type }'>#{ options.message }</div>"
+
+    if options.type is "success"
+      _.delay ()=>
+        @$('.status-message').fadeOut()
+      , 400
 
   getCurrentDocument: ()->
     unless @document?
@@ -190,6 +181,8 @@ CodeSync.AssetEditor = Backbone.View.extend
       @trigger "editor:change", @codeMirror.getValue(), changeObj
 
     @codeMirror.on "change", _.debounce(changeHandler, 800)
+
+    @codeMirror.on "focus", ()=> @_preferencesPanel.$el.hide()
 
     @
 
@@ -235,13 +228,15 @@ CodeSync.AssetEditor = Backbone.View.extend
       "coffeescript"
     else if path.match(/\.js$/)
       "javascript"
+    else if path.match(/\.md$/)
+      "markdown"
     else if path.match(/\.css$/)
       "css"
-    else if path.match(/.rb$/)
+    else if path.match(/\.rb$/)
       "ruby"
-    else if path.match(/.html$/)
+    else if path.match(/\.html$/)
       "htmlmixed"
-    else if path.match(/.less/)
+    else if path.match(/\.less/)
       "less"
     else if path.match(/\.skim/)
       "skim"
@@ -255,8 +250,38 @@ CodeSync.AssetEditor = Backbone.View.extend
     @setMode(mode)
     @_preferencesPanel.syncWithEditorOptions()
 
+  setDefaultExtension: ()->
+    @defaultExtension = switch @codeMirror.getOption('mode')
+      when "skim"
+        ".jst.skim"
+      when "markdown"
+        ".jst.md"
+      when "haml"
+        ".jst.haml"
+      when "css"
+        ".css.scss"
+      when "sass"
+        ".css.sass"
+      when "coffeescript"
+        ".coffee"
+      when "javascript"
+        ".js"
+      when "ruby"
+        ".rb"
+      else
+        ".coffee"
+    @
+
+  setKeyMap: (keyMap)->
+    @codeMirror.setOption 'keyMap', keyMap
+
+  setTheme: (theme)->
+    @codeMirror.setOption 'theme', theme
+
   setMode: (mode)->
     @codeMirror.setOption 'mode', mode
+    @setDefaultExtension()
+    @
 
 
 # Private Helpers

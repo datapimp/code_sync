@@ -15,6 +15,7 @@ Gem::Specification.new do |s|
   s.add_dependency 'thin'
   s.add_dependency 'listen'
   s.add_dependency 'sprockets'
+  s.add_dependency 'pry'
   s.add_dependency 'thor'
   s.add_dependency 'rb-fsevent', '~> 0.9'
 
