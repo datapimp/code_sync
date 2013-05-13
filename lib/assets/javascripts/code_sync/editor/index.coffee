@@ -1,5 +1,7 @@
 #= require keylauncher
-#= require_tree .
+#= require ./templates
+#= require_tree ./datasources
+#= require_tree ./views
 #= require_self
 
 CodeSync.AssetEditor = Backbone.View.extend
@@ -13,6 +15,12 @@ CodeSync.AssetEditor = Backbone.View.extend
   defaultExtension: ".coffee"
 
   position: "top"
+
+  useDocumentManager: true
+
+  simpleMode: false
+
+  views: {}
 
   events:
     "click .asset-save-controls .save-button" : "saveAsset"
@@ -81,12 +89,17 @@ CodeSync.AssetEditor = Backbone.View.extend
 
     @$el.html JST["code_sync/templates/asset_editor"]()
 
-    unless @options.simpleMode
-      @_nameInput = new CodeSync.NameInput(editor: @)
-      @_preferencesPanel = new CodeSync.PreferencesPanel(editor:@)
+    unless @simpleMode is true
+      @views.nameInput = new CodeSync.NameInput(editor: @)
+      @views.preferencesPanel = new CodeSync.PreferencesPanel(editor:@)
 
-      @$('.asset-save-controls').before( @_nameInput.render().el )
-      @$el.append( @_preferencesPanel.render().el )
+      @$('.asset-save-controls').before( @views.nameInput.render().el )
+      @$el.append( @views.preferencesPanel.render().el )
+
+    unless @useDocumentManager is false
+      @views.documentManager = new CodeSync.DocumentManager(editor: @)
+      @$el.append( @views.documentManager.render().el )
+
 
     @rendered = true
     @visible  = false
@@ -130,7 +143,7 @@ CodeSync.AssetEditor = Backbone.View.extend
       url: "#{ CodeSync.get("assetCompilationEndpoint") }?path=#{ @currentPath }"
       success: (response)=>
 
-        @_nameInput.setValue(@currentPath)
+        @views.nameInput.setValue(@currentPath)
 
         if response.path?
           @determineModeFor(response.path)
@@ -182,7 +195,7 @@ CodeSync.AssetEditor = Backbone.View.extend
 
     @codeMirror.on "change", _.debounce(changeHandler, 800)
 
-    @codeMirror.on "focus", ()=> @_preferencesPanel.$el.hide()
+    @codeMirror.on "focus", ()=> @views.preferencesPanel.$el.hide()
 
     @
 
@@ -191,7 +204,7 @@ CodeSync.AssetEditor = Backbone.View.extend
     if top is "0px" then @slideOut() else @slideIn()
 
   toggleNameInput: ()->
-    @_nameInput?.toggle()
+    @views.nameInput?.toggle()
 
   toggleAssetSelector: ()->
     if !@_assetSelector
@@ -201,7 +214,7 @@ CodeSync.AssetEditor = Backbone.View.extend
     @_assetSelector.toggle()
 
   togglePreferencesPanel: ()->
-    @_preferencesPanel?.toggle()
+    @views.preferencesPanel?.toggle()
 
   getCodeMirrorOptions: ()->
     theme: 'lesser-dark'
@@ -215,7 +228,7 @@ CodeSync.AssetEditor = Backbone.View.extend
       "Ctrl-N": ()=>
         @currentPath = @currentName = undefined
         @toggleNameInput()
-        @_nameInput.$('input').focus()
+        @views.nameInput.$('input').focus()
 
       "Ctrl-J": ()=>
         @slideToggle()
@@ -248,7 +261,7 @@ CodeSync.AssetEditor = Backbone.View.extend
       "css"
 
     @setMode(mode)
-    @_preferencesPanel.syncWithEditorOptions()
+    @views.preferencesPanel.syncWithEditorOptions()
 
   setDefaultExtension: ()->
     @defaultExtension = switch @codeMirror.getOption('mode')
@@ -310,12 +323,12 @@ CodeSync.AssetEditor.keyboardShortcutInfo = """
 ctrl+j: toggle editor ctrl+t: open asset
 """
 
-CodeSync.AssetEditor.toggleEditor = ()->
+CodeSync.AssetEditor.toggleEditor = (options={})->
   if window.codeSyncEditor?
     window.codeSyncEditor.slideToggle()
   else
-    window.codeSyncEditor = new CodeSync.AssetEditor()
+    window.codeSyncEditor = new CodeSync.AssetEditor(options)
     window.codeSyncEditor.slideIn()
 
-CodeSync.AssetEditor.setHotKey = (hotKey)->
-  key(hotKey, CodeSync.AssetEditor.toggleEditor)
+CodeSync.AssetEditor.setHotKey = (hotKey, options={})->
+  key(hotKey, ()-> CodeSync.AssetEditor.toggleEditor(options))

@@ -1,4 +1,4 @@
-#= require codemirror
+#= require vendored_codemirror
 #= require codemirror-ruby
 #= require codemirror-coffeescript
 #= require codemirror-css
