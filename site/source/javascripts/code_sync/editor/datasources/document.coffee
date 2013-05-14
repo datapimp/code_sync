@@ -3,6 +3,7 @@ CodeSync.Document = Backbone.Model.extend
     Backbone.Model::initialize.apply(@, arguments)
 
     @on "change:contents", @process, @
+    @on "change:compiled", @loadInPage, @
 
   url: ()->
     CodeSync.get("assetCompilationEndpoint")
@@ -21,15 +22,16 @@ CodeSync.Document = Backbone.Model.extend
     contents: @get('contents')
 
   toCodeMirrorDocument: ()->
-    CodeMirror.Doc @get("contents"), @get("mode"), 1
-
-  isNew: ()->
-    true
+    CodeMirror.Doc @get("contents"), @get("mode"), 0
 
   process: ()->
-    console.log "Processing", @toJSON()
-    @save @toJSON(), success: ()->
-      console.log "Successfully saved"
+    $.ajax
+      type: "POST"
+      url: CodeSync.get("assetCompilationEndpoint")
+      data: JSON.stringify(@toJSON())
+      success: (response)=>
+        if response.success is true and response.compiled?
+          @set("compiled", response.compiled)
 
   loadInPage: ->
     if @type() is "stylesheet"
