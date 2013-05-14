@@ -8,6 +8,15 @@ activate :code_sync
 Skim::Engine.default_options[:use_asset] = true
 
 # Build-specific configuration
+set :markdown_engine, :redcarpet
+set :markdown, :fenced_code_blocks => true, :smartypants => true
+
+helpers do
+  def code_sample sample
+    "<pre class='prettyprint'>#{ IO.read(File.join(Dir.pwd(),'source',sample)) }</pre>"
+  end
+end
+
 configure :build do
   # For example, change the Compass output style for deployment
   # activate :minify_css

@@ -1,19 +1,46 @@
 $baseFontSize: 16px
 $baseLineHeight: $baseFontSize * 1.65
+$color: #333
+$backgroundColor: lighten($color,45)
+
 
 body
   font-family: "Helvetica Neue", "Helvetica", Arial, sans-serif
   line-height: $baseLineHeight
   font-size: $baseFontSize
+  background-color: $backgroundColor
+  color: $color
 
-p
-  bottom-margin: $baseLineHeight * 0.5 0px
-  line-height: $baseLineHeight
-
-.mast-head, .marketing
+.wrapper
   width: 960px
-  margin: 0px auto
+  margin: $baseLineHeight auto
+  background: #FFF
+  border-radius: 3px
+  box-shadow: 0 0 6px rgba(0,0,0,0.9)
+  padding: 20px 20px 40px 20px
 
-.marketing
-  p, ul
-    width: 80%
+  p
+    line-height: $baseLineHeight
+    margin-bottom: $baseLineHeight * 0.5
+
+  ul.features
+    margin: 0px
+    padding: 0px
+    margin-left: 8px
+    li
+      padding-left: 8px
+      list-style-type: none
+      margin-bottom: $baseLineHeight * 0.5
+
+  ul.links
+    margin: 0px
+    padding: 0px
+    margin-bottom: $baseLineHeight * 0.5
+    li
+      display: inline
+      margin-right: 12px
+      list-style-type: none
+
+  section
+    p, ul
+      width: 80%

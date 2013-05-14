@@ -1,20 +1,59 @@
-.mast-head
-  h1 CodeSync by Datapimp
-  h2 A powerful front end development utility
+.wrapper
+  header
+    h1 CodeSync by Datapimp
+    h2 Powerful live reload and code editing tools for the Asset Pipeline
 
-.marketing
-  p CodeSync is a utility that works anywhere the sprockets gem works, with any language supported by Sprockets, and aims to make front end development much less painful than it is now.
-  p CodeSync is similar to LiveReload, but works directly with the Asset Pipeline for your project, with all of the asset pipeline gems you rely on.  And it aims to do much more than just refresh the browser for you whenever you make a change.
-  p Especially when developing complex single page apps or HTML5 games, having to refresh the browser every time you change a file is too expensive, as you end up losing too much state and wind up having to recreate it.
-  p The Developer Console is a great tool, and allows you to make changes and see immediate results, but having to then copy and paste your changes from the console back to your actual source code is a pain, and if your actual source code is made up of pre-processor languages, it is even worse.
+  ul.links
+    li
+      a href="https://github.com/datapimp/code_sync" Source Code
+    li
+      a href="https://github.com/datapimp/code_sync/issues" Issues
+    li
+      | Version #{ CodeSync::Version }
+    li
+      | MIT License
 
-  p I developed CodeSync because I could no longer tolerate this.
+  section.marketing
+    p CodeSync is a utility that works anywhere the Sprockets gem works, with any language supported by Sprockets.
+    p CodeSync is similar to LiveReload, but works directly with the Asset Pipeline for your project.  It aims to do much more than just refresh the browser for you whenever you make a change.
+    p Especially when developing complex single page apps or HTML5 games, having to refresh the browser every time you change a file is too expensive, as you end up losing too much state and wind up having to recreate it.
+    p The Chrome Developer Console is a great tool, and allows you to make changes and see immediate results, but having to then copy and paste your changes from the console back to your actual source code is a pain, and if your actual source code is made up of pre-processor languages, it is even worse.
 
-  p I wanted to make it easy to:
+    p I developed CodeSync because I could no longer tolerate this.
 
-  ul
-    li Experiment with my favorite pre-processor languages directly in the browser, and get immediate results without refreshing.
-    li Edit and save my application's assets in the browser if I wanted to, using a great editor, with syntax highlighting and Vim keybindings.
-    li Also be able to make changes in my IDE or Text Editor and see the effects directly in the running browser session.
-    li Write custom hooks which run whenever an asset changes, making it possible to hot reload code changes in a complex environment.
+    p I wanted to make it easy to:
+
+    ul.features
+      li Experiment with my favorite pre-processor languages directly in the browser, and get immediate results without refreshing.
+      li Edit and save my application's assets in the browser if I wanted to, using a great editor, with syntax highlighting and Vim keybindings.
+      li Also be able to make changes in my IDE or Text Editor and see the effects directly in the running browser session.
+      li Write custom hooks which run whenever an asset changes, making it possible to hot reload code changes in a complex environment.
+
+  section.examples
+    h2 Examples
+    section.server-side
+      h2 Using in Rails
+      == code_sample("samples/rails")
+
+      h2 Using in MiddleMan
+      == code_sample("samples/middleman")
+
+    section.client-side
+      h2 The CodeSync Client
+      == code_sample("samples/client")
+
+      h2 The CodeSync Editor Component
+      == code_sample("samples/editor")
+
+  footer
+    p
+      | Brought to you by&nbsp;
+      a href="http://twitter.com/soderpop" Soederpop
+      span
+        | &nbsp;AKA&nbsp;
+      a href="https://github.com/datapimp" Datapimp
+
+
+
+
 
