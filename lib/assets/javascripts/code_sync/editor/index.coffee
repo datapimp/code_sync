@@ -30,6 +30,8 @@ CodeSync.AssetEditor = Backbone.View.extend
   initialize: (@options={})->
     _.extend(@, @options)
 
+    @$el.addClass "#{ @position }-positioned"
+
     @assetCompilationEndpoint = CodeSync.get("assetCompilationEndpoint")
 
     @assetsCollection = new CodeSync.ProjectAssets()
@@ -38,7 +40,6 @@ CodeSync.AssetEditor = Backbone.View.extend
     #  client.onNotification = (notification)=>
     #    console.log "Editor trapping notification", @currentPath, notification
 
-    @$el.addClass "#{ @position }-positioned"
 
     @render() unless @autoRender is false
 
@@ -220,7 +221,7 @@ CodeSync.AssetEditor = Backbone.View.extend
     theme: 'lesser-dark'
     lineNumbers: true
     autofocus: true
-    mode: "coffeescript"
+    mode: CodeSync.get("defaultFileType")
     extraKeys:
       "Ctrl-S": ()=>
         @saveAsset()
