@@ -16,7 +16,7 @@ CodeSync.AssetEditor = Backbone.View.extend
 
   effectDuration: 400
 
-  editorChangeThrottle: 1200
+  editorChangeThrottle: 800
 
   visible: false
 
@@ -114,7 +114,12 @@ CodeSync.AssetEditor = Backbone.View.extend
 
 
   loadDocumentInPage: ()->
-    @currentDocument?.loadInPage()
+    @currentDocument?.loadInPage complete: ()=>
+      if @currentDocument?.type() is "script"
+        CodeSync.onScriptChange?.call(window, @currentDocument.attributes)
+
+      if @currentDocument?.type() is "stylesheet"
+        CodeSync.onStylesheetChange?.call(window, @currentDocument.attributes)
 
   loadAdhocDocument: ()->
     documentModel = @views.documentManager.createAdHocDocument()

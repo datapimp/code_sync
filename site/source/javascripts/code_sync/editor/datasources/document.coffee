@@ -1,4 +1,6 @@
 CodeSync.Document = Backbone.Model.extend
+  callbackDelay: 150
+
   initialize: (@attributes,options)->
     Backbone.Model::initialize.apply(@, arguments)
 
@@ -44,11 +46,14 @@ CodeSync.Document = Backbone.Model.extend
           @set("error", response.error?.message)
           @trigger "status", type: "error", message: response.error?.message
 
-  loadInPage: ->
+  loadInPage: (options={})->
     if @type() is "stylesheet"
       helpers.processStyleContent.call(@, @get('compiled'))
     else if @type() is "script"
       helpers.processScriptContent.call(@, @get('compiled'))
+
+      if options.complete
+        _.delay(options.complete, (options.delay||@callbackDelay))
 
   # Determines how we will handle the compiled assets when loading in the page
   type: ()->
