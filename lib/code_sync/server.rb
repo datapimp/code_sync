@@ -142,10 +142,15 @@ module CodeSync
 
       # Why am I not just using Sinatra here?
       def call(env)
-        response = if env['REQUEST_METHOD'] == "POST"
-          handle_post(env)
-        else
-          handle_get(env)
+        response = begin
+          if env['REQUEST_METHOD'] == "POST"
+            handle_post(env)
+          else
+            handle_get(env)
+          end
+        rescue
+          response[:success] = false
+          response[:error] = "Fatal Error: #{ $! }"
         end
 
         if response[:success]

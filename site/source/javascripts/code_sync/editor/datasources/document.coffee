@@ -1,18 +1,35 @@
 CodeSync.Document = Backbone.Model.extend
+  initialize: (@attributes,options)->
+    Backbone.Model::initialize.apply(@, arguments)
+
+    @on "change:contents", @process, @
+
+  url: ()->
+    CodeSync.get("assetCompilationEndpoint")
 
   defaults: ()->
-    name: "codesync_document"
-    mode: @determineMode()
+    name: "untitled"
+    mode: @determineMode() || CodeSync.get("defaultFileType")
     extension: @determineExtension()
+    compiled: ""
+    display: "Untitled"
 
   toJSON: ()->
     name: @get('name')
-    extension: @get('extension')
     path: @get('path')
+    extension: @get('extension')
     contents: @get('contents')
+
+  toCodeMirrorDocument: ()->
+    CodeMirror.Doc @get("contents"), @get("mode"), 1
 
   isNew: ()->
     true
+
+  process: ()->
+    console.log "Processing", @toJSON()
+    @save @toJSON(), success: ()->
+      console.log "Successfully saved"
 
   loadInPage: ->
     if @type() is "stylesheet"
@@ -20,43 +37,37 @@ CodeSync.Document = Backbone.Model.extend
     else if @type() is "script"
       helpers.processScriptContent.call(@, @get('compiled'))
 
+  # Determines how we will handle the compiled assets when loading in the page
   type: ()->
     switch @get("mode")
       when "css","sass","scss","less"
         "stylesheet"
-
       when "coffeescript","javascript","skim","mustache","jst","haml","eco"
         "script"
 
+  # If this is an adHoc document that is not being saved to disk, or rather
+  # pulled from an existing asset on disk, then we will need to create an extension
+  # that is appropriate for the CodeMirror mode, for the purposes of on the fly compilation
+  determineExtension: ()->
+    if !@get("name") && !@get("path")
+      return CodeSync.AssetEditor.guessExtensionFor CodeSync.get("defaultFileType")
+
+    filename = @get("name")
+    filename ||= if path = @get("path")
+      path.split('/').pop()
+
+    [filename,parts...] = filename.split('.')
+
+    parts.join('.')
+
+  # Determine a CodeMirror mode setting appropriate for the file extension
   determineMode: ->
-    path = @get("path") || @get("name")
+    path = @get("path") || @get("name") || @get("extension")
+    mode = CodeSync.AssetEditor.guessModeFor(path) || CodeSync.get("defaultFileType")
+    mode = if mode is "scss" then "css" else mode
 
-    unless path?
-      return CodeSync.get("defaultFileType")
-
-    mode = if path.match(/\.coffee/)
-      "coffeescript"
-    else if path.match(/\.js$/)
-      "javascript"
-    else if path.match(/\.md$/)
-      "markdown"
-    else if path.match(/\.css$/)
-      "css"
-    else if path.match(/\.rb$/)
-      "ruby"
-    else if path.match(/\.html$/)
-      "htmlmixed"
-    else if path.match(/\.less/)
-      "less"
-    else if path.match(/\.skim/)
-      "skim"
-    else if path.match(/\.haml/)
-      "haml"
-    else if path.match(/\.sass/)
-      "sass"
-    else if path.match(/\.scss/)
-      "css"
-
+CodeSync.Documents = Backbone.Collection.extend
+  model: CodeSync.Document
 
 helpers =
   processStyleContent: (content)->

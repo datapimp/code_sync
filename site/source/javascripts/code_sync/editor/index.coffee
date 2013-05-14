@@ -8,51 +8,82 @@ CodeSync.AssetEditor = Backbone.View.extend
 
   className: "codesync-editor"
 
-  renderVisible: true
-
   autoRender: true
 
   position: "top"
 
-  useDocumentManager: true
+  effect: "slide"
 
-  simpleMode: false
+  effectDuration: 400
 
-  views: {}
+  editorChangeThrottle: 1200
 
-  events:
-    "click .asset-save-controls .save-button" : "saveAsset"
-    "click .asset-save-controls .open-button" : "toggleAssetSelector"
-    "click .toggle-preferences"               : "togglePreferencesPanel"
+  visible: false
 
   initialize: (@options={})->
     _.extend(@, @options)
 
+    _.bindAll(@, "editorChangeHandler")
+
+    @views = {}
+
     @$el.addClass "#{ @position }-positioned"
-
-    @defaultFileType = @defaultFileType || CodeSync.get("defaultFileType")
-    @defaultExtension = @defaultExtension || @setDefaultExtension(@defaultFileType)
-
-    @assetCompilationEndpoint = CodeSync.get("assetCompilationEndpoint")
-
-    #if client = CodeSync.Client.get()
-    #  client.onNotification = (notification)=>
-    #    console.log "Editor trapping notification", @currentPath, notification
-
 
     @render() unless @autoRender is false
 
-    @on "editor:change", _.debounce(@editorChangeHandler, 1200), @
+    @on "editor:change", _.debounce(@editorChangeHandler, @editorChangeThrottle), @
 
-  editorChangeHandler: ()->
+
+  setupCodeMirror: ()->
+    return if @codeMirror?
+
+    @height ||= @$el.height()
+    @codeMirror = CodeMirror(@$('.codesync-asset-editor')[0], @getCodeMirrorOptions())
+
+    @trigger "codemirror:setup"
+
+    changeHandler = (changeObj)=>
+      @trigger "editor:change", @codeMirror.getValue(), changeObj
+
+    @codeMirror.on "change", _.debounce(changeHandler, @editorChangeThrottle)
+
+    #@codeMirror.on "focus", ()=> @views.preferencesPanel.$el.hide()
+
+    @
+
+  getCodeMirrorOptions: ()->
+    theme: 'lesser-dark'
+    lineNumbers: true
+    autofocus: true
+    mode: CodeSync.AssetEditor.guessModeFor(@defaultExtension)
+    extraKeys:
+      "Ctrl-S": ()=>
+        @documentManager.saveCurrentDocument()
+
+      "Ctrl-N": ()=>
+        @documentManager.newDocument()
+
+      "Ctrl-J": ()=>
+        @toggle()
+
+      "Ctrl-T": ()=>
+        @documentManager.toggleAssetSelector()
+
+  editorChangeHandler: (editorContents)->
+    documentModel = @views.documentManager.getCurrentDocument()
+    documentModel.set("contents", editorContents)
 
   render: ()->
     return @ if @rendered is true
 
-    @rendered = true
-    @visible  = false
+    @$el.html JST["code_sync/editor/templates/asset_editor"]()
 
-    @show()
+    @views.documentManager = new CodeSync.DocumentManager(editor: @)
+
+    @on "codemirror:setup", ()=>
+      @$el.append @views.documentManager.render().el
+
+    @rendered = true
 
     @
 
@@ -63,92 +94,68 @@ CodeSync.AssetEditor = Backbone.View.extend
     if options.type is "success"
       _.delay ()=>
         @$('.status-message').fadeOut()
-      , 400
+      , @effectDuration
 
-  getCurrentDocument: ()->
-    unless @document?
-      @document = CodeMirror.Doc("", @defaultFileType, 0)
+  effectSettings: ()->
+    switch @effect
 
-    @document
+      when "slide"
+        if @visible is true and @position is "top"
+          top: "#{ ((@height + 5) * -1) }px"
+        else
+          top: "0px"
 
-  hide: ()->
-    @$el.hide()
+      when "fade"
+        if @visible is true
+          opacity: 0
+        else
+          opacity: 0.98
+
+
+  hide: (withEffect=true)->
+    @animating = true
+
+    completeFn = _.debounce ()=>
+      @visible = false
+      @animating = false
+      @$el.hide()
+    , @effectDuration + 20
+
+    if withEffect is true
+      @$el.animate @effectSettings(), duration: @effectDuration, complete: completeFn
+      _.delay(completeFn, @effectDuration)
+    else
+      completeFn()
+
     @
 
-  slideOut: ()->
-    @$el.animate {top: "#{ (-1 * @height) - 10  }px"}, duration: 400
-
-  slideIn: ()->
-    @$el.animate {top: "0px"}, duration: 400
-
-  show: ()->
-    @$el.show()
+  show: (withEffect=true)->
     @setupCodeMirror()
-    window.scrollTo(0,0)
+
+    @$el.show()
+    @animating = true
+
+    completeFn = _.debounce ()=>
+      window.scrollTo(0,0)
+      @visible = true
+      @animating = false
+    , @effectDuration
+
+    if withEffect is true
+      @$el.animate @effectSettings(), duration: @effectDuration, complete: completeFn
+      _.delay(completeFn, @effectDuration)
+    else
+      completeFn()
+
     @
 
   toggle: ()->
-    if @$el.is(':visible') then @hide() else @show()
+    return if @animating is true
 
-  setupCodeMirror: _.once ()->
-    @height ||= @$el.height()
-    @codeMirror = CodeMirror @$('.codesync-asset-editor')[0], @getCodeMirrorOptions()
-    @codeMirror.swapDoc(@getCurrentDocument())
-
-    changeHandler = (changeObj)=>
-      @trigger "editor:change", @codeMirror.getValue(), changeObj
-
-    @codeMirror.on "change", _.debounce(changeHandler, 800)
-
-    @codeMirror.on "focus", ()=> @views.preferencesPanel.$el.hide()
-
-    @
-
-  slideToggle: ()->
-    top = @$el.css('top')
-    if top is "0px" then @slideOut() else @slideIn()
-
-  toggleNameInput: ()->
-    @views.nameInput?.toggle()
-
-  toggleAssetSelector: ()->
-    if !@_assetSelector
-      @_assetSelector = new CodeSync.AssetSelector(editor: @)
-      @$el.prepend(@_assetSelector.render().el)
-
-    @_assetSelector.toggle()
-
-  togglePreferencesPanel: ()->
-    @views.preferencesPanel?.toggle()
-
-  getCodeMirrorOptions: ()->
-    theme: 'lesser-dark'
-    lineNumbers: true
-    autofocus: true
-    mode: CodeSync.AssetEditor.guessModeFor(@defaultExtension)
-    extraKeys:
-      "Ctrl-S": ()=>
-        @saveAsset()
-
-      "Ctrl-N": ()=>
-        @currentPath = @currentName = undefined
-        @toggleNameInput()
-        @views.nameInput.$('input').focus()
-
-      "Ctrl-J": ()=>
-        @slideToggle()
-
-      "Ctrl-T": ()=>
-        @toggleAssetSelector()
-
-  determineModeFor: (path)->
-    mode = CodeSync.AssetEditor.guessModeFor(path)
-    @setMode(mode)
-    @views.preferencesPanel.syncWithEditorOptions()
-
-  setDefaultExtension: (mode)->
-    CodeSync.AssetEditor.guessExtensionFor(mode || @codeMirror?.getOption('mode'))
-    @
+    if @visible is true
+      @hide(true)
+    else
+      @show(true)
 
   setKeyMap: (keyMap)->
     @codeMirror.setOption 'keyMap', keyMap
@@ -215,12 +222,14 @@ CodeSync.AssetEditor.guessModeFor = (path)->
   else if path.match(/\.scss/)
     "css"
 
-CodeSync.AssetEditor.toggleEditor = (options={})->
+CodeSync.AssetEditor.toggleEditor = _.debounce (options={})->
   if window.codeSyncEditor?
-    window.codeSyncEditor.slideToggle()
+    window.codeSyncEditor.toggle()
   else
     window.codeSyncEditor = new CodeSync.AssetEditor(options)
-    window.codeSyncEditor.slideIn()
+    $('body').prepend(window.codeSyncEditor.render().el)
+    window.codeSyncEditor.show()
+, 1
 
 CodeSync.AssetEditor.setHotKey = (hotKey, options={})->
   key(hotKey, ()-> CodeSync.AssetEditor.toggleEditor(options))
