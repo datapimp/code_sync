@@ -1,18 +1,43 @@
-CodeSync.ModeSelector = Backbone.View.extend
+CodeSync.plugins.ModeSelector = Backbone.View.extend
   className: "mode-selector"
 
-  initialize: ()->
-    @collection = CodeSync.Modes.get()
-    @collection.on "reset", @render, @
+  events:
+    "change select" : "onSelect"
 
-    @$el.append "<select />"
+  initialize: (options={})->
+    @modes = CodeSync.Modes.get()
+    @modes.on "reset", @render, @
+
+    @editor = options.editor
+
+    Backbone.View::initialize.apply(@, arguments)
+
+  onSelect: ()->
+    selected = @$('select').val()
+    mode = @modes.get(selected)
+
+    @editor.setMode(mode)
+
+  setValue: (val)->
+    @$('select').val(val)
 
   render: ()->
-    select = @$('select')
+    options = ""
 
-    @collection.each (model)=>
-      select.append "<option value='#{ model.get('codeMirrorMode') }>#{ model.get('name') }</option>"
+    for mode in @modes.models
+      options += "<option value='#{ mode.id }'>#{ mode.get('name') }</option>"
+
+    @$el.html("<select>#{ options }</select>")
 
     @
+
+
+CodeSync.plugins.ModeSelector.setup = (editor)->
+  v = @views.modeSelector = new CodeSync.plugins.ModeSelector({editor})
+
+  editor.$el.append v.render().el
+
+  editor.on "document:loaded", (doc)->
+    v.setValue(doc.get('mode'))
 
 

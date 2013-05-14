@@ -70,7 +70,6 @@ CodeSync.AssetEditor = Backbone.View.extend
 
   getCodeMirrorOptions: ()->
     for keyCommand, handler of @codeMirrorKeyBindings
-      console.log "Defining Key Command #{ keyCommand }"
       @codeMirrorKeyBindings[keyCommand] = _.bind(handler, @)
 
     options =
@@ -96,6 +95,26 @@ CodeSync.AssetEditor = Backbone.View.extend
     @rendered = true
 
     @
+
+  onDocumentLoad: (doc)->
+    if @currentDocument?
+      @currentDocument.off "status", @showStatusMessage
+      @currentDocument.off "change:compiled", @loadDocumentInPage
+      @currentDocument.off "change:mode", @loadDocumentInPage, @
+
+    @currentDocument = doc
+
+    @trigger "document:loaded", doc
+
+    @codeMirror.swapDoc @currentDocument.toCodeMirrorDocument()
+
+    @currentDocument.on "status", @showStatusMessage, @
+    @currentDocument.on "change:compiled", @loadDocumentInPage, @
+    @currentDocument.on "change:mode", @loadDocumentInPage, @
+
+
+  loadDocumentInPage: ()->
+    @currentDocument?.loadInPage()
 
   loadAdhocDocument: ()->
     documentModel = @views.documentManager.createAdHocDocument()
@@ -179,9 +198,14 @@ CodeSync.AssetEditor = Backbone.View.extend
   setTheme: (theme)->
     @codeMirror.setOption 'theme', theme
 
-  setMode: (mode)->
-    @codeMirror.setOption 'mode', mode
-    @setDefaultExtension()
+  setMode: (@mode)->
+    if !_.isString(@mode)
+      codeMirrorMode = @mode.get("codeMirrorMode")
+
+    @codeMirror.setOption 'mode', codeMirrorMode
+    @currentDocument.set('mode', @mode.get("codeMirrorMode"))
+    @currentDocument.set('extension', CodeSync.Modes.guessExtensionFor(@mode.get("codeMirrorMode")) )
+
     @
 
 

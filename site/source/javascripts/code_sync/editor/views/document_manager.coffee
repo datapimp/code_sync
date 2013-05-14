@@ -110,14 +110,4 @@ CodeSync.plugins.DocumentManager.setup = (editor)->
   dm.on "tab:click", ()=>
     @show() if @visible is false
 
-  dm.on "document:loaded", (doc)=>
-    if @currentDocument?
-      @currentDocument.off "status", @showStatusMessage
-
-    @codeMirror.swapDoc doc.toCodeMirrorDocument()
-    @currentDocument = doc
-
-    @currentDocument.on "status", @showStatusMessage, @
-
-    @currentDocument.on "change:compiled", ()=>
-      @currentDocument.loadInPage()
+  dm.on "document:loaded", editor.onDocumentLoad, @

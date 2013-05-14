@@ -4,6 +4,10 @@ CodeSync.Document = Backbone.Model.extend
 
     @on "change:contents", @process, @
 
+    @on "change:mode", ()=>
+      @set('extension', @determineExtension(), silent: true)
+      @process()
+
 
   url: ()->
     CodeSync.get("assetCompilationEndpoint")
@@ -54,23 +58,25 @@ CodeSync.Document = Backbone.Model.extend
       when "coffeescript","javascript","skim","mustache","jst","haml","eco"
         "script"
 
+  missingFileName: ()->
+    name = (@get('path') || @get('name'))
+    !name? || name.length is 0
+
   # If this is an adHoc document that is not being saved to disk, or rather
   # pulled from an existing asset on disk, then we will need to create an extension
   # that is appropriate for the CodeMirror mode, for the purposes of on the fly compilation
   determineExtension: ()->
-    if @get("extension")
-      return @get("extension")
-
-    if !@get("name") && !@get("path")
-      return CodeSync.Modes.guessExtensionFor CodeSync.get("defaultFileType")
-
     filename = @get("name")
     filename ||= if path = @get("path")
       path.split('/').pop()
 
-    [filename,parts...] = filename.split('.')
+    if filename?.length > 0
+      [filename,parts...] = filename.split('.')
+      if parts.length > 0
+        return parts.join('.')
 
-    parts.join('.')
+    if @get("mode")?
+      return CodeSync.Modes.guessExtensionFor( @get('mode') || CodeSync.get("defaultFileType")  )
 
   # Determine a CodeMirror mode setting appropriate for the file extension
   determineMode: ->

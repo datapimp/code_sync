@@ -12,7 +12,9 @@ CodeSync.Modes = Backbone.Collection.extend
 
     @reset(models, silent: true)
 
-  findModeFor: (pathOrFilename)->
+  findModeFor: (pathOrFilename="")->
+    pathOrFilename = ".#{ pathOrFilename }" unless pathOrFilename.match(/\./)
+
     mode = @detect (model)=>
       regex = model.get("extensionRegex")
       regex.exec(pathOrFilename)
