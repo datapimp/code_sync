@@ -2,6 +2,8 @@
   position: absolute;
   left: 10px;
   bottom: 0px;
+  z-index: 9000;
+
   .document-tab {
     float: left;
     margin-right: 3px;
@@ -10,5 +12,7 @@
     padding: 0px 8px;
     border-radius: 0px 0px 4px 4px;
     cursor: pointer;
+    background: rgba(40,40,40,0.9);
+    color: #fff;
   }
 }

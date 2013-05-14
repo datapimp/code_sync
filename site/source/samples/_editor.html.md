@@ -1,3 +1,4 @@
+```haml
 html
   head
     = stylesheet_link_tag 'code_sync'
@@ -5,3 +6,5 @@ html
     = javascript_include_tag 'code_sync'
     :javascript
       window.codeSyncClient = new CodeSync.Client()
+      CodeSync.AssetEditor.setHotKey('ctrl+j')
+```

@@ -1,4 +1,9 @@
-CodeSync.DocumentManager = Backbone.View.extend
+CodeSync.plugins.DocumentManager = Backbone.View.extend
+
+  events:
+    "click .document-tab" : "onTabClick"
+    "click .document-tab.closable .close-anchor" : "closeTab"
+
   initialize: (options={})->
     @editor = options.editor
 
@@ -17,13 +22,38 @@ CodeSync.DocumentManager = Backbone.View.extend
 
     @state.on "change:currentDocument", @highlightActiveDocumentTab, @
 
+    @on "editor:hidden", ()=>
+      @$('.document-tab.closable').hide()
+
+    @on "editor:visible", ()=>
+      @$('.document-tab.closable').show()
+
+
   renderTabs: ()->
     container = @$('.document-tabs-container').empty()
 
-    for documentModel in @openDocuments.models
-      container.append "<div class='document-tab'>#{ documentModel.get('display') }</div>"
+    for documentModel,index in @openDocuments.models
+      cls = ""
+      closeAnchor = ""
+
+      unless documentModel.id is 1
+        cls = 'closable'
+        closeAnchor = "<small class='close-anchor'>x</small>"
+
+      container.append "<div class='document-tab #{ cls }' data-document-index='#{ index }'>#{ documentModel.get('display') } #{ closeAnchor }</div>"
 
     @
+
+  onTabClick: (e)->
+    @trigger "tab:click"
+    target = @$(e.target).closest('.document-tab')
+    documentModel = @openDocuments.at target.data('document-index')
+    @loadDocument(documentModel)
+
+  closeTab: (e)->
+    target = @$(e.target).closest('.document-tab')
+    documentModel = @openDocuments.at target.data('document-index')
+    @openDocuments.remove(documentModel)
 
   highlightActiveDocumentTab: ()->
 
@@ -32,7 +62,18 @@ CodeSync.DocumentManager = Backbone.View.extend
 
   loadDocument: (documentModel)->
     @state.set "currentDocument", documentModel
-    @editor.codeMirror.swapDoc documentModel.toCodeMirrorDocument()
+    @trigger "document:loaded", documentModel
+
+  createDocument: ()->
+    @openDocuments.add
+      name: "untitled"
+      display: "Untitled"
+      mode: CodeSync.get("defaultFileType")
+      extension: CodeSync.Modes.guessExtensionFor(CodeSync.get("defaultFileType"))
+
+    documentModel = @openDocuments.last()
+
+    @loadDocument(documentModel)
 
   createAdHocDocument: ()->
     @openDocuments.add
@@ -41,7 +82,7 @@ CodeSync.DocumentManager = Backbone.View.extend
       name: "scratch-pad"
       mode: "sass"
       path: undefined
-      display: "Scratch Pad"
+      display: "CodeSync Editor"
       contents: "// Feel free to experiment with Sass"
 
     @openDocuments.get(1)
@@ -49,3 +90,34 @@ CodeSync.DocumentManager = Backbone.View.extend
   render: ()->
     @loadDocument @createAdHocDocument()
     @
+
+
+CodeSync.plugins.DocumentManager.setup = (editor)->
+  dm = @views.documentManager = new CodeSync.plugins.DocumentManager(editor: @)
+
+  _.extend editor.codeMirrorKeyBindings,
+    "Ctrl-S": ()->
+      dm.getCurrentDocument().save()
+
+    "Ctrl-N": ()->
+      dm.createDocument()
+
+
+  @$el.append(dm.render().el)
+
+  @on "codemirror:setup", @loadAdhocDocument, @
+
+  dm.on "tab:click", ()=>
+    @show() if @visible is false
+
+  dm.on "document:loaded", (doc)=>
+    if @currentDocument?
+      @currentDocument.off "status", @showStatusMessage
+
+    @codeMirror.swapDoc doc.toCodeMirrorDocument()
+    @currentDocument = doc
+
+    @currentDocument.on "status", @showStatusMessage, @
+
+    @currentDocument.on "change:compiled", ()=>
+      @currentDocument.loadInPage()

@@ -10,6 +10,7 @@ CodeSync.VERSION    = "0.5.2"
 CodeSync.backends   = {}
 
 CodeSync.util       = {}
+CodeSync.plugins    = {}
 
 CodeSync._config ||=
   defaultFileType: "coffeescript"

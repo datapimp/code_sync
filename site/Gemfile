@@ -4,8 +4,8 @@ source 'http://rubygems.org'
 
 gem "middleman", "~>3.0.13"
 gem "middleman-sprockets"
-gem "middleman-syntax"
-gem "kramdown"
+gem "middleman-syntax", '1.1.1'
+gem "redcarpet"
 
 gem "slim"
 gem "skim"

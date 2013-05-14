@@ -20,6 +20,19 @@ CodeSync.AssetEditor = Backbone.View.extend
 
   visible: false
 
+  showVisibleTab: true
+
+  events:
+    "click .status-message" : (e)->
+      target = $(e.target).closest('.status-message')
+      target.remove()
+
+  plugins:[
+    "DocumentManager"
+    "ModeSelector"
+    "PreferencesPanel"
+  ]
+
   initialize: (@options={})->
     _.extend(@, @options)
 
@@ -32,7 +45,6 @@ CodeSync.AssetEditor = Backbone.View.extend
     @render() unless @autoRender is false
 
     @on "editor:change", _.debounce(@editorChangeHandler, @editorChangeThrottle), @
-
 
   setupCodeMirror: ()->
     return if @codeMirror?
@@ -51,23 +63,21 @@ CodeSync.AssetEditor = Backbone.View.extend
 
     @
 
+  codeMirrorKeyBindings:
+    "Ctrl-J": ()->
+      @toggle()
+
+
   getCodeMirrorOptions: ()->
-    theme: 'lesser-dark'
-    lineNumbers: true
-    autofocus: true
-    mode: CodeSync.AssetEditor.guessModeFor(@defaultExtension)
-    extraKeys:
-      "Ctrl-S": ()=>
-        @documentManager.saveCurrentDocument()
+    for keyCommand, handler of @codeMirrorKeyBindings
+      console.log "Defining Key Command #{ keyCommand }"
+      @codeMirrorKeyBindings[keyCommand] = _.bind(handler, @)
 
-      "Ctrl-N": ()=>
-        @documentManager.newDocument()
-
-      "Ctrl-J": ()=>
-        @toggle()
-
-      "Ctrl-T": ()=>
-        @documentManager.toggleAssetSelector()
+    options =
+      theme: 'lesser-dark'
+      lineNumbers: true
+      mode: CodeSync.Modes.guessModeFor(@defaultExtension)
+      extraKeys: @codeMirrorKeyBindings
 
   editorChangeHandler: (editorContents)->
     documentModel = @views.documentManager.getCurrentDocument()
@@ -78,14 +88,18 @@ CodeSync.AssetEditor = Backbone.View.extend
 
     @$el.html JST["code_sync/editor/templates/asset_editor"]()
 
-    @views.documentManager = new CodeSync.DocumentManager(editor: @)
+    for plugin in @plugins when CodeSync.plugins[plugin]?
+      PluginClass = CodeSync.plugins[plugin]
+      PluginClass.setup.call(@, @)
 
-    @on "codemirror:setup", ()=>
-      @$el.append @views.documentManager.render().el
-
+    @delegateEvents()
     @rendered = true
 
     @
+
+  loadAdhocDocument: ()->
+    documentModel = @views.documentManager.createAdHocDocument()
+    @views.documentManager.loadDocument(documentModel)
 
   showStatusMessage:(options={})->
     @$('.status-message').remove()
@@ -93,15 +107,16 @@ CodeSync.AssetEditor = Backbone.View.extend
 
     if options.type is "success"
       _.delay ()=>
-        @$('.status-message').fadeOut()
-      , @effectDuration
+        @$('.status-message').animate({opacity:0}, duration: 400, complete: ()=> @$('.status-message').remove())
+      , 1200
 
   effectSettings: ()->
     switch @effect
 
       when "slide"
         if @visible is true and @position is "top"
-          top: "#{ ((@height + 5) * -1) }px"
+          offset = if @showVisibleTab then @$('.document-tabs-container').height() else 0
+          top: "#{ ((@height + 5) * -1 + offset) }px"
         else
           top: "0px"
 
@@ -115,10 +130,11 @@ CodeSync.AssetEditor = Backbone.View.extend
   hide: (withEffect=true)->
     @animating = true
 
+    view.trigger("editor:hidden") for viewName, view of @views
+
     completeFn = _.debounce ()=>
       @visible = false
       @animating = false
-      @$el.hide()
     , @effectDuration + 20
 
     if withEffect is true
@@ -132,11 +148,11 @@ CodeSync.AssetEditor = Backbone.View.extend
   show: (withEffect=true)->
     @setupCodeMirror()
 
-    @$el.show()
     @animating = true
 
+    view.trigger("editor:visible") for viewName, view of @views
+
     completeFn = _.debounce ()=>
-      window.scrollTo(0,0)
       @visible = true
       @animating = false
     , @effectDuration
@@ -174,53 +190,6 @@ CodeSync.AssetEditor = Backbone.View.extend
 CodeSync.AssetEditor.keyboardShortcutInfo = """
 ctrl+j: toggle editor ctrl+t: open asset
 """
-
-CodeSync.AssetEditor.guessExtensionFor = (mode)->
-  switch mode
-    when "skim"
-      ".jst.skim"
-    when "markdown"
-      ".jst.md"
-    when "haml"
-      ".jst.haml"
-    when "css"
-      ".css.scss"
-    when "sass"
-      ".css.sass"
-    when "coffeescript"
-      ".coffee"
-    when "javascript"
-      ".js"
-    when "ruby"
-      ".rb"
-    else
-      ".coffee"
-
-CodeSync.AssetEditor.guessModeFor = (path)->
-  path = ".#{ path }"
-
-  mode = if path.match(/\.coffee/)
-    "coffeescript"
-  else if path.match(/\.js$/)
-    "javascript"
-  else if path.match(/\.md$/)
-    "markdown"
-  else if path.match(/\.css$/)
-    "css"
-  else if path.match(/\.rb$/)
-    "ruby"
-  else if path.match(/\.html$/)
-    "htmlmixed"
-  else if path.match(/\.less/)
-    "less"
-  else if path.match(/\.skim/)
-    "skim"
-  else if path.match(/\.haml/)
-    "haml"
-  else if path.match(/\.sass/)
-    "sass"
-  else if path.match(/\.scss/)
-    "css"
 
 CodeSync.AssetEditor.toggleEditor = _.debounce (options={})->
   if window.codeSyncEditor?

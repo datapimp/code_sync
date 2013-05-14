@@ -1,4 +1,5 @@
 .codesync-editor-wrapper
   .codesync-asset-editor
   .preferences-panel style="display:none"
+  .mode-selector-wrapper
 

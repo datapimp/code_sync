@@ -9,15 +9,26 @@ $editorWidth: 960px;
 $editorHeight: 400px;
 
 .codesync-editor {
-  position: absolute;
+  position: fixed;
   z-index: 30000;
-  background-color: #e3e3e3;
-  box-shadow: 0 0 6px rgba(0,0,0,0.9);
+  background: rgba(200,200,200,0.0);
   opacity: 0.95;
   left: 50%;
   margin-left: $editorWidth * 0.5 * -1;
   width: $editorWidth;
   height: $editorHeight;
+
+  .codesync-editor-wrapper {
+    position: relative;
+    bottom: 0px;
+    height: 100%;
+    width: $editorWidth - 20;
+    z-index: 90;
+    margin: 0px auto;
+    .CodeMirror {
+      height: $editorHeight - 25;
+    }
+  }
 
   &.top-positioned {
     border-radius: 0px 0px 4px 4px;
@@ -44,19 +55,6 @@ $editorHeight: 400px;
   .keyboard-shortcut-info {
     text-align: right;
     font-size: 0.9em;
-  }
-
-  .codesync-editor-wrapper {
-    .CodeMirror {
-      height: $editorHeight * 0.95;
-    }
-
-    position: relative;
-    bottom: 0px;
-    height: 100%;
-    width: $editorWidth - 20;
-    z-index: 90;
-    margin: 0px auto;
   }
 
   .asset-save-controls {
