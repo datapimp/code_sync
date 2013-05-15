@@ -18,7 +18,6 @@ CodeSync.AssetSelector = Backbone.View.extend
       @$('.search-result').removeClass('active')
       @$('.search-result').eq(value).addClass('active')
 
-
   keyHandler: (e)->
     switch e.keyCode
       when 13
@@ -59,9 +58,7 @@ CodeSync.AssetSelector = Backbone.View.extend
     @loadAsset $(e.target)?.data('path')
 
   loadAsset: (path)->
-    if path
-      @editor.loadAsset(path)
-      @hide()
+    @trigger "asset:selected", path
 
   filterAssetsBy: (value)->
     return if value.length <= 1
@@ -71,7 +68,7 @@ CodeSync.AssetSelector = Backbone.View.extend
 
     @selected.set('index',-1, silent: true)
 
-    @searchResults = @editor.assetsCollection.select (model)->
+    @searchResults = @collection.select (model)->
       regex = new RegExp("#{value}")
       model.get("description")?.match(regex) || model.get("path")?.match(regex)
 
@@ -99,13 +96,11 @@ CodeSync.AssetSelector = Backbone.View.extend
     @$('input').val('').focus()
 
   hide: ()->
-    #@$('input').blur()
-    #@wrapper.height(0)
     @$el.hide()
     @visible = false
     @editor.codeMirror.focus()
 
   render: ()->
-    @$el.html JST["code_sync/templates/asset_selector"]()
+    @$el.html JST["code_sync/editor/templates/asset_selector"]()
     @wrapper ||= @$('.search-results-wrapper')
     @

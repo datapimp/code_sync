@@ -1,0 +1,5 @@
+.asset-selector-wrapper
+  .search-input
+    input placeholder="Type the name of an asset to open it" type="text"
+  .search-results-wrapper
+    .search-results

@@ -3,7 +3,7 @@ CodeSync.plugins.DocumentManager = Backbone.View.extend
   views: {}
 
   events:
-    "click .document-tab.selectable" : "onDocumentSelection"
+    "click .document-tab.selectable" : "onDocumentTabSelection"
     "click .document-tab.closable .close-anchor" : "closeTab"
     "click .document-tab.new-document" : "createDocument"
     "click .document-tab.open-document": "toggleAssetSelector"
@@ -32,7 +32,12 @@ CodeSync.plugins.DocumentManager = Backbone.View.extend
     @on "editor:visible", ()=>
       @$('.document-tab.hideable').show()
 
-    @views.assetSelector = new CodeSync.AssetSelector()
+    @views.assetSelector = new CodeSync.AssetSelector
+      collection: @projectAssets
+      documents: @openDocuments
+      editor: @editor
+
+    @views.assetSelector.on "asset:selected", @onAssetSelection, @
 
   renderTabs: ()->
     container = @$('.document-tabs-container').empty()
@@ -45,14 +50,18 @@ CodeSync.plugins.DocumentManager = Backbone.View.extend
         cls = 'closable hideable'
         closeAnchor = "<small class='close-anchor'>x</small>"
 
-      container.append "<div class='document-tab #{ cls }' data-document-index='#{ index }'>#{ documentModel.get('display') } #{ closeAnchor }</div>"
+      container.append "<div class='document-tab selectable #{ cls }' data-document-id='#{ documentModel.id }' data-document-index='#{ index }'>#{ documentModel.get('display') } #{ closeAnchor }</div>"
 
     container.append "<div class='document-tab static new-document hideable'>New</div>"
     container.append "<div class='document-tab static open-document hideable'>Open</div>"
 
     @
 
-  onDocumentSelection: (e)->
+  onAssetSelection: (path)->
+    @openDocuments.findOrCreateForPath path, (documentModel)=>
+      @loadDocument(documentModel)
+
+  onDocumentTabSelection: (e)->
     @trigger "tab:click"
     target = @$(e.target).closest('.document-tab')
     documentModel = @openDocuments.at target.data('document-index')
@@ -62,8 +71,6 @@ CodeSync.plugins.DocumentManager = Backbone.View.extend
     target = @$(e.target).closest('.document-tab')
     documentModel = @openDocuments.at target.data('document-index')
     @openDocuments.remove(documentModel)
-
-  highlightActiveDocumentTab: ()->
 
   getCurrentDocument: ()->
     @state.get("currentDocument")
@@ -109,6 +116,9 @@ CodeSync.plugins.DocumentManager.setup = (editor)->
   dm = @views.documentManager = new CodeSync.plugins.DocumentManager(editor: @)
 
   _.extend editor.codeMirrorKeyBindings,
+    "Ctrl-T": ()->
+      dm.toggleAssetSelector()
+
     "Ctrl-S": ()->
       dm.getCurrentDocument().save()
 

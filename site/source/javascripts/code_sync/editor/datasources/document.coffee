@@ -14,14 +14,25 @@ CodeSync.Document = Backbone.Model.extend
   url: ()->
     CodeSync.get("assetCompilationEndpoint")
 
+  loadSourceFromDisk: (callback)->
+    $.ajax
+      url: "#{ @url() }?path=#{ @get('path') }"
+      type: "GET"
+      success: (response={})=>
+        if response.success is true and response.contents?
+          @set("contents", response.contents, silent: true)
+          callback(@)
+
+
   # Meh this isn't working so great
-  defaults: ()->
-    name: "untitled"
-    mode: @determineMode() || CodeSync.get("defaultFileType")
-    extension: @determineExtension()
-    compiled: ""
-    display: "Untitled"
-    contents: "//"
+  applyDefaults: ()->
+    @attributes = _.defaults @attributes,
+      name: "untitled"
+      mode: @determineMode() || CodeSync.get("defaultFileType")
+      extension: @determineExtension()
+      compiled: ""
+      display: "Untitled"
+      contents: "//"
 
   toJSON: ()->
     name: @get('name')
@@ -32,11 +43,13 @@ CodeSync.Document = Backbone.Model.extend
   toCodeMirrorDocument: ()->
     CodeMirror.Doc "#{ @get("contents") || '' }", @get("mode"), 0
 
-  process: ()->
+  process: (allowSaveToDisk=false)->
+    data = if allowSaveToDisk is true then @toJSON() else _(@toJSON()).pick('name','extension','contents')
+
     $.ajax
       type: "POST"
       url: CodeSync.get("assetCompilationEndpoint")
-      data: JSON.stringify(@toJSON())
+      data: JSON.stringify(data)
       success: (response)=>
         if response.success is true and response.compiled?
           @set("compiled", response.compiled)
@@ -71,14 +84,10 @@ CodeSync.Document = Backbone.Model.extend
   # pulled from an existing asset on disk, then we will need to create an extension
   # that is appropriate for the CodeMirror mode, for the purposes of on the fly compilation
   determineExtension: ()->
-    filename = @get("name")
-    filename ||= if path = @get("path")
-      path.split('/').pop()
+    filename = @get("path") || @get("name")
 
-    if filename?.length > 0
-      [filename,parts...] = filename.split('.')
-      if parts.length > 0
-        return parts.join('.')
+    if extension = CodeSync.Document.getExtensionFor(filename)
+      return extension
 
     if @get("mode")?
       return CodeSync.Modes.guessExtensionFor( @get('mode') || CodeSync.get("defaultFileType")  )
@@ -88,8 +97,41 @@ CodeSync.Document = Backbone.Model.extend
     path = @get("path") || @get("name") || @get("extension")
     CodeSync.Modes.guessModeFor(path)
 
+CodeSync.Document.getFileNameFrom = (string="")->
+  string.split('/').pop()
+
+CodeSync.Document.getExtensionFor = (string="")->
+  filename = CodeSync.Document.getFileNameFrom(string)
+
+  [fname,rest...] = filename.split('.')
+
+  if val = rest.length > 0 && rest.join('.')
+    ".#{ val }"
+
 CodeSync.Documents = Backbone.Collection.extend
   model: CodeSync.Document
+
+  nextId: ()->
+    @models.length + 1
+
+  findOrCreateForPath: (path="", callback)->
+    documentModel = @detect (documentModel)->
+      documentModel.get('path')?.match(path)
+
+    if documentModel?
+      callback?(documentModel)
+    else
+      name = CodeSync.Document.getFileNameFrom(path)
+      extension = CodeSync.Document.getExtensionFor(name)
+      display = name.replace(extension,'')
+      id = @nextId()
+
+      documentModel = new CodeSync.Document({name,extension,display,path,id})
+      documentModel.applyDefaults()
+
+      documentModel.loadSourceFromDisk ()=>
+        @add(documentModel)
+        callback?(documentModel)
 
 helpers =
   processStyleContent: (content)->
