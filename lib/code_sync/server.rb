@@ -64,7 +64,7 @@ module CodeSync
         end
 
         begin
-          raise 'Saving is disabled' if CodeSync.allow_saving?
+          raise 'Saving is disabled' unless CodeSync.allow_saving?
 
           if File.exists?(path)
             File.open(path,"w+") {|fh| fh.puts(contents)}
@@ -117,12 +117,14 @@ module CodeSync
           return response
         end
 
-        if params["path"] && params["contents"]
+        if params["path"] && params["contents"] && params["path"].length > 0
           handle_file_write(params, response)
+          return response
         end
 
         if params["name"] && params["extension"] && params["contents"]
           handle_adhoc_compilation(params, response)
+          return response
         end
 
         response

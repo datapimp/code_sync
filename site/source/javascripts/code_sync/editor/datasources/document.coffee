@@ -15,6 +15,12 @@ CodeSync.Document = Backbone.Model.extend
   url: ()->
     CodeSync.get("assetCompilationEndpoint")
 
+  saveToDisk: ()->
+    console.log "Document Save To Disk", @get("path"), @get("path")?.length
+
+    if @get("path")?.length > 0
+      @process(true, "Save To Disk")
+
   loadSourceFromDisk: (callback)->
     $.ajax
       url: "#{ @url() }?path=#{ @get('path') }"
@@ -47,14 +53,19 @@ CodeSync.Document = Backbone.Model.extend
   process: (allowSaveToDisk=false)->
     data = if allowSaveToDisk is true then @toJSON() else _(@toJSON()).pick('name','extension','contents')
 
+    console.log "Process", arguments, data
+
     $.ajax
       type: "POST"
       url: CodeSync.get("assetCompilationEndpoint")
       data: JSON.stringify(data)
       success: (response)=>
+        console.log "Process Response", response
+        if response.success is true
+          @trigger "status", type: "success", message: "Success"
+
         if response.success is true and response.compiled?
           @set("compiled", response.compiled)
-          @trigger "status", type: "success", message: "Success"
 
         if response.success is false and response.error?
           @set("error", response.error?.message)

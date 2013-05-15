@@ -6,6 +6,7 @@ CodeSync.plugins.DocumentManager = Backbone.View.extend
     "click .document-tab.selectable" : "onDocumentTabSelection"
     "click .document-tab.closable .close-anchor" : "closeTab"
     "click .document-tab.new-document" : "createDocument"
+    "click .document-tab.save-document" : "saveDocument"
     "click .document-tab.open-document": "toggleAssetSelector"
     "dblclick .document-tab.selectable" : "onDoubleClickTab"
 
@@ -35,6 +36,8 @@ CodeSync.plugins.DocumentManager = Backbone.View.extend
 
     @on "editor:visible", ()=>
       @$('.document-tab.hideable').show()
+      @toggleSaveButton()
+
 
     @views.assetSelector = new CodeSync.AssetSelector
       collection: @projectAssets
@@ -57,7 +60,12 @@ CodeSync.plugins.DocumentManager = Backbone.View.extend
       container.append "<div class='document-tab selectable #{ cls }' data-document-id='#{ documentModel.id }' data-document-index='#{ index }'><span class='contents'>#{ documentModel.get('display') }</span> #{ closeAnchor }</div>"
 
     container.append "<div class='document-tab static new-document hideable'>New</div>"
-    container.append "<div class='document-tab static open-document hideable'>Open</div>"
+
+    unless CodeSync.get("disableAssetOpen") is true
+      container.append "<div class='document-tab static open-document hideable'>Open</div>"
+
+    unless CodeSync.get("disableAssetSave") is true
+      container.append "<div class='document-tab static save-document hideable'>Save</div>"
 
     @
 
@@ -113,11 +121,21 @@ CodeSync.plugins.DocumentManager = Backbone.View.extend
     @loadDocument( @openDocuments.at(index - 1) || @openDocuments.at(0) )
 
   getCurrentDocument: ()->
-    @state.get("currentDocument")
+    @currentDocument
 
   loadDocument: (documentModel)->
-    @state.set "currentDocument", documentModel
+    @currentDocument = documentModel
     @trigger "document:loaded", documentModel
+    @toggleSaveButton()
+
+  toggleSaveButton: ()->
+    if @currentDocument?.get("path")?.length > 0
+      @$('.save-document').show()
+    else
+      @$('.save-document').hide()
+
+  saveDocument: ()->
+    @currentDocument.saveToDisk()
 
   createDocument: ()->
     @openDocuments.add
