@@ -1,8 +1,12 @@
 CodeSync.plugins.DocumentManager = Backbone.View.extend
 
+  views: {}
+
   events:
-    "click .document-tab" : "onTabClick"
+    "click .document-tab.selectable" : "onDocumentSelection"
     "click .document-tab.closable .close-anchor" : "closeTab"
+    "click .document-tab.new-document" : "createDocument"
+    "click .document-tab.open-document": "toggleAssetSelector"
 
   initialize: (options={})->
     @editor = options.editor
@@ -23,11 +27,12 @@ CodeSync.plugins.DocumentManager = Backbone.View.extend
     @state.on "change:currentDocument", @highlightActiveDocumentTab, @
 
     @on "editor:hidden", ()=>
-      @$('.document-tab.closable').hide()
+      @$('.document-tab.hideable').hide()
 
     @on "editor:visible", ()=>
-      @$('.document-tab.closable').show()
+      @$('.document-tab.hideable').show()
 
+    @views.assetSelector = new CodeSync.AssetSelector()
 
   renderTabs: ()->
     container = @$('.document-tabs-container').empty()
@@ -37,14 +42,17 @@ CodeSync.plugins.DocumentManager = Backbone.View.extend
       closeAnchor = ""
 
       unless documentModel.id is 1
-        cls = 'closable'
+        cls = 'closable hideable'
         closeAnchor = "<small class='close-anchor'>x</small>"
 
       container.append "<div class='document-tab #{ cls }' data-document-index='#{ index }'>#{ documentModel.get('display') } #{ closeAnchor }</div>"
 
+    container.append "<div class='document-tab static new-document hideable'>New</div>"
+    container.append "<div class='document-tab static open-document hideable'>Open</div>"
+
     @
 
-  onTabClick: (e)->
+  onDocumentSelection: (e)->
     @trigger "tab:click"
     target = @$(e.target).closest('.document-tab')
     documentModel = @openDocuments.at target.data('document-index')
@@ -87,8 +95,13 @@ CodeSync.plugins.DocumentManager = Backbone.View.extend
 
     @openDocuments.get(1)
 
+  toggleAssetSelector: ()->
+    @views.assetSelector.toggle()
+
   render: ()->
     @loadDocument @createAdHocDocument()
+    @$el.append( @views.assetSelector.render().el )
+
     @
 
 

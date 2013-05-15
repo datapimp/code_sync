@@ -3,10 +3,11 @@
   left: 10px;
   bottom: 0px;
   z-index: 9000;
+  width: 940px;
+
 
   .document-tab {
     float: left;
-    margin-right: 3px;
     border: 1px solid #777;
     border-top: 0px;
     padding: 0px 8px;
@@ -14,5 +15,9 @@
     cursor: pointer;
     background: rgba(40,40,40,0.9);
     color: #fff;
+
+    &.static {
+      float: right;
+    }
   }
 }
