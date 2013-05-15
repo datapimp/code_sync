@@ -16,3 +16,8 @@ configure :build do
   activate :minify_javascript
   activate :relative_assets
 end
+
+after_build do
+  `cp build/javascripts/code_sync.js ../vendor/assets/javascripts`
+  `cp build/stylesheets/code_sync.css ../vendor/assets/stylesheets`
+end

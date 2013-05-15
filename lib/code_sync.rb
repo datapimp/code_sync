@@ -16,6 +16,10 @@ module CodeSync
   def self.gem_assets_root
     File.join(File.dirname(__FILE__), '..')
   end
+
+  def self.allow_saving?
+    !ENV['CODE_SYNC_SAVE_DISABLED'].nil?
+  end
 end
 
 # When using outside of Rails.

@@ -64,6 +64,8 @@ module CodeSync
         end
 
         begin
+          raise 'Saving is disabled' if CodeSync.allow_saving?
+
           if File.exists?(path)
             File.open(path,"w+") {|fh| fh.puts(contents)}
           else
