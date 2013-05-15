@@ -1,3 +1,3 @@
 module CodeSync
-  Version = "0.5.2"
+  Version = "0.5.9"
 end
