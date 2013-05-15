@@ -16,9 +16,19 @@ html lang="en"
         CodeSync.set "assetCompilationEndpoint", "http://infinite-beyond-8679.herokuapp.com/code-sync/source"
         CodeSync.set "serverInfoEndpoint", "http://infinite-beyond-8679.herokuapp.com/code-sync/info"
 
+    - if development?
+      javascript:
+        window.codeSyncClient = new CodeSync.Client()
+
     javascript:
-      window.codeSyncClient = new CodeSync.Client()
       CodeSync.AssetEditor.setHotKey('ctrl+j', {defaultFileType:"sass", defaultExtension:".css.sass"})
+
+      CodeSync.AssetEditor.toggleEditor()
+
+      $('.try-it-now').on("click", function(e){
+        CodeSync.AssetEditor.toggleEditor()
+      });
+
 
 
 
