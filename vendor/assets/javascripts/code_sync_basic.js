@@ -13,7 +13,7 @@
     CodeSync = root.CodeSync = {};
   }
 
-  CodeSync.VERSION = "0.6.0";
+  CodeSync.VERSION = "0.6.1";
 
   CodeSync.backends = {};
 
@@ -26,7 +26,8 @@
     assetCompilationEndpoint: "http://localhost:9295/source",
     serverInfoEndpoint: "http://localhost:9295/info",
     sprocketsEndpoint: "http://localhost:9295/assets",
-    socketEndpoint: "http://localhost:9295/faye"
+    socketEndpoint: "http://localhost:9295/faye",
+    editorToggleHotkey: "ctrl+j"
   });
 
   CodeSync.set = function(setting, value) {
@@ -335,7 +336,7 @@
       return Skim.withContext.call({}, context, function() {
         var _buf;
         _buf = [];
-        _buf.push("<div class=\"codesync-editor-wrapper\"><div class=\"codesync-asset-editor\"></div><div class=\"preferences-panel\" style=\"display:none\"></div><div class=\"mode-selector-wrapper\"></div></div>");
+        _buf.push("<div class=\"codesync-editor-wrapper\"><div class=\"codesync-asset-editor\"></div><div class=\"mode-selector-wrapper\"></div><div class=\"toolbar-wrapper\"></div></div>");
         return _buf.join('');
       });
     };
@@ -352,6 +353,40 @@
         var _buf;
         _buf = [];
         _buf.push("<div class=\"asset-selector-wrapper\"><div class=\"search-input\"><input placeholder=\"Type the name of an asset to open it\" type=\"text\" /></div><div class=\"search-results-wrapper\"><div class=\"search-results\"></div></div></div>");
+        return _buf.join('');
+      });
+    };
+  
+  }).call(this);;
+}).call(this);
+(function() { this.JST || (this.JST = {}); this.JST["code_sync/editor/templates/preferences_panel"] = (function() {
+  
+    return function(context) {
+      if (context == null) {
+        context = {};
+      }
+      return Skim.withContext.call({}, context, function() {
+        var _buf, _temple_coffeescript_attributeremover1, _temple_coffeescript_attributeremover2;
+        _buf = [];
+        _buf.push("<form><div class=\"control-group\"><label>KeyBindings</label><div class=\"controls\"><select name=\"keyMap\"><option value=\"default\">Default</option><option value=\"vim\">Vim</option></select></div></div><div class=\"control-group\"><label>Theme</label><div class=\"controls\"><select name=\"theme\"><option value=\"ambiance\">Ambiance</option><option value=\"lesser-dark\">Lesser Dark</option><option value=\"monokai\">Monokai</option><option value=\"xq-light\">XQ Light</option></select></div></div><div class=\"control-group\"><label>Asset Compiler Endpoint</label><div class=\"controls\"><input name=\"asset_endpoint\" type=\"text\"");
+        _temple_coffeescript_attributeremover1 = [];
+        _temple_coffeescript_attributeremover1.push(this.escape(CodeSync.get('assetCompilationEndpoint')));
+        _temple_coffeescript_attributeremover1.join('');
+        if (_temple_coffeescript_attributeremover1.length > 0) {
+          _buf.push(" value=\"");
+          _buf.push(_temple_coffeescript_attributeremover1);
+          _buf.push("\"");
+        }
+        _buf.push(" /></div></div><div class=\"control-group\"><label>Hotkey</label><div class=\"controls\"><input name=\"editor_hotkey\" type=\"text\"");
+        _temple_coffeescript_attributeremover2 = [];
+        _temple_coffeescript_attributeremover2.push(this.escape(CodeSync.get('editorToggleHotkey')));
+        _temple_coffeescript_attributeremover2.join('');
+        if (_temple_coffeescript_attributeremover2.length > 0) {
+          _buf.push(" value=\"");
+          _buf.push(_temple_coffeescript_attributeremover2);
+          _buf.push("\"");
+        }
+        _buf.push(" /></div></div></form>");
         return _buf.join('');
       });
     };
@@ -1162,41 +1197,24 @@
 
 }).call(this);
 (function() {
-  var markup;
 
-  CodeSync.PreferencesPanel = Backbone.View.extend({
+  CodeSync.plugins.PreferencesPanel = Backbone.View.extend({
     className: "preferences-panel",
     events: {
-      "change :input": "updateEditor"
+      "change select,input": function() {
+        return this.trigger("update:preferences");
+      }
     },
+    renderHidden: true,
     initialize: function(options) {
       this.editor = options.editor;
-      _.bindAll(this, "updateEditor");
-      this.$el.html(markup);
-      this.$("input[name='asset-url']").val(this.editor.assetCompilationEndpoint);
+      this.$el.html(JST["code_sync/editor/templates/preferences_panel"]());
       return Backbone.View.prototype.initialize.apply(this, arguments);
-    },
-    updateEditor: function() {
-      var values;
-      values = this.values();
-      this.editor.assetCompilationEndpoint = values["asset-url"];
-      this.editor.setTheme(values.theme);
-      this.editor.setKeyMap(values.keyMap);
-      return this.editor.setMode(values.mode);
-    },
-    setDefaultExtension: function(values) {
-      return this.editor.setDefaultExtension();
-    },
-    syncWithEditorOptions: function() {
-      this.$(":input[name='keyMap']").val(this.editor.codeMirror.getOption('keyMap'));
-      this.$(":input[name='mode']").val(this.editor.codeMirror.getOption('mode'));
-      this.$(":input[name='theme']").val(this.editor.codeMirror.getOption('theme'));
-      return this.$(":input[name='asset-url']").val(this.editor.assetCompilationEndpoint);
     },
     values: function() {
       var el, input, values, _i, _len, _ref;
       values = {};
-      _ref = this.$(':input');
+      _ref = this.$('input,select');
       for (_i = 0, _len = _ref.length; _i < _len; _i++) {
         el = _ref[_i];
         input = $(el);
@@ -1208,13 +1226,45 @@
       this.syncWithEditorOptions();
       return this.$el.toggle();
     },
+    syncWithEditorOptions: function() {
+      this.$('select[name="theme"]').val(this.editor.codeMirror.getOption('theme'));
+      this.$('select[name="keyMap"]').val(this.editor.codeMirror.getOption('keyMap'));
+      this.$('input[name="asset_endpoint"]').val(CodeSync.get("assetCompilationEndpoint"));
+      return this.$('input[name="editor_hotkey"]').val(CodeSync.get("editorToggleHotKey"));
+    },
     render: function() {
-      this.$el.hide();
+      if (this.renderHidden === true) {
+        this.$el.hide();
+      }
       return this;
     }
   });
 
-  markup = "<div class='mode-selector control-group'>\n  <label>Mode</label>\n  <div class='controls'>\n    <select name=\"mode\">\n      <option value=\"coffeescript\">Coffeescript</option>\n      <option value=\"css\">CSS</option>\n      <option value=\"haml\">Haml</option>\n      <option value=\"htmlmixed\">HTML</option>\n      <option value=\"javascript\">Javascript</option>\n      <option value=\"markdown\">Markdown</option>\n      <option value=\"sass\">Sass</option>\n      <option value=\"css\">SCSS</option>\n      <option value=\"skim\">Skim</option>\n      <option value=\"ruby\">Ruby</option>\n    </select>\n  </div>\n</div>\n<div class=\"keymap-selector control-group\">\n  <label>Keybindings</label>\n  <select name=\"keyMap\">\n    <option value=\"default\">Default</option>\n    <option value=\"vim\">Vim</option>\n  </select>\n</div>\n<div class=\"theme-selector control-group\">\n  <label>Theme</label>\n  <div class='controls'>\n    <select name=\"theme\">\n      <option value=\"ambiance\">Ambiance</option>\n      <option value=\"lesser-dark\">Lesser Dark</option>\n      <option value=\"monokai\">Monokai</option>\n      <option value=\"xq-light\">XQ Light</option>\n    </select>\n  </div>\n</div>\n<div class=\"asset-compilation-endpoint control-group\">\n  <label>Asset Compilation URL</label>\n  <input type=\"text\" name=\"asset-url\" />\n</div>";
+  CodeSync.plugins.PreferencesPanel.setup = function(editor) {
+    var panel,
+      _this = this;
+    panel = new CodeSync.plugins.PreferencesPanel({
+      editor: this
+    });
+    this.$('.toolbar-wrapper').append("<div class='button toggle-preferences'>Preferences</div>");
+    this.events["click .toggle-preferences"] = function() {
+      return panel.toggle();
+    };
+    this.$el.append(panel.render().el);
+    panel.on("update:preferences", function() {
+      var values;
+      values = panel.values();
+      editor.setTheme(values.theme);
+      editor.setKeyMap(values.keyMap);
+      CodeSync.set("assetCompilationEndpoint", values.asset_endpoint);
+      return CodeSync.AssetEditor.setHotKey(values.editor_hotkey);
+    });
+    return editor.on("codemirror:setup", function(cm) {
+      return cm.on("focus", function() {
+        return panel.$el.hide();
+      });
+    });
+  };
 
 }).call(this);
 (function() {
@@ -1228,12 +1278,10 @@
     editorChangeThrottle: 800,
     visible: false,
     showVisibleTab: true,
+    hideable: true,
     events: {
-      "click .status-message": function(e) {
-        var target;
-        target = $(e.target).closest('.status-message');
-        return target.remove();
-      }
+      "click .status-message": "removeStatusMessages",
+      "click .hide-button": "hide"
     },
     plugins: ["DocumentManager", "ModeSelector", "PreferencesPanel"],
     initialize: function(options) {
@@ -1255,7 +1303,7 @@
       }
       this.height || (this.height = this.$el.height());
       this.codeMirror = CodeMirror(this.$('.codesync-asset-editor')[0], this.getCodeMirrorOptions());
-      this.trigger("codemirror:setup");
+      this.trigger("codemirror:setup", this.codeMirror);
       changeHandler = function(changeObj) {
         return _this.trigger("editor:change", _this.codeMirror.getValue(), changeObj);
       };
@@ -1286,6 +1334,11 @@
       documentModel = this.views.documentManager.getCurrentDocument();
       return documentModel.set("contents", editorContents);
     },
+    setupToolbar: function() {
+      if (this.hideable === true) {
+        return this.$('.toolbar-wrapper').append("<div class='button hide-button'>Hide</div>");
+      }
+    },
     render: function() {
       var PluginClass, plugin, _i, _len, _ref,
         _this = this;
@@ -1302,6 +1355,7 @@
         PluginClass = CodeSync.plugins[plugin];
         PluginClass.setup.call(this, this);
       }
+      this.setupToolbar();
       this.delegateEvents();
       this.rendered = true;
       if (this.autoAppend === true) {
@@ -1350,12 +1404,15 @@
       documentModel = this.views.documentManager.createAdHocDocument();
       return this.views.documentManager.loadDocument(documentModel);
     },
+    removeStatusMessages: function() {
+      return this.$('.status-message').remove();
+    },
     showStatusMessage: function(options) {
       var _this = this;
       if (options == null) {
         options = {};
       }
-      this.$('.status-message').remove();
+      this.removeStatusMessages();
       this.$el.prepend("<div class='status-message " + options.type + "'>" + options.message + "</div>");
       if (options.type === "success") {
         return _.delay(function() {
@@ -1418,7 +1475,7 @@
         _this.visible = false;
         return _this.animating = false;
       }, this.effectDuration + 20);
-      if (withEffect === true) {
+      if (withEffect !== false) {
         this.$el.animate(this.effectSettings(), {
           duration: this.effectDuration,
           complete: completeFn
@@ -1446,7 +1503,7 @@
         _this.visible = true;
         return _this.animating = false;
       }, this.effectDuration);
-      if (withEffect === true) {
+      if (withEffect !== false) {
         this.$el.animate(this.effectSettings(), {
           duration: this.effectDuration,
           complete: completeFn
@@ -1506,6 +1563,7 @@
     if (options == null) {
       options = {};
     }
+    CodeSync.set("editorToggleHotkey", hotKey);
     return key(hotKey, function() {
       return CodeSync.AssetEditor.toggleEditor(options);
     });
