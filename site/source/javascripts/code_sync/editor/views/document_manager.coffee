@@ -64,8 +64,7 @@ CodeSync.plugins.DocumentManager = Backbone.View.extend
     unless CodeSync.get("disableAssetOpen") is true
       container.append "<div class='document-tab static open-document hideable'>Open</div>"
 
-    unless CodeSync.get("disableAssetSave") is true
-      container.append "<div class='document-tab static save-document hideable'>Save</div>"
+    container.append "<div class='document-tab static save-document hideable'>Save</div>"
 
     @
 
@@ -135,7 +134,10 @@ CodeSync.plugins.DocumentManager = Backbone.View.extend
       @$('.save-document').hide()
 
   saveDocument: ()->
-    @currentDocument.saveToDisk()
+    if CodeSync.get("disableAssetSave")
+      @editor.showStatusMessage(type: "error", message: "Saving is disabled in this demo.")
+    else
+      @currentDocument.saveToDisk()
 
   createDocument: ()->
     @openDocuments.add
