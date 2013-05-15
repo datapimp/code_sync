@@ -7,6 +7,10 @@ CodeSync.plugins.DocumentManager = Backbone.View.extend
     "click .document-tab.closable .close-anchor" : "closeTab"
     "click .document-tab.new-document" : "createDocument"
     "click .document-tab.open-document": "toggleAssetSelector"
+    "dblclick .document-tab.selectable" : "onDoubleClickTab"
+
+    "blur .document-tab.editable .contents" : "onEditableTabBlur"
+    "keypress .document-tab.editable .contents" : "onEditableTabKeyPress"
 
   initialize: (options={})->
     @editor = options.editor
@@ -50,7 +54,7 @@ CodeSync.plugins.DocumentManager = Backbone.View.extend
         cls = 'closable hideable'
         closeAnchor = "<small class='close-anchor'>x</small>"
 
-      container.append "<div class='document-tab selectable #{ cls }' data-document-id='#{ documentModel.id }' data-document-index='#{ index }'>#{ documentModel.get('display') } #{ closeAnchor }</div>"
+      container.append "<div class='document-tab selectable #{ cls }' data-document-id='#{ documentModel.id }' data-document-index='#{ index }'><span class='contents'>#{ documentModel.get('display') }</span> #{ closeAnchor }</div>"
 
     container.append "<div class='document-tab static new-document hideable'>New</div>"
     container.append "<div class='document-tab static open-document hideable'>Open</div>"
@@ -61,6 +65,39 @@ CodeSync.plugins.DocumentManager = Backbone.View.extend
     @openDocuments.findOrCreateForPath path, (documentModel)=>
       @loadDocument(documentModel)
 
+  onEditableTabKeyPress: (e)->
+
+    target = @$(e.target).closest('.document-tab')
+    content = @$('.contents',target)
+
+    if e.keyCode is 13
+      e.preventDefault()
+      target.removeClass('editable')
+      content.attr('contenteditable', false)
+
+      if documentModel = @openDocuments.at target.data('document-index')
+        documentModel.set('name', content.html() )
+
+      @editor.codeMirror.focus()
+
+
+  onEditableTabBlur: (e)->
+    target = @$(e.target).closest('.document-tab')
+    content = @$('.contents', target)
+
+    if documentModel = @openDocuments.at target.data('document-index')
+      documentModel.set('name', content.html() )
+      content.attr('contenteditable', false)
+
+  onDoubleClickTab: (e)->
+    target = @$(e.target).closest('.document-tab')
+    target.addClass('editable')
+
+    if documentModel = @openDocuments.at target.data('document-index')
+      @loadDocument(documentModel)
+
+    @$('.contents',target).attr('contenteditable',true)
+
   onDocumentTabSelection: (e)->
     @trigger "tab:click"
     target = @$(e.target).closest('.document-tab')
@@ -69,8 +106,11 @@ CodeSync.plugins.DocumentManager = Backbone.View.extend
 
   closeTab: (e)->
     target = @$(e.target).closest('.document-tab')
-    documentModel = @openDocuments.at target.data('document-index')
+    index = target.data('document-index')
+    documentModel = @openDocuments.at(index)
     @openDocuments.remove(documentModel)
+
+    @loadDocument( @openDocuments.at(index - 1) || @openDocuments.at(0) )
 
   getCurrentDocument: ()->
     @state.get("currentDocument")

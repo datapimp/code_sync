@@ -6,10 +6,11 @@ CodeSync.Document = Backbone.Model.extend
 
     @on "change:contents", @process, @
 
+    @on "change:name", ()=>
+      @set("mode", @determineMode(), silent: false)
+
     @on "change:mode", ()=>
       @set('extension', @determineExtension(), silent: true)
-      @process()
-
 
   url: ()->
     CodeSync.get("assetCompilationEndpoint")
