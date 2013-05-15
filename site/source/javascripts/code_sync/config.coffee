@@ -5,7 +5,7 @@ if typeof(exports) isnt "undefined"
 else
   CodeSync = root.CodeSync = {}
 
-CodeSync.VERSION    = "0.5.9"
+CodeSync.VERSION    = "0.6.0"
 
 CodeSync.backends   = {}
 
