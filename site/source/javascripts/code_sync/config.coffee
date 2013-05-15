@@ -5,7 +5,7 @@ if typeof(exports) isnt "undefined"
 else
   CodeSync = root.CodeSync = {}
 
-CodeSync.VERSION    = "0.6.0"
+CodeSync.VERSION    = "0.6.1"
 
 CodeSync.backends   = {}
 
@@ -18,6 +18,7 @@ CodeSync._config ||=
   serverInfoEndpoint: "http://localhost:9295/info"
   sprocketsEndpoint: "http://localhost:9295/assets"
   socketEndpoint: "http://localhost:9295/faye"
+  editorToggleHotkey: "ctrl+j"
 
 CodeSync.set = (setting, value)->
   CodeSync._config[setting] = value

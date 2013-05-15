@@ -1,0 +1,30 @@
+form
+  .control-group
+    label
+      | KeyBindings
+    .controls
+      select name="keyMap"
+        option value="default" Default
+        option value="vim" Vim
+
+  .control-group
+    label
+      | Theme
+    .controls
+      select name="theme"
+        option value="ambiance" Ambiance
+        option value="lesser-dark" Lesser Dark
+        option value="monokai" Monokai
+        option value="xq-light" XQ Light
+
+  .control-group
+    label
+      | Asset Compiler Endpoint
+    .controls
+      input type="text" name="asset_endpoint" value="#{ CodeSync.get('assetCompilationEndpoint') }"
+
+  .control-group
+    label
+      | Hotkey
+    .controls
+      input type="text" name="editor_hotkey" value="#{ CodeSync.get('editorToggleHotkey') }"

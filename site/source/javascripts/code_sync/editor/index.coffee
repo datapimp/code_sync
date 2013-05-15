@@ -22,10 +22,11 @@ CodeSync.AssetEditor = Backbone.View.extend
 
   showVisibleTab: true
 
+  hideable: true
+
   events:
-    "click .status-message" : (e)->
-      target = $(e.target).closest('.status-message')
-      target.remove()
+    "click .status-message" : "removeStatusMessages"
+    "click .hide-button" : "hide"
 
   plugins:[
     "DocumentManager"
@@ -52,7 +53,7 @@ CodeSync.AssetEditor = Backbone.View.extend
     @height ||= @$el.height()
     @codeMirror = CodeMirror(@$('.codesync-asset-editor')[0], @getCodeMirrorOptions())
 
-    @trigger "codemirror:setup"
+    @trigger "codemirror:setup", @codeMirror
 
     changeHandler = (changeObj)=>
       @trigger "editor:change", @codeMirror.getValue(), changeObj
@@ -66,7 +67,6 @@ CodeSync.AssetEditor = Backbone.View.extend
   codeMirrorKeyBindings:
     "Ctrl-J": ()->
       @toggle()
-
 
   getCodeMirrorOptions: ()->
     for keyCommand, handler of @codeMirrorKeyBindings
@@ -82,6 +82,10 @@ CodeSync.AssetEditor = Backbone.View.extend
     documentModel = @views.documentManager.getCurrentDocument()
     documentModel.set("contents", editorContents)
 
+  setupToolbar: ()->
+    if @hideable is true
+      @$('.toolbar-wrapper').append "<div class='button hide-button'>Hide</div>"
+
   render: ()->
     return @ if @rendered is true
 
@@ -91,7 +95,10 @@ CodeSync.AssetEditor = Backbone.View.extend
       PluginClass = CodeSync.plugins[plugin]
       PluginClass.setup.call(@, @)
 
+    @setupToolbar()
+
     @delegateEvents()
+
     @rendered = true
 
     if @autoAppend is true
@@ -135,8 +142,12 @@ CodeSync.AssetEditor = Backbone.View.extend
     documentModel = @views.documentManager.createAdHocDocument()
     @views.documentManager.loadDocument(documentModel)
 
-  showStatusMessage:(options={})->
+  removeStatusMessages: ()->
     @$('.status-message').remove()
+
+  showStatusMessage:(options={})->
+    @removeStatusMessages()
+
     @$el.prepend "<div class='status-message #{ options.type }'>#{ options.message }</div>"
 
     if options.type is "success"
@@ -174,7 +185,7 @@ CodeSync.AssetEditor = Backbone.View.extend
       @animating = false
     , @effectDuration + 20
 
-    if withEffect is true
+    if withEffect isnt false
       @$el.animate @effectSettings(), duration: @effectDuration, complete: completeFn
       _.delay(completeFn, @effectDuration)
     else
@@ -194,7 +205,7 @@ CodeSync.AssetEditor = Backbone.View.extend
       @animating = false
     , @effectDuration
 
-    if withEffect is true
+    if withEffect isnt false
       @$el.animate @effectSettings(), duration: @effectDuration, complete: completeFn
       _.delay(completeFn, @effectDuration)
     else
@@ -244,4 +255,5 @@ CodeSync.AssetEditor.toggleEditor = _.debounce (options={})->
 , 1
 
 CodeSync.AssetEditor.setHotKey = (hotKey, options={})->
+  CodeSync.set("editorToggleHotkey", hotKey)
   key(hotKey, ()-> CodeSync.AssetEditor.toggleEditor(options))

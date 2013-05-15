@@ -1,40 +1,23 @@
-CodeSync.PreferencesPanel = Backbone.View.extend
+CodeSync.plugins.PreferencesPanel = Backbone.View.extend
   className: "preferences-panel"
 
   events:
-    "change :input" : "updateEditor"
+    "change select,input" : ()->
+      @trigger "update:preferences"
+
+  renderHidden: true
 
   initialize: (options)->
     @editor = options.editor
-    _.bindAll(@, "updateEditor")
-    @$el.html markup
 
-    @$("input[name='asset-url']").val(@editor.assetCompilationEndpoint)
+    @$el.html JST["code_sync/editor/templates/preferences_panel"]()
 
     Backbone.View::initialize.apply(@, arguments)
-
-  updateEditor: ()->
-    values = @values()
-
-    @editor.assetCompilationEndpoint = values["asset-url"]
-
-    @editor.setTheme(values.theme)
-    @editor.setKeyMap(values.keyMap)
-    @editor.setMode(values.mode)
-
-  setDefaultExtension: (values)->
-    @editor.setDefaultExtension()
-
-  syncWithEditorOptions: ()->
-    @$(":input[name='keyMap']").val @editor.codeMirror.getOption('keyMap')
-    @$(":input[name='mode']").val @editor.codeMirror.getOption('mode')
-    @$(":input[name='theme']").val @editor.codeMirror.getOption('theme')
-    @$(":input[name='asset-url']").val @editor.assetCompilationEndpoint
 
   values: ()->
     values = {}
 
-    for el in @$(':input')
+    for el in @$('input,select')
       input = $(el)
       values[input.attr('name')] = input.val()
 
@@ -44,49 +27,40 @@ CodeSync.PreferencesPanel = Backbone.View.extend
     @syncWithEditorOptions()
     @$el.toggle()
 
+  syncWithEditorOptions: ()->
+    @$('select[name="theme"]').val @editor.codeMirror.getOption('theme')
+    @$('select[name="keyMap"]').val @editor.codeMirror.getOption('keyMap')
+    @$('input[name="asset_endpoint"]').val CodeSync.get("assetCompilationEndpoint")
+    @$('input[name="editor_hotkey"]').val CodeSync.get("editorToggleHotKey")
+
   render: ()->
-    @$el.hide()
+    @$el.hide() if @renderHidden is true
     @
 
 
-markup = """
-  <div class='mode-selector control-group'>
-    <label>Mode</label>
-    <div class='controls'>
-      <select name="mode">
-        <option value="coffeescript">Coffeescript</option>
-        <option value="css">CSS</option>
-        <option value="haml">Haml</option>
-        <option value="htmlmixed">HTML</option>
-        <option value="javascript">Javascript</option>
-        <option value="markdown">Markdown</option>
-        <option value="sass">Sass</option>
-        <option value="css">SCSS</option>
-        <option value="skim">Skim</option>
-        <option value="ruby">Ruby</option>
-      </select>
-    </div>
-  </div>
-  <div class="keymap-selector control-group">
-    <label>Keybindings</label>
-    <select name="keyMap">
-      <option value="default">Default</option>
-      <option value="vim">Vim</option>
-    </select>
-  </div>
-  <div class="theme-selector control-group">
-    <label>Theme</label>
-    <div class='controls'>
-      <select name="theme">
-        <option value="ambiance">Ambiance</option>
-        <option value="lesser-dark">Lesser Dark</option>
-        <option value="monokai">Monokai</option>
-        <option value="xq-light">XQ Light</option>
-      </select>
-    </div>
-  </div>
-  <div class="asset-compilation-endpoint control-group">
-    <label>Asset Compilation URL</label>
-    <input type="text" name="asset-url" />
-  </div>
-"""
+CodeSync.plugins.PreferencesPanel.setup = (editor)->
+  panel = new CodeSync.plugins.PreferencesPanel(editor: @)
+
+  @$('.toolbar-wrapper').append "<div class='button toggle-preferences'>Preferences</div>"
+
+  @events["click .toggle-preferences"] = ()=> panel.toggle()
+
+  @$el.append panel.render().el
+
+  panel.on "update:preferences", ()=>
+    values = panel.values()
+
+    editor.setTheme(values.theme)
+    editor.setKeyMap(values.keyMap)
+
+    CodeSync.set("assetCompilationEndpoint", values.asset_endpoint)
+
+    CodeSync.AssetEditor.setHotKey(values.editor_hotkey)
+
+  editor.on "codemirror:setup", (cm)->
+    cm.on "focus", ()->
+      panel.$el.hide()
+
+
+
+
