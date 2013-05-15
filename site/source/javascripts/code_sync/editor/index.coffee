@@ -94,6 +94,16 @@ CodeSync.AssetEditor = Backbone.View.extend
     @delegateEvents()
     @rendered = true
 
+    if @autoAppend is true
+      $('body').prepend(@el)
+
+    if @renderHidden is true
+      @show()
+
+      setTimeout ()=>
+        @hide()
+      , 900
+
     @
 
   onDocumentLoad: (doc)->
@@ -134,13 +144,17 @@ CodeSync.AssetEditor = Backbone.View.extend
         @$('.status-message').animate({opacity:0}, duration: 400, complete: ()=> @$('.status-message').remove())
       , 1200
 
+  hiddenPosition: ()->
+    if @position is "top"
+      offset = if @showVisibleTab then @$('.document-tabs-container').height() else 0
+      return top: "#{ ((@height + 5) * -1 + offset) }px"
+
   effectSettings: ()->
     switch @effect
 
       when "slide"
         if @visible is true and @position is "top"
-          offset = if @showVisibleTab then @$('.document-tabs-container').height() else 0
-          top: "#{ ((@height + 5) * -1 + offset) }px"
+          @hiddenPosition()
         else
           top: "0px"
 
@@ -149,7 +163,6 @@ CodeSync.AssetEditor = Backbone.View.extend
           opacity: 0
         else
           opacity: 0.98
-
 
   hide: (withEffect=true)->
     @animating = true
@@ -201,6 +214,7 @@ CodeSync.AssetEditor = Backbone.View.extend
     @codeMirror.setOption 'keyMap', keyMap
 
   setTheme: (theme)->
+    @$el.attr("data-theme", theme)
     @codeMirror.setOption 'theme', theme
 
   setMode: (@mode)->

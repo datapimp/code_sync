@@ -23,7 +23,10 @@ html lang="en"
     javascript:
       CodeSync.AssetEditor.setHotKey('ctrl+j', {defaultFileType:"sass", defaultExtension:".css.sass"})
 
-      CodeSync.AssetEditor.toggleEditor()
+      window.codeSyncEditor = new CodeSync.AssetEditor({
+        autoAppend: true,
+        renderHidden: true
+      })
 
       $('.try-it-now').on("click", function(e){
         CodeSync.AssetEditor.toggleEditor()
