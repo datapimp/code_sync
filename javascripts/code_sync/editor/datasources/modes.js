@@ -82,7 +82,7 @@
   modes = {
     coffeescript: {
       extension: ".coffee",
-      defaultContent: "# You are currently in coffeescript mode."
+      defaultContent: "# You are currently in Coffeescript Mode\n#\n# Any coffeescript you type in here will be evaluated.\n#\n# defining this function will allow you to respond\n# to code and template changes that happen in this editor.\n#\n#\n# CodeSync.onScriptChange = (changeObject)->\n#   console.log \"Detected new code from CodeSync\", changeObject\n#\n#"
     },
     sass: {
       name: "Sass",

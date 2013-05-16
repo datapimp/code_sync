@@ -1,0 +1,8 @@
+/* line 3, /Users/jonathan/Projects/code_sync/site/source/stylesheets/demos.css.scss */
+.demos-page .editors-container .codesync-editor {
+  position: relative !important;
+  width: 500px;
+  top: auto;
+  bottom: auto;
+  left: auto;
+  margin: auto; }

@@ -10,6 +10,12 @@ CodeSync.AssetEditor = Backbone.View.extend
 
   autoRender: true
 
+  autoAppend: true
+
+  appendTo: "body"
+
+  renderVisible: true
+
   position: "top"
 
   effect: "slide"
@@ -79,7 +85,7 @@ CodeSync.AssetEditor = Backbone.View.extend
     @rendered = true
 
     if @autoAppend is true
-      $('body').prepend(@el)
+      $(@appendTo).prepend(@el)
 
     if @renderHidden is true
       @show()
@@ -87,6 +93,9 @@ CodeSync.AssetEditor = Backbone.View.extend
       setTimeout ()=>
         @hide()
       , 900
+
+    if @renderVisible is true
+      @show()
 
     @
 
@@ -133,7 +142,7 @@ CodeSync.AssetEditor = Backbone.View.extend
     @currentDocument.set("contents", editorContents)
 
   setPosition: (@position="top", show=true)->
-    for available in ["top","bottom"] when available isnt @position
+    for available in ["top","bottom","static"] when available isnt @position
       @$el.removeClass("#{ available }-positioned")
 
     @$el.addClass("#{ @position }-positioned")
@@ -171,7 +180,7 @@ CodeSync.AssetEditor = Backbone.View.extend
       mode: @options.startMode || CodeSync.get("defaultFileType")
       sticky: true
       doNotSave: true
-      name: "codesync"
+      name: @defaultDocumentName || "codesync"
       display: "CodeSync Editor"
 
   # This is broken apart into separate methods
@@ -228,6 +237,9 @@ CodeSync.AssetEditor = Backbone.View.extend
     offset = if @showVisibleTab then @$('.document-tabs-container').height() else 0
 
   visibleStyleSettings: ()->
+    if @position is "static"
+      settings = {}
+
     if @position is "top"
       settings =
         top: '0px'
@@ -242,6 +254,9 @@ CodeSync.AssetEditor = Backbone.View.extend
     settings
 
   hiddenStyleSettings: ()->
+    if @position is "static"
+      settings = {}
+
     if @position is "top"
       settings =
         top: ((@$el.height() + 8) * -1 ) + @hintHeight()

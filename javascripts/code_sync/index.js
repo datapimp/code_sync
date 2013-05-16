@@ -820,7 +820,7 @@
   modes = {
     coffeescript: {
       extension: ".coffee",
-      defaultContent: "# You are currently in coffeescript mode."
+      defaultContent: "# You are currently in Coffeescript Mode\n#\n# Any coffeescript you type in here will be evaluated.\n#\n# defining this function will allow you to respond\n# to code and template changes that happen in this editor.\n#\n#\n# CodeSync.onScriptChange = (changeObject)->\n#   console.log \"Detected new code from CodeSync\", changeObject\n#\n#"
     },
     sass: {
       name: "Sass",
@@ -1417,6 +1417,9 @@
   CodeSync.AssetEditor = Backbone.View.extend({
     className: "codesync-editor",
     autoRender: true,
+    autoAppend: true,
+    appendTo: "body",
+    renderVisible: true,
     position: "top",
     effect: "slide",
     effectDuration: 400,
@@ -1474,13 +1477,16 @@
       this.delegateEvents();
       this.rendered = true;
       if (this.autoAppend === true) {
-        $('body').prepend(this.el);
+        $(this.appendTo).prepend(this.el);
       }
       if (this.renderHidden === true) {
         this.show();
         setTimeout(function() {
           return _this.hide();
         }, 900);
+      }
+      if (this.renderVisible === true) {
+        this.show();
       }
       return this;
     },
@@ -1538,7 +1544,7 @@
       if (show == null) {
         show = true;
       }
-      _ref = ["top", "bottom"];
+      _ref = ["top", "bottom", "static"];
       for (_i = 0, _len = _ref.length; _i < _len; _i++) {
         available = _ref[_i];
         if (available !== this.position) {
@@ -1582,7 +1588,7 @@
         mode: this.options.startMode || CodeSync.get("defaultFileType"),
         sticky: true,
         doNotSave: true,
-        name: "codesync",
+        name: this.defaultDocumentName || "codesync",
         display: "CodeSync Editor"
       });
     },
@@ -1658,6 +1664,9 @@
     },
     visibleStyleSettings: function() {
       var settings;
+      if (this.position === "static") {
+        settings = {};
+      }
       if (this.position === "top") {
         settings = {
           top: '0px',
@@ -1675,6 +1684,9 @@
     },
     hiddenStyleSettings: function() {
       var settings;
+      if (this.position === "static") {
+        settings = {};
+      }
       if (this.position === "top") {
         settings = {
           top: ((this.$el.height() + 8) * -1) + this.hintHeight(),

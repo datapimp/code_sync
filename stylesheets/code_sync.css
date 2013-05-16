@@ -554,35 +554,31 @@ div.CodeMirror span.CodeMirror-nonmatchingbracket {color: #f22;}
 */
 /* line 9, /Users/jonathan/Projects/code_sync/site/source/stylesheets/code_sync/index.css.scss */
 .codesync-editor {
-  position: fixed;
-  z-index: 30000;
   background: rgba(200, 200, 200, 0);
-  opacity: 0.95;
-  left: 50%;
-  margin-left: -480px;
+  opacity: 0.99;
   width: 960px;
   height: 400px; }
-  /* line 19, /Users/jonathan/Projects/code_sync/site/source/stylesheets/code_sync/index.css.scss */
+  /* line 16, /Users/jonathan/Projects/code_sync/site/source/stylesheets/code_sync/index.css.scss */
   .codesync-editor .document-tabs-container {
     position: absolute;
     width: 960px; }
-  /* line 24, /Users/jonathan/Projects/code_sync/site/source/stylesheets/code_sync/index.css.scss */
+  /* line 21, /Users/jonathan/Projects/code_sync/site/source/stylesheets/code_sync/index.css.scss */
   .codesync-editor .codesync-asset-editor {
     position: absolute;
-    width: 960px;
+    width: 100%;
     z-index: 90;
     margin: 0px auto; }
-    /* line 29, /Users/jonathan/Projects/code_sync/site/source/stylesheets/code_sync/index.css.scss */
+    /* line 26, /Users/jonathan/Projects/code_sync/site/source/stylesheets/code_sync/index.css.scss */
     .codesync-editor .codesync-asset-editor .CodeMirror {
       height: 375px; }
-  /* line 34, /Users/jonathan/Projects/code_sync/site/source/stylesheets/code_sync/index.css.scss */
+  /* line 31, /Users/jonathan/Projects/code_sync/site/source/stylesheets/code_sync/index.css.scss */
   .codesync-editor .toolbar-wrapper {
     position: absolute;
     z-index: 9000;
     color: #fff;
     top: 10px;
     right: 10px; }
-    /* line 41, /Users/jonathan/Projects/code_sync/site/source/stylesheets/code_sync/index.css.scss */
+    /* line 38, /Users/jonathan/Projects/code_sync/site/source/stylesheets/code_sync/index.css.scss */
     .codesync-editor .toolbar-wrapper .button {
       float: left;
       margin: 0px 4px;
@@ -592,7 +588,7 @@ div.CodeMirror span.CodeMirror-nonmatchingbracket {color: #f22;}
       font-size: 12px;
       line-height: 18px;
       padding: 0px 4px; }
-  /* line 53, /Users/jonathan/Projects/code_sync/site/source/stylesheets/code_sync/index.css.scss */
+  /* line 50, /Users/jonathan/Projects/code_sync/site/source/stylesheets/code_sync/index.css.scss */
   .codesync-editor .status-message {
     position: absolute;
     left: 50%;
@@ -604,55 +600,62 @@ div.CodeMirror span.CodeMirror-nonmatchingbracket {color: #f22;}
     box-shadow: 0 0 3px #fff;
     min-width: 768px;
     color: #fff; }
-    /* line 64, /Users/jonathan/Projects/code_sync/site/source/stylesheets/code_sync/index.css.scss */
+    /* line 61, /Users/jonathan/Projects/code_sync/site/source/stylesheets/code_sync/index.css.scss */
     .codesync-editor .status-message.error {
       background-color: rgba(235, 90, 90, 0.3); }
-    /* line 67, /Users/jonathan/Projects/code_sync/site/source/stylesheets/code_sync/index.css.scss */
+    /* line 64, /Users/jonathan/Projects/code_sync/site/source/stylesheets/code_sync/index.css.scss */
     .codesync-editor .status-message.success {
       background-color: rgba(90, 235, 90, 0.3); }
 
-/* line 75, /Users/jonathan/Projects/code_sync/site/source/stylesheets/code_sync/index.css.scss */
+/* line 71, /Users/jonathan/Projects/code_sync/site/source/stylesheets/code_sync/index.css.scss */
+.codesync-editor.top-positioned, .codesync-editor.bottom-positioned {
+  position: fixed;
+  left: 50%;
+  margin-left: -480px;
+  z-index: 30000; }
+
+/* line 78, /Users/jonathan/Projects/code_sync/site/source/stylesheets/code_sync/index.css.scss */
 .codesync-editor.top-positioned {
   border-radius: 0px 0px 4px 4px;
   bottom: auto;
   top: 0px; }
-  /* line 80, /Users/jonathan/Projects/code_sync/site/source/stylesheets/code_sync/index.css.scss */
+  /* line 83, /Users/jonathan/Projects/code_sync/site/source/stylesheets/code_sync/index.css.scss */
   .codesync-editor.top-positioned .codesync-asset-editor {
     top: 0px;
     bottom: auto; }
-  /* line 85, /Users/jonathan/Projects/code_sync/site/source/stylesheets/code_sync/index.css.scss */
+  /* line 88, /Users/jonathan/Projects/code_sync/site/source/stylesheets/code_sync/index.css.scss */
   .codesync-editor.top-positioned .document-tabs-container {
     top: auto;
     bottom: -8px; }
-    /* line 89, /Users/jonathan/Projects/code_sync/site/source/stylesheets/code_sync/index.css.scss */
+    /* line 92, /Users/jonathan/Projects/code_sync/site/source/stylesheets/code_sync/index.css.scss */
     .codesync-editor.top-positioned .document-tabs-container .document-tab {
       border-radius: 0px 0px 4px 4px; }
 
-/* line 95, /Users/jonathan/Projects/code_sync/site/source/stylesheets/code_sync/index.css.scss */
+/* line 98, /Users/jonathan/Projects/code_sync/site/source/stylesheets/code_sync/index.css.scss */
 .codesync-editor.bottom-positioned {
   border-radius: 4px 4px 0px 0px;
   bottom: 0px;
   top: auto; }
-  /* line 100, /Users/jonathan/Projects/code_sync/site/source/stylesheets/code_sync/index.css.scss */
+  /* line 103, /Users/jonathan/Projects/code_sync/site/source/stylesheets/code_sync/index.css.scss */
   .codesync-editor.bottom-positioned .codesync-asset-editor {
     top: 26px; }
-  /* line 104, /Users/jonathan/Projects/code_sync/site/source/stylesheets/code_sync/index.css.scss */
+  /* line 107, /Users/jonathan/Projects/code_sync/site/source/stylesheets/code_sync/index.css.scss */
   .codesync-editor.bottom-positioned .document-tabs-container {
     top: 0px;
     bottom: auto; }
-    /* line 108, /Users/jonathan/Projects/code_sync/site/source/stylesheets/code_sync/index.css.scss */
+    /* line 111, /Users/jonathan/Projects/code_sync/site/source/stylesheets/code_sync/index.css.scss */
     .codesync-editor.bottom-positioned .document-tabs-container .document-tab {
       border-radius: 4px 4px 0px 0px; }
 
-/* line 117, /Users/jonathan/Projects/code_sync/site/source/stylesheets/code_sync/index.css.scss */
+/* line 120, /Users/jonathan/Projects/code_sync/site/source/stylesheets/code_sync/index.css.scss */
 .codesync-editor[data-theme="xq-light"] .toolbar-wrapper .button {
   background-color: #777;
   color: #ffffff; }
-/* line 123, /Users/jonathan/Projects/code_sync/site/source/stylesheets/code_sync/index.css.scss */
+/* line 126, /Users/jonathan/Projects/code_sync/site/source/stylesheets/code_sync/index.css.scss */
 .codesync-editor[data-theme="xq-light"] .document-tabs-container .document-tab {
   background-color: #fff;
   color: #777; }
-/* line 128, /Users/jonathan/Projects/code_sync/site/source/stylesheets/code_sync/index.css.scss */
+/* line 131, /Users/jonathan/Projects/code_sync/site/source/stylesheets/code_sync/index.css.scss */
 .codesync-editor[data-theme="xq-light"] .status-message.error {
   color: #ff6666; }
 /*

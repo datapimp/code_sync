@@ -8,31 +8,9 @@ html lang="en"
     title CodeSync: Asset Pipeline Live Reload
     == stylesheet_link_tag 'code_sync', 'marketing'
   body
-    == yield
     == javascript_include_tag 'code_sync', 'marketing'
 
-    - if build?
-      javascript:
-        CodeSync.set("assetCompilationEndpoint", "http://infinite-beyond-8679.herokuapp.com/code-sync/source")
-        CodeSync.set("serverInfoEndpoint", "http://infinite-beyond-8679.herokuapp.com/code-sync/info")
-        CodeSync.set("disableAssetSave", true)
-
-    - if development?
-      javascript:
-        window.codeSyncClient = new CodeSync.Client()
-
-    javascript:
-      CodeSync.AssetEditor.setHotKey('ctrl+j')
-
-      window.codeSyncEditor = new CodeSync.AssetEditor({
-        autoAppend: true,
-        renderHidden: true,
-        startMode: 'scss'
-      })
-
-      $('.try-it-now').on("click", function(e){
-        CodeSync.AssetEditor.toggleEditor()
-      });
+    == yield
 
 
 
