@@ -1,0 +1,10 @@
+/* line 2, /Users/jonathan/Projects/code_sync/site/source/stylesheets/code_sync/editor/asset-name-input.css.scss */
+.codesync-editor .asset-name-input {
+  position: absolute;
+  width: 420px;
+  bottom: 20px;
+  right: 240px;
+  z-index: 4000; }
+  /* line 3, /Users/jonathan/Projects/code_sync/site/source/stylesheets/code_sync/editor/asset-name-input.css.scss */
+  .codesync-editor .asset-name-input input {
+    width: 100%; }

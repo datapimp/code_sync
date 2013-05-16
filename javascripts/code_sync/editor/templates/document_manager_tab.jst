@@ -1,0 +1,59 @@
+(function() { this.JST || (this.JST = {}); this.JST["code_sync/editor/templates/document_manager_tab"] = (function() {
+  
+    return function(context) {
+      if (context == null) {
+        context = {};
+      }
+      return Skim.withContext.call({}, context, function() {
+        var classes, closable, displayValue, _buf, _ref, _ref1, _ref2, _temple_coffeescript_attributeremover1, _temple_coffeescript_attributeremover2;
+        _buf = [];
+        displayValue = this.display || this.doc.get("display") || this.doc.get("name");
+        if ((this.doc != null) && this.doc.isSticky()) {
+          closable = true;
+        }
+        classes = ["document-tab"];
+        if (this.cls != null) {
+          classes.push(this.cls);
+        }
+        if (this.doc != null) {
+          classes.push("selectable");
+        }
+        if (!((_ref = this.doc) != null ? _ref.isSticky() : void 0)) {
+          classes.push("closable");
+        }
+        if (this.index !== 0) {
+          classes.push("hideable");
+        }
+        if ((this.doc != null) && !((_ref1 = this.doc) != null ? _ref1.isSticky() : void 0)) {
+          classes.push("editable");
+        }
+        _buf.push("<div");
+        _temple_coffeescript_attributeremover1 = [];
+        _temple_coffeescript_attributeremover1.push(this.escape(classes.join(' ')));
+        _temple_coffeescript_attributeremover1.join('');
+        if (_temple_coffeescript_attributeremover1.length > 0) {
+          _buf.push(" class=\"");
+          _buf.push(_temple_coffeescript_attributeremover1);
+          _buf.push("\"");
+        }
+        _temple_coffeescript_attributeremover2 = [];
+        _temple_coffeescript_attributeremover2.push(this.escape((_ref2 = this.doc) != null ? _ref2.cid : void 0));
+        _temple_coffeescript_attributeremover2.join('');
+        if (_temple_coffeescript_attributeremover2.length > 0) {
+          _buf.push(" data-document-cid=\"");
+          _buf.push(_temple_coffeescript_attributeremover2);
+          _buf.push("\"");
+        }
+        _buf.push("><div class=\"contents\">");
+        _buf.push(this.escape(displayValue));
+        _buf.push("</div>");
+        if (closable) {
+          _buf.push("<div class=\"close-anchor\"><X></X></div>");
+        }
+        _buf.push("</div>");
+        return _buf.join('');
+      });
+    };
+  
+  }).call(this);;
+}).call(this);

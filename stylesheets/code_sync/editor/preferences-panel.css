@@ -1,0 +1,21 @@
+/* line 2, /Users/jonathan/Projects/code_sync/site/source/stylesheets/code_sync/editor/preferences-panel.css.scss */
+.codesync-editor .preferences-panel {
+  margin-bottom: 4px;
+  margin-right: 4px;
+  background: rgba(255, 255, 255, 0.2);
+  padding: 8px;
+  box-shadow: 0 0 6px rgba(255, 255, 255, 0.2);
+  border-radius: 3px;
+  position: absolute;
+  z-index: 4000;
+  bottom: 55px;
+  right: 10px; }
+  /* line 14, /Users/jonathan/Projects/code_sync/site/source/stylesheets/code_sync/editor/preferences-panel.css.scss */
+  .codesync-editor .preferences-panel label {
+    color: #fff;
+    text-decoration: underline;
+    display: block; }
+
+/* line 23, /Users/jonathan/Projects/code_sync/site/source/stylesheets/code_sync/editor/preferences-panel.css.scss */
+.codesync-editor[data-theme='xq-light'] .preferences-panel {
+  background: rgba(30, 30, 30, 0.9); }

@@ -1,0 +1,22 @@
+/* line 3, /Users/jonathan/Projects/code_sync/site/source/stylesheets/code_sync/editor/document-manager.css.scss */
+.codesync-editor .document-tabs-container .document-tab {
+  font-size: 12px;
+  float: left;
+  border: 1px solid #777;
+  padding: 2px 10px;
+  border-radius: 0px 0px 4px 4px;
+  cursor: pointer;
+  background: rgba(40, 40, 40, 0.9);
+  box-shadow: 0 0 3px rgba(0, 0, 0, 0.3);
+  color: #fff;
+  height: 28px;
+  margin-right: 2px; }
+  /* line 16, /Users/jonathan/Projects/code_sync/site/source/stylesheets/code_sync/editor/document-manager.css.scss */
+  .codesync-editor .document-tabs-container .document-tab.new-document {
+    margin-right: 0px; }
+  /* line 20, /Users/jonathan/Projects/code_sync/site/source/stylesheets/code_sync/editor/document-manager.css.scss */
+  .codesync-editor .document-tabs-container .document-tab.new-document {
+    float: right; }
+  /* line 24, /Users/jonathan/Projects/code_sync/site/source/stylesheets/code_sync/editor/document-manager.css.scss */
+  .codesync-editor .document-tabs-container .document-tab.open-document {
+    float: right; }
