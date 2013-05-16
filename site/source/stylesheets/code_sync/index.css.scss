@@ -6,12 +6,9 @@ $editorWidth: 960px;
 $editorHeight: 400px;
 
 .codesync-editor {
-  position: fixed;
-  z-index: 30000;
+
   background: rgba(200,200,200,0.0);
-  opacity: 0.95;
-  left: 50%;
-  margin-left: $editorWidth * 0.5 * -1;
+  opacity: 0.99;
   width: $editorWidth;
   height: $editorHeight;
 
@@ -22,7 +19,7 @@ $editorHeight: 400px;
 
   .codesync-asset-editor {
     position: absolute;
-    width: $editorWidth;
+    width: 100%;
     z-index: 90;
     margin: 0px auto;
     .CodeMirror {
@@ -70,6 +67,12 @@ $editorHeight: 400px;
 
 }
 
+.codesync-editor.top-positioned, .codesync-editor.bottom-positioned {
+  position: fixed;
+  left: 50%;
+  margin-left: $editorWidth * 0.5 * -1;
+  z-index: 30000;
+}
 
 .codesync-editor.top-positioned {
   border-radius: 0px 0px 4px 4px;

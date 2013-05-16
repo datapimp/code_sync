@@ -49,7 +49,20 @@ CodeSync.Modes.defaultMode = ()->
 modes =
   coffeescript:
     extension: ".coffee"
-    defaultContent: "# You are currently in coffeescript mode."
+    defaultContent:  """
+    # You are currently in Coffeescript Mode
+    #
+    # Any coffeescript you type in here will be evaluated.
+    #
+    # defining this function will allow you to respond
+    # to code and template changes that happen in this editor.
+    #
+    #
+    # CodeSync.onScriptChange = (changeObject)->
+    #   console.log "Detected new code from CodeSync", changeObject
+    #
+    #
+    """
 
   sass:
     name: "Sass"
