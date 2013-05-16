@@ -61,6 +61,11 @@ CodeSync.plugins.PreferencesPanel.setup = (editor)->
     cm.on "focus", ()->
       panel.$el.hide()
 
+  panel.on "update:preferences", ()=>
+    values = panel.values()
+    if editor.position isnt values.position
+      editor.setPosition(values.position)
+
 
 
 

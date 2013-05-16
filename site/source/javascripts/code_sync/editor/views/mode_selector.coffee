@@ -39,7 +39,7 @@ CodeSync.plugins.ModeSelector = Backbone.View.extend
 CodeSync.plugins.ModeSelector.setup = (editor)->
   v = @views.modeSelector = new CodeSync.plugins.ModeSelector({editor})
 
-  editor.$el.append v.render().el
+  editor.$('.codesync-asset-editor').append v.render().el
 
   editor.on "document:loaded", (doc)->
     v.setValue(doc.get('mode'))

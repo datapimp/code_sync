@@ -72,8 +72,8 @@ CodeSync.Document = Backbone.Model.extend
       success: (response)=>
         CodeSync.log("Document Process Response", response)
 
-        if response.success is true and message = @successMessage(reason)
-          @trigger "status", type: "success", message: message
+        if response.success is true
+          @trigger "status", type: "success", message: @successMessage(reason)
 
         if response.success is true and response.compiled?
           @set("compiled", response.compiled)

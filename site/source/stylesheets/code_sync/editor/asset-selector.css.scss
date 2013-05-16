@@ -1,13 +1,12 @@
 .codesync-editor {
-
  .codesync-asset-selector {
     display: none;
-    position: absolute;
+    position: relative;
     width: 700px;
     z-index: 100;
     background: rgba(0,0,0,0);
     border: 0px;
-    top: 10px;
+    top: 40px;
     left: 50%;
     margin-left: -350px;
 

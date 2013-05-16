@@ -15,11 +15,14 @@ $editorHeight: 400px;
   width: $editorWidth;
   height: $editorHeight;
 
-  .codesync-editor-wrapper {
-    position: relative;
-    bottom: 0px;
-    height: 100%;
-    width: $editorWidth - 20;
+  .document-tabs-container {
+    position: absolute;
+    width: $editorWidth;
+  }
+
+  .codesync-asset-editor {
+    position: absolute;
+    width: $editorWidth;
     z-index: 90;
     margin: 0px auto;
     .CodeMirror {
@@ -27,8 +30,23 @@ $editorHeight: 400px;
     }
   }
 
-  &.top-positioned {
-    border-radius: 0px 0px 4px 4px;
+  .toolbar-wrapper {
+    position: absolute;
+    z-index: 9000;
+    color: #fff;
+    top: 10px;
+    right: 10px;
+
+    .button {
+      float: left;
+      margin: 0px 4px;
+      cursor: pointer;
+      border-radius: 3px;
+      border: 1px solid #a3a3a3;
+      font-size: 12px;
+      line-height: 18px;
+      padding: 0px 4px;
+    }
   }
 
   .status-message {
@@ -50,27 +68,63 @@ $editorHeight: 400px;
     }
   }
 
-  .keyboard-shortcut-info {
-    text-align: right;
-    font-size: 0.9em;
+}
+
+
+.codesync-editor.top-positioned {
+  border-radius: 0px 0px 4px 4px;
+  bottom: auto;
+  top: 0px;
+
+  .codesync-asset-editor {
+    top: 0px;
+    bottom: auto;
   }
 
-  .asset-save-controls {
-    position: absolute;
-    z-index: 4000;
-    bottom: 24px;
-    right: 10px;
-    opacity: 0.9;
-    width: 50%;
+  .document-tabs-container {
+    top: auto;
+    bottom: -8px;
 
-    .preferences-wrapper {
-      float: right;
-      padding-left: 4px;
-    }
-
-    .file-options-wrapper {
-      float: right;
+    .document-tab {
+      border-radius: 0px 0px 4px 4px;
     }
   }
 }
 
+.codesync-editor.bottom-positioned {
+  border-radius: 4px 4px 0px 0px;
+  bottom: 0px;
+  top: auto;
+
+  .codesync-asset-editor {
+    top: 26px;
+  }
+
+  .document-tabs-container {
+    top: 0px;
+    bottom: auto;
+
+    .document-tab {
+      border-radius: 4px 4px 0px 0px;
+    }
+  }
+}
+
+// support for the light theme
+.codesync-editor[data-theme="xq-light"] {
+  .toolbar-wrapper {
+    .button {
+      background-color: #777;
+      color: #ffffff;
+    }
+  }
+  .document-tabs-container {
+    .document-tab {
+      background-color: #fff;
+      color: #777;
+    }
+  }
+  .status-message.error {
+    color: lighten(red,20);
+  }
+}

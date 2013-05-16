@@ -1,7 +1,6 @@
 .codesync-editor-wrapper
   .codesync-asset-editor
+    .toolbar-wrapper
+    .mode-selector-wrapper
 
-  .mode-selector-wrapper
-
-  .toolbar-wrapper
 

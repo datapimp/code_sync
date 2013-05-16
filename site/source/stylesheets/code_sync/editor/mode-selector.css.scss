@@ -1,8 +1,10 @@
 .codesync-editor {
-  .mode-selector {
-    position: absolute;
-    bottom: 30px;
-    right: 20px;
-    z-index: 9000;
+  .codesync-asset-editor {
+    .mode-selector {
+      position: absolute;
+      bottom: 10px;
+      right: 20px;
+      z-index: 9000;
+    }
   }
 }

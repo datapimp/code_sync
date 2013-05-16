@@ -51,7 +51,7 @@ CodeSync.AssetEditor = Backbone.View.extend
 
     @startMode = @modes.get(@startMode) || CodeSync.Modes.defaultMode()
 
-    @$el.addClass "#{ @position }-positioned"
+    @setPosition(@position, false)
 
     @on "editor:change", _.debounce(@editorChangeHandler, @editorChangeThrottle), @
 
@@ -132,6 +132,16 @@ CodeSync.AssetEditor = Backbone.View.extend
   editorChangeHandler: (editorContents)->
     @currentDocument.set("contents", editorContents)
 
+  setPosition: (@position="top", show=true)->
+    for available in ["top","bottom"] when available isnt @position
+      @$el.removeClass("#{ available }-positioned")
+
+    @$el.addClass("#{ @position }-positioned")
+
+    @show() if show is true
+
+    @
+
   setKeyMap: (keyMap)->
     @codeMirror.setOption 'keyMap', keyMap
 
@@ -206,32 +216,45 @@ CodeSync.AssetEditor = Backbone.View.extend
   showStatusMessage:(options={})->
     @removeStatusMessages()
 
-    @$el.prepend "<div class='status-message #{ options.type }'>#{ options.message }</div>"
+    if options.message?.length > 0
+      @$el.prepend "<div class='status-message #{ options.type }'>#{ options.message }</div>"
 
     if options.type is "success"
       _.delay ()=>
-        @$('.status-message.success').animate({opacity:0}, duration: 400, complete: ()=> @$('.status-message').remove())
+        @$('.status-message.success').animate({opacity:0}, duration: 400, complete: ()=> @$('.status-message.success').remove())
       , 1200
 
-  hiddenPosition: ()->
+  hintHeight: ()->
+    offset = if @showVisibleTab then @$('.document-tabs-container').height() else 0
+
+  visibleStyleSettings: ()->
     if @position is "top"
-      offset = if @showVisibleTab then @$('.document-tabs-container').height() else 0
-      return top: "#{ ((@height + 8) * -1 + offset) }px"
+      settings =
+        top: '0px'
+        bottom: 'auto'
 
-  effectSettings: ()->
-    switch @effect
+    if @position is "bottom"
+      settings =
+        top: 'auto'
+        bottom: '0px'
+        height: '400px'
 
-      when "slide"
-        if @visible is true and @position is "top"
-          @hiddenPosition()
-        else
-          top: "0px"
+    settings
 
-      when "fade"
-        if @visible is true
-          opacity: 0
-        else
-          opacity: 0.98
+  hiddenStyleSettings: ()->
+    if @position is "top"
+      settings =
+        top: ((@$el.height() + 8) * -1 ) + @hintHeight()
+        bottom: 'auto'
+
+    if @position is "bottom"
+      settings =
+        top: 'auto'
+        bottom: '0px'
+        height: '0px'
+
+    settings
+
 
   hide: (withEffect=true)->
     @animating = true
@@ -244,7 +267,7 @@ CodeSync.AssetEditor = Backbone.View.extend
     , @effectDuration + 20
 
     if withEffect isnt false
-      @$el.animate @effectSettings(), duration: @effectDuration, complete: completeFn
+      @$el.animate @hiddenStyleSettings(), duration: @effectDuration, complete: completeFn
       _.delay(completeFn, @effectDuration)
     else
       completeFn()
@@ -264,7 +287,7 @@ CodeSync.AssetEditor = Backbone.View.extend
     , @effectDuration
 
     if withEffect isnt false
-      @$el.animate @effectSettings(), duration: @effectDuration, complete: completeFn
+      @$el.animate @visibleStyleSettings(), duration: @effectDuration, complete: completeFn
       _.delay(completeFn, @effectDuration)
     else
       completeFn()

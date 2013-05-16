@@ -28,3 +28,11 @@ form
       | Hotkey
     .controls
       input type="text" name="editor_hotkey" value="#{ CodeSync.get('editorToggleHotkey') }"
+
+  .control-group
+    label
+      | Position
+    .controls
+      select name="position"
+        option value="top" Top
+        option value="bottom" Bottom
