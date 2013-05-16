@@ -12092,7 +12092,7 @@ CodeMirror.defineMIME("text/x-markdown", "markdown");
 //     keymaster.js may be freely distributed under the MIT license.
 (function(a){function b(a,b){var c=a.length;while(c--)if(a[c]===b)return c;return-1}function c(a,c){var d,e,g,h,i;d=a.keyCode,b(u,d)==-1&&u.push(d);if(d==93||d==224)d=91;if(d in q){q[d]=!0;for(g in s)s[g]==d&&(f[g]=!0);return}if(!f.filter.call(this,a))return;if(!(d in p))return;for(h=0;h<p[d].length;h++){e=p[d][h];if(e.scope==c||e.scope=="all"){i=e.mods.length>0;for(g in q)if(!q[g]&&b(e.mods,+g)>-1||q[g]&&b(e.mods,+g)==-1)i=!1;(e.mods.length==0&&!q[16]&&!q[18]&&!q[17]&&!q[91]||i)&&e.method(a,e)===!1&&(a.preventDefault?a.preventDefault():a.returnValue=!1,a.stopPropagation&&a.stopPropagation(),a.cancelBubble&&(a.cancelBubble=!0))}}}function d(a){var c=a.keyCode,d,e=b(u,c);e>=0&&u.splice(e,1);if(c==93||c==224)c=91;if(c in q){q[c]=!1;for(d in s)s[d]==c&&(f[d]=!1)}}function e(){for(o in q)q[o]=!1;for(o in s)f[o]=!1}function f(a,b,c){var d,e,f,g;c===undefined&&(c=b,b="all"),a=a.replace(/\s/g,""),d=a.split(","),d[d.length-1]==""&&(d[d.length-2]+=",");for(f=0;f<d.length;f++){e=[],a=d[f].split("+");if(a.length>1){e=a.slice(0,a.length-1);for(g=0;g<e.length;g++)e[g]=s[e[g]];a=[a[a.length-1]]}a=a[0],a=t[a]||a.toUpperCase().charCodeAt(0),a in p||(p[a]=[]),p[a].push({shortcut:d[f],scope:b,method:c,key:d[f],mods:e})}}function g(a){if(typeof a=="string"){if(a.length!=1)return!1;a=a.toUpperCase().charCodeAt(0)}return b(u,a)!=-1}function h(){return u}function i(a){var b=(a.target||a.srcElement).tagName;return b!="INPUT"&&b!="SELECT"&&b!="TEXTAREA"}function j(a){r=a||"all"}function k(){return r||"all"}function l(a){var b,c,d;for(b in p){c=p[b];for(d=0;d<c.length;)c[d].scope===a?c.splice(d,1):d++}}function m(a,b,c){a.addEventListener?a.addEventListener(b,c,!1):a.attachEvent&&a.attachEvent("on"+b,function(){c(window.event)})}function n(){var b=a.key;return a.key=v,b}var o,p={},q={16:!1,18:!1,17:!1,91:!1},r="all",s={"⇧":16,shift:16,"⌥":18,alt:18,option:18,"⌃":17,ctrl:17,control:17,"⌘":91,command:91},t={backspace:8,tab:9,clear:12,enter:13,"return":13,esc:27,escape:27,space:32,left:37,up:38,right:39,down:40,del:46,"delete":46,home:36,end:35,pageup:33,pagedown:34,",":188,".":190,"/":191,"`":192,"-":189,"=":187,";":186,"'":222,"[":219,"]":221,"\\":220},u=[];for(o=1;o<20;o++)s["f"+o]=111+o;for(o in s)f[o]=!1;m(document,"keydown",function(a){c(a,r)}),m(document,"keyup",d),m(window,"focus",e);var v=a.key;a.key=f,a.key.setScope=j,a.key.getScope=k,a.key.deleteScope=l,a.key.filter=i,a.key.isPressed=g,a.key.getPressedKeyCodes=h,a.key.noConflict=n,typeof module!="undefined"&&(module.exports=key)})(this),function(){var a;window.KeyLauncher||(window.KeyLauncher={}),(a=window.KeyLauncher).loaders||(a.loaders={}),window.loadedScripts={},window.scriptTimers={},KeyLauncher.loaders.stylesheet=function(a,b,c){var d;return b==null&&(b={}),d=document.createElement("link"),d.type="text/css",d.rel="stylesheet",d.href=a,document.getElementsByTagName("head")[0].appendChild(d),c.call(this)},KeyLauncher.loaders.script=function(a,b,c){var d,e,f,g,h,i;b==null&&(b={}),e=loadedScripts,i=scriptTimers,typeof b=="function"&&c==null&&(c=b,b={}),d=document.getElementsByTagName("head")[0],g=document.createElement("script"),g.src=a,g.type="text/javascript",h=this,f=function(){typeof c=="function"&&c.call(h,a,b,g);try{d.removeChild(g)}catch(f){!0}return e[a]=!0};if(b.once===!0&&e[a])return!1;d.appendChild(g),g.onreadystatechange=function(){if(g.readyState==="loaded"||g.readyState==="complete")return f()},g.onload=f;if(typeof navigator!="undefined"&&navigator!==null?navigator.userAgent.match(/WebKit/):void 0)return i[a]=setInterval(function(){return f(),clearInterval(i[a])},10)}}.call(this),function(){window.KeyLauncher.Launcher=function(){function Launcher(a){var b,c,d;this.options=a!=null?a:{},this.fn=a.fn,this.before=a.before,this.command=a.command,d=this.options.requires;for(b in d)c=d[b],this._dependencies[c]={loaded:!1,provides:b}}return Launcher.prototype._dependencies={},Launcher.prototype.run=function(){var state,type,url,_ref,_ref1,_results,_this=this;this.ran=!1,(_ref=this.before)!=null&&typeof _ref.call=="function"&&_ref.call(this);if(this.isReady())return this.onReady();_ref1=this._dependencies,_results=[];for(url in _ref1){state=_ref1[url];try{state.loaded=eval(state.provides)!=null}catch(e){state.loaded=!1}state.loaded!==!0?(type=url.match(/\.css/)?"stylesheet":"script",_results.push(KeyLauncher.loaders[type](url,function(a){return _this.onDependencyLoad(a)}))):_results.push(void 0)}return _results},Launcher.prototype.requires=function(a){return this._dependencies[a]={loaded:!1}},Launcher.prototype.isReady=function(){var a,b,c,d;b=!0,d=this._dependencies;for(a in d)c=d[a],c.loaded===!1&&(b=!1);return b},Launcher.prototype.onDependencyLoad=function(a){this._dependencies[a].loaded=!0;if(this.isReady())return this.onReady()},Launcher.prototype.onReady=function(){var a=this;if(!this.isReady()||this.ran!==!1)return;return function(){return a.fn.call(a),a.ran=!0}()},Launcher}()}.call(this),function(){var a;KeyLauncher.VERSION="0.0.4",KeyLauncher.on=function(a,b,c){var d;c==null&&(c={});if(a==null)throw"Must specify a valid key command";return d=new KeyLauncher.Launcher({command:a,fn:b||function(){},before:c.before,requires:c.requires||[]}),key(a,function(){return d.run.call(d)}),d},a=function(a,b){var c,d,e,f,g;f=KeyLauncher.currentSequence||"",g=b.shortcut,KeyLauncher.currentSequence=""+f+g,e=function(){var a,b;a=KeyLauncher.sequences,b=[];for(c in a)d=a[c],c.match(KeyLauncher.currentSequence)&&b.push(c);return b}(),e.length>0||(KeyLauncher.currentSequence="");if(e.length===1&&(d=KeyLauncher.sequences[KeyLauncher.currentSequence]))return d.run.call(d),KeyLauncher.currentSequence=""},KeyLauncher.onSequence=function(b,c,d){var e,f,g,h,i;d==null&&(d={}),KeyLauncher.sequences||(KeyLauncher.sequences={}),f=KeyLauncher.sequences[b]=new KeyLauncher.Launcher({fn:c||function(){},requires:d.requires||[],before:d.before}),i=b.split("");for(g=0,h=i.length;g<h;g++)e=i[g],key(e,a);return f}}.call(this);
 (function() {
-  var CodeSync, root,
+  var CodeSync, root, _originalSetOption,
     __slice = [].slice;
 
   root = this;
@@ -12103,7 +12103,7 @@ CodeMirror.defineMIME("text/x-markdown", "markdown");
     CodeSync = root.CodeSync = {};
   }
 
-  CodeSync.VERSION = "0.6.2";
+  CodeSync.VERSION = "0.6.5";
 
   CodeSync.backends = {};
 
@@ -12141,6 +12141,8 @@ CodeMirror.defineMIME("text/x-markdown", "markdown");
       return console.log.apply(console, args);
     }
   };
+
+  _originalSetOption = CodeMirror.prototype.setOption;
 
 }).call(this);
 (function() {
@@ -12440,7 +12442,7 @@ CodeMirror.defineMIME("text/x-markdown", "markdown");
       return Skim.withContext.call({}, context, function() {
         var _buf;
         _buf = [];
-        _buf.push("<div class=\"codesync-editor-wrapper\"><div class=\"codesync-asset-editor\"></div><div class=\"mode-selector-wrapper\"></div><div class=\"toolbar-wrapper\"></div></div>");
+        _buf.push("<div class=\"codesync-editor-wrapper\"><div class=\"codesync-asset-editor\"><div class=\"toolbar-wrapper\"></div><div class=\"mode-selector-wrapper\"></div></div></div>");
         return _buf.join('');
       });
     };
@@ -12457,6 +12459,65 @@ CodeMirror.defineMIME("text/x-markdown", "markdown");
         var _buf;
         _buf = [];
         _buf.push("<div class=\"asset-selector-wrapper\"><div class=\"search-input\"><input placeholder=\"Type the name of an asset to open it\" type=\"text\" /></div><div class=\"search-results-wrapper\"><div class=\"search-results\"></div></div></div>");
+        return _buf.join('');
+      });
+    };
+  
+  }).call(this);;
+}).call(this);
+(function() { this.JST || (this.JST = {}); this.JST["code_sync/editor/templates/document_manager_tab"] = (function() {
+  
+    return function(context) {
+      if (context == null) {
+        context = {};
+      }
+      return Skim.withContext.call({}, context, function() {
+        var classes, closable, displayValue, _buf, _ref, _ref1, _ref2, _temple_coffeescript_attributeremover1, _temple_coffeescript_attributeremover2;
+        _buf = [];
+        displayValue = this.display || this.doc.get("display") || this.doc.get("name");
+        if ((this.doc != null) && this.doc.isSticky()) {
+          closable = true;
+        }
+        classes = ["document-tab"];
+        if (this.cls != null) {
+          classes.push(this.cls);
+        }
+        if (this.doc != null) {
+          classes.push("selectable");
+        }
+        if (!((_ref = this.doc) != null ? _ref.isSticky() : void 0)) {
+          classes.push("closable");
+        }
+        if (this.index !== 0) {
+          classes.push("hideable");
+        }
+        if ((this.doc != null) && !((_ref1 = this.doc) != null ? _ref1.isSticky() : void 0)) {
+          classes.push("editable");
+        }
+        _buf.push("<div");
+        _temple_coffeescript_attributeremover1 = [];
+        _temple_coffeescript_attributeremover1.push(this.escape(classes.join(' ')));
+        _temple_coffeescript_attributeremover1.join('');
+        if (_temple_coffeescript_attributeremover1.length > 0) {
+          _buf.push(" class=\"");
+          _buf.push(_temple_coffeescript_attributeremover1);
+          _buf.push("\"");
+        }
+        _temple_coffeescript_attributeremover2 = [];
+        _temple_coffeescript_attributeremover2.push(this.escape((_ref2 = this.doc) != null ? _ref2.cid : void 0));
+        _temple_coffeescript_attributeremover2.join('');
+        if (_temple_coffeescript_attributeremover2.length > 0) {
+          _buf.push(" data-document-cid=\"");
+          _buf.push(_temple_coffeescript_attributeremover2);
+          _buf.push("\"");
+        }
+        _buf.push("><div class=\"contents\">");
+        _buf.push(this.escape(displayValue));
+        _buf.push("</div>");
+        if (closable) {
+          _buf.push("<div class=\"close-anchor\"><X></X></div>");
+        }
+        _buf.push("</div>");
         return _buf.join('');
       });
     };
@@ -12490,7 +12551,7 @@ CodeMirror.defineMIME("text/x-markdown", "markdown");
           _buf.push(_temple_coffeescript_attributeremover2);
           _buf.push("\"");
         }
-        _buf.push(" /></div></div></form>");
+        _buf.push(" /></div></div><div class=\"control-group\"><label>Position</label><div class=\"controls\"><select name=\"position\"><option value=\"top\">Top</option><option value=\"bottom\">Bottom</option></select></div></div></form>");
         return _buf.join('');
       });
     };
@@ -12507,11 +12568,10 @@ CodeMirror.defineMIME("text/x-markdown", "markdown");
       var _this = this;
       this.attributes = attributes;
       Backbone.Model.prototype.initialize.apply(this, arguments);
-      this.on("change:contents", this.process, this);
+      this.on("change:contents", this.onContentChange);
       this.on("change:name", function() {
-        return _this.set("mode", _this.determineMode(), {
-          silent: false
-        });
+        _this.set("mode", _this.determineMode());
+        return _this.set("display", _this.nameWithoutExtension());
       });
       return this.on("change:mode", function() {
         return _this.set('extension', _this.determineExtension(), {
@@ -12523,10 +12583,8 @@ CodeMirror.defineMIME("text/x-markdown", "markdown");
       return CodeSync.get("assetCompilationEndpoint");
     },
     saveToDisk: function() {
-      var _ref, _ref1;
-      console.log("Document Save To Disk", this.get("path"), (_ref = this.get("path")) != null ? _ref.length : void 0);
-      if (((_ref1 = this.get("path")) != null ? _ref1.length : void 0) > 0) {
-        return this.process(true, "Save To Disk");
+      if (this.isSaveable()) {
+        return this.sendToServer(true, "saveToDisk");
       }
     },
     loadSourceFromDisk: function(callback) {
@@ -12547,34 +12605,52 @@ CodeMirror.defineMIME("text/x-markdown", "markdown");
         }
       });
     },
-    applyDefaults: function() {
-      return this.attributes = _.defaults(this.attributes, {
-        name: "untitled",
-        mode: this.determineMode() || CodeSync.get("defaultFileType"),
-        extension: this.determineExtension(),
-        compiled: "",
-        display: "Untitled",
-        contents: "//"
-      });
-    },
     toJSON: function() {
       return {
-        name: this.get('name'),
+        name: this.nameWithoutExtension(),
         path: this.get('path'),
-        extension: this.get('extension'),
-        contents: this.get('contents')
+        extension: this.get('extension') || this.determineExtension(),
+        contents: this.toContent()
       };
     },
-    toCodeMirrorDocument: function() {
-      return CodeMirror.Doc("" + (this.get("contents") || ''), this.get("mode"), 0);
+    nameWithoutExtension: function() {
+      var extension;
+      extension = this.get('extension') || this.determineExtension();
+      return (this.get("name") || "untitled").replace(extension, '');
     },
-    process: function(allowSaveToDisk) {
+    toMode: function() {
+      var mode, modeModel;
+      mode = this.get("mode") || this.determineMode();
+      return modeModel = CodeSync.Modes.getMode(mode);
+    },
+    toCodeMirrorMode: function() {
+      var _ref;
+      return (_ref = this.toMode()) != null ? _ref.get("codeMirrorMode") : void 0;
+    },
+    toCodeMirrorDocument: function() {
+      return CodeMirror.Doc(this.toContent(), this.toCodeMirrorMode(), 0);
+    },
+    toContent: function() {
+      var _ref;
+      return "" + (this.get("contents") || ((_ref = this.toMode()) != null ? _ref.get("defaultContent") : void 0) || " ");
+    },
+    onContentChange: function() {
+      return this.sendToServer(false, "onContentChange");
+    },
+    sendToServer: function(allowSaveToDisk, reason) {
       var data,
         _this = this;
       if (allowSaveToDisk == null) {
         allowSaveToDisk = false;
       }
+      if (reason == null) {
+        reason = "";
+      }
+      if (!this.isSaveable()) {
+        allowSaveToDisk = false;
+      }
       data = allowSaveToDisk === true ? this.toJSON() : _(this.toJSON()).pick('name', 'extension', 'contents');
+      CodeSync.log("Sending Data To " + (CodeSync.get("assetCompilationEndpoint")), data);
       return $.ajax({
         type: "POST",
         url: CodeSync.get("assetCompilationEndpoint"),
@@ -12588,7 +12664,7 @@ CodeMirror.defineMIME("text/x-markdown", "markdown");
           if (response.success === true) {
             _this.trigger("status", {
               type: "success",
-              message: "Success"
+              message: _this.successMessage(reason)
             });
           }
           if (response.success === true && (response.compiled != null)) {
@@ -12610,7 +12686,7 @@ CodeMirror.defineMIME("text/x-markdown", "markdown");
       }
       if (this.type() === "stylesheet") {
         return helpers.processStyleContent.call(this, this.get('compiled'));
-      } else if (this.type() === "script") {
+      } else if (this.type() === "script" || this.type() === "template") {
         helpers.processScriptContent.call(this, this.get('compiled'));
         if (options.complete) {
           return _.delay(options.complete, options.delay || this.callbackDelay);
@@ -12626,12 +12702,13 @@ CodeMirror.defineMIME("text/x-markdown", "markdown");
           return "stylesheet";
         case "coffeescript":
         case "javascript":
+          return "script";
         case "skim":
         case "mustache":
         case "jst":
         case "haml":
         case "eco":
-          return "script";
+          return "template";
       }
     },
     missingFileName: function() {
@@ -12653,6 +12730,18 @@ CodeMirror.defineMIME("text/x-markdown", "markdown");
       var path;
       path = this.get("path") || this.get("name") || this.get("extension");
       return CodeSync.Modes.guessModeFor(path);
+    },
+    successMessage: function(reason) {
+      if (this.type() === "template") {
+        return "Success.  Template will be available as JST[\"" + (this.nameWithoutExtension()) + "\"]";
+      }
+    },
+    isSticky: function() {
+      return (this.get("sticky") != null) === true;
+    },
+    isSaveable: function() {
+      var _ref;
+      return ((_ref = this.get("path")) != null ? _ref.length : void 0) > 0 && !this.get("doNotSave");
     }
   });
 
@@ -12704,9 +12793,7 @@ CodeMirror.defineMIME("text/x-markdown", "markdown");
           path: path,
           id: id
         });
-        documentModel.applyDefaults();
         return documentModel.loadSourceFromDisk(function() {
-          _this.add(documentModel);
           return typeof callback === "function" ? callback(documentModel) : void 0;
         });
       }
@@ -12719,9 +12806,19 @@ CodeMirror.defineMIME("text/x-markdown", "markdown");
       return $('head').append("<style type='text/css' data-codesync-document=true>" + content + "</style>");
     },
     processScriptContent: function(code) {
-      var evalRunner;
+      var doc, evalRunner;
+      doc = this;
       evalRunner = function(code) {
-        return eval(code);
+        try {
+          return eval(code);
+        } catch (e) {
+          doc.trigger("status", {
+            type: "error",
+            message: "JS Error: " + e.message,
+            sticky: true
+          });
+          throw e;
+        }
       };
       return evalRunner.call(window, code);
     }
@@ -12750,7 +12847,8 @@ CodeMirror.defineMIME("text/x-markdown", "markdown");
             name: value.name || key,
             codeMirrorMode: value.codeMirrorMode || key,
             extension: value.extension,
-            extensionRegex: new RegExp("" + value.extension)
+            extensionRegex: new RegExp("" + value.extension),
+            defaultContent: value.defaultContent
           });
         }
         return _results;
@@ -12783,11 +12881,13 @@ CodeMirror.defineMIME("text/x-markdown", "markdown");
       return mode != null ? mode.get("extension") : void 0;
     },
     defaultMode: function() {
-      var defaultFileType, _ref;
-      defaultFileType = CodeSync.get("defaultFileType");
-      return (_ref = this.get(defaultFileType)) != null ? _ref.get("codeMirrorMode") : void 0;
+      return this.get(CodeSync.get("defaultFileType")) || this.first();
     }
   });
+
+  CodeSync.Modes.getMode = function(id) {
+    return CodeSync.Modes.get().get(id);
+  };
 
   CodeSync.Modes.guessModeFor = function(pathOrFilename) {
     return CodeSync.Modes.get().findModeFor(pathOrFilename);
@@ -12802,28 +12902,40 @@ CodeMirror.defineMIME("text/x-markdown", "markdown");
     return (_base = CodeSync.Modes).singleton || (_base.singleton = new CodeSync.Modes());
   };
 
+  CodeSync.Modes.defaultMode = function() {
+    return CodeSync.Modes.get().defaultMode();
+  };
+
   modes = {
     coffeescript: {
-      extension: ".coffee"
+      extension: ".coffee",
+      defaultContent: "# You are currently in coffeescript mode."
     },
     sass: {
       name: "Sass",
-      extension: ".css.sass"
+      extension: ".css.sass",
+      defaultContent: "// You are currently in Sass mode."
     },
     scss: {
       codeMirrorMode: "css",
-      extension: ".css.scss"
+      extension: ".css.scss",
+      name: "SCSS",
+      defaultContent: "/* You are currently in SCSS mode. */"
     },
     skim: {
-      extension: ".jst.skim"
+      extension: ".jst.skim",
+      defaultContent: "// You are currently in Skim mode.\n// The contents of this template will be available on the JST object.",
+      template: true
     },
     css: {
       name: "CSS",
-      extension: ".css"
+      extension: ".css",
+      defaultContent: "/* You are currently in raw CSS mode. */"
     },
     javascript: {
       name: "Javascript",
-      extension: ".js"
+      extension: ".js",
+      defaultContent: "/* You are currently in raw JS mode. */"
     }
   };
 
@@ -13006,9 +13118,9 @@ CodeMirror.defineMIME("text/x-markdown", "markdown");
       "click .document-tab.new-document": "createDocument",
       "click .document-tab.save-document": "saveDocument",
       "click .document-tab.open-document": "toggleAssetSelector",
-      "dblclick .document-tab.selectable": "onDoubleClickTab",
+      "dblclick .document-tab.editable": "onDoubleClickTab",
       "blur .document-tab.editable .contents": "onEditableTabBlur",
-      "keypress .document-tab.editable .contents": "onEditableTabKeyPress"
+      "keydown .document-tab.editable .contents": "onEditableTabKeyPress"
     },
     initialize: function(options) {
       var _this = this;
@@ -13040,87 +13152,102 @@ CodeMirror.defineMIME("text/x-markdown", "markdown");
       });
       return this.views.assetSelector.on("asset:selected", this.onAssetSelection, this);
     },
+    documentInTab: function(tabElement) {
+      var cid, doc;
+      if (!tabElement.is('.document-tab')) {
+        tabElement = tabElement.parents('.document-tab').eq(0);
+      }
+      if (cid = tabElement.data('document-cid')) {
+        return doc = this.openDocuments.detect(function(model) {
+          return model.cid === cid;
+        });
+      }
+    },
     renderTabs: function() {
-      var closeAnchor, cls, container, documentModel, index, _i, _len, _ref;
+      var container, tmpl;
       container = this.$('.document-tabs-container').empty();
-      _ref = this.openDocuments.models;
-      for (index = _i = 0, _len = _ref.length; _i < _len; index = ++_i) {
-        documentModel = _ref[index];
-        cls = "";
-        closeAnchor = "";
-        if (documentModel.id !== 1) {
-          cls = 'closable hideable';
-          closeAnchor = "<small class='close-anchor'>x</small>";
-        }
-        container.append("<div class='document-tab selectable " + cls + "' data-document-id='" + documentModel.id + "' data-document-index='" + index + "'><span class='contents'>" + (documentModel.get('display')) + "</span> " + closeAnchor + "</div>");
-      }
-      container.append("<div class='document-tab static new-document hideable'>New</div>");
-      if (CodeSync.get("disableAssetOpen") !== true) {
-        container.append("<div class='document-tab static open-document hideable'>Open</div>");
-      }
-      container.append("<div class='document-tab static save-document hideable'>Save</div>");
-      return this;
+      tmpl = JST["code_sync/editor/templates/document_manager_tab"];
+      this.openDocuments.each(function(doc, index) {
+        return container.append(tmpl({
+          doc: doc,
+          index: index
+        }));
+      });
+      container.append(tmpl({
+        display: "New",
+        cls: "new-document"
+      }));
+      return container.append(tmpl({
+        display: "Open",
+        cls: "open-document"
+      }));
     },
     onAssetSelection: function(path) {
       var _this = this;
-      return this.openDocuments.findOrCreateForPath(path, function(documentModel) {
-        return _this.loadDocument(documentModel);
+      return this.openDocuments.findOrCreateForPath(path, function(doc) {
+        return _this.openDocument(doc);
       });
     },
     onEditableTabKeyPress: function(e) {
-      var content, documentModel, target;
+      var contents, doc, original, target;
       target = this.$(e.target).closest('.document-tab');
-      content = this.$('.contents', target);
-      if (e.keyCode === 13) {
+      contents = target.children('.contents');
+      if (e.keyCode === 13 || e.keyCode === 27) {
         e.preventDefault();
-        target.removeClass('editable');
-        content.attr('contenteditable', false);
-        if (documentModel = this.openDocuments.at(target.data('document-index'))) {
-          documentModel.set('name', content.html());
+        contents.attr('contenteditable', false);
+        if (doc = this.documentInTab(target)) {
+          if (e.keyCode === 13) {
+            doc.set('name', contents.html());
+          }
+          if (e.keyCode === 27 && (original = target.attr('data-original-value'))) {
+            contents.html(original);
+          }
         }
         return this.editor.codeMirror.focus();
       }
     },
     onEditableTabBlur: function(e) {
-      var content, documentModel, target;
+      var contents, doc, target, _ref;
       target = this.$(e.target).closest('.document-tab');
-      content = this.$('.contents', target);
-      if (documentModel = this.openDocuments.at(target.data('document-index'))) {
-        documentModel.set('name', content.html());
-        return content.attr('contenteditable', false);
+      contents = target.children('.contents');
+      console.log("On Editable Tab Blur", (_ref = this.documentInTab(target)) != null ? _ref.cid : void 0);
+      if (doc = this.documentInTab(target)) {
+        doc.set('name', contents.html());
+        return contents.attr('contenteditable', false);
       }
     },
     onDoubleClickTab: function(e) {
-      var documentModel, target;
+      var contents, target;
       target = this.$(e.target).closest('.document-tab');
-      target.addClass('editable');
-      if (documentModel = this.openDocuments.at(target.data('document-index'))) {
-        this.loadDocument(documentModel);
-      }
-      return this.$('.contents', target).attr('contenteditable', true);
+      contents = target.children('.contents');
+      target.attr('data-original-value', contents.html());
+      return contents.attr('contenteditable', true);
     },
     onDocumentTabSelection: function(e) {
-      var documentModel, target;
+      var doc, target;
       this.trigger("tab:click");
       target = this.$(e.target).closest('.document-tab');
-      documentModel = this.openDocuments.at(target.data('document-index'));
-      return this.loadDocument(documentModel);
+      doc = this.documentInTab(target);
+      return this.setCurrentDocument(doc);
     },
     closeTab: function(e) {
-      var documentModel, index, target;
-      target = this.$(e.target).closest('.document-tab');
-      index = target.data('document-index');
-      documentModel = this.openDocuments.at(index);
-      this.openDocuments.remove(documentModel);
-      return this.loadDocument(this.openDocuments.at(index - 1) || this.openDocuments.at(0));
+      var doc, index, target;
+      target = this.$(e.target);
+      doc = this.documentInTab(target);
+      index = this.openDocuments.indexOf(doc);
+      this.openDocuments.remove(doc);
+      return this.setCurrentDocument(this.openDocuments.at(index - 1) || this.openDocuments.at(0));
     },
     getCurrentDocument: function() {
       return this.currentDocument;
     },
-    loadDocument: function(documentModel) {
-      this.currentDocument = documentModel;
-      this.trigger("document:loaded", documentModel);
-      return this.toggleSaveButton();
+    openDocument: function(doc) {
+      this.openDocuments.add(doc);
+      return this.setCurrentDocument(doc);
+    },
+    setCurrentDocument: function(currentDocument) {
+      this.currentDocument = currentDocument;
+      return this.editor.loadDocument(this.currentDocument);
     },
     toggleSaveButton: function() {
       var _ref, _ref1;
@@ -13141,33 +13268,20 @@ CodeMirror.defineMIME("text/x-markdown", "markdown");
       }
     },
     createDocument: function() {
-      var documentModel;
+      var doc;
       this.openDocuments.add({
         name: "untitled",
         display: "Untitled",
         mode: CodeSync.get("defaultFileType"),
         extension: CodeSync.Modes.guessExtensionFor(CodeSync.get("defaultFileType"))
       });
-      documentModel = this.openDocuments.last();
-      return this.loadDocument(documentModel);
-    },
-    createAdHocDocument: function() {
-      this.openDocuments.add({
-        id: 1,
-        extension: ".css.sass",
-        name: "scratch-pad",
-        mode: "sass",
-        path: void 0,
-        display: "CodeSync Editor",
-        contents: "// Feel free to experiment with Sass"
-      });
-      return this.openDocuments.get(1);
+      doc = this.openDocuments.last();
+      return this.openDocument(doc);
     },
     toggleAssetSelector: function() {
       return this.views.assetSelector.toggle();
     },
     render: function() {
-      this.loadDocument(this.createAdHocDocument());
       this.$el.append(this.views.assetSelector.render().el);
       return this;
     }
@@ -13191,13 +13305,16 @@ CodeMirror.defineMIME("text/x-markdown", "markdown");
       }
     });
     this.$el.append(dm.render().el);
-    this.on("codemirror:setup", this.loadAdhocDocument, this);
     dm.on("tab:click", function() {
       if (_this.visible === false) {
         return _this.show();
       }
     });
-    return dm.on("document:loaded", editor.onDocumentLoad, this);
+    return CodeSync.AssetEditor.prototype.loadDefaultDocument = function() {
+      var defaultDocument;
+      defaultDocument = editor.getDefaultDocument();
+      return dm.openDocument(defaultDocument);
+    };
   };
 
 }).call(this);
@@ -13209,12 +13326,16 @@ CodeMirror.defineMIME("text/x-markdown", "markdown");
       "change select": "onSelect"
     },
     initialize: function(options) {
+      var _this = this;
       if (options == null) {
         options = {};
       }
-      this.modes = CodeSync.Modes.get();
-      this.modes.on("reset", this.render, this);
       this.editor = options.editor;
+      this.modes = this.editor.modes;
+      this.modes.on("reset", this.render, this);
+      this.editor.on("change:mode", function(modeModel, modeId) {
+        return _this.setValue(modeId);
+      });
       return Backbone.View.prototype.initialize.apply(this, arguments);
     },
     onSelect: function() {
@@ -13244,7 +13365,7 @@ CodeMirror.defineMIME("text/x-markdown", "markdown");
     v = this.views.modeSelector = new CodeSync.plugins.ModeSelector({
       editor: editor
     });
-    editor.$el.append(v.render().el);
+    editor.$('.codesync-asset-editor').append(v.render().el);
     return editor.on("document:loaded", function(doc) {
       return v.setValue(doc.get('mode'));
     });
@@ -13365,10 +13486,17 @@ CodeMirror.defineMIME("text/x-markdown", "markdown");
       CodeSync.set("assetCompilationEndpoint", values.asset_endpoint);
       return CodeSync.AssetEditor.setHotKey(values.editor_hotkey);
     });
-    return editor.on("codemirror:setup", function(cm) {
+    editor.on("codemirror:setup", function(cm) {
       return cm.on("focus", function() {
         return panel.$el.hide();
       });
+    });
+    return panel.on("update:preferences", function() {
+      var values;
+      values = panel.values();
+      if (editor.position !== values.position) {
+        return editor.setPosition(values.position);
+      }
     });
   };
 
@@ -13385,81 +13513,51 @@ CodeMirror.defineMIME("text/x-markdown", "markdown");
     visible: false,
     showVisibleTab: true,
     hideable: true,
+    startMode: "scss",
+    theme: "ambiance",
+    keyBindings: "",
     events: {
       "click .status-message": "removeStatusMessages",
       "click .hide-button": "hide"
     },
     plugins: ["DocumentManager", "ModeSelector", "PreferencesPanel"],
     initialize: function(options) {
+      var _this = this;
       this.options = options != null ? options : {};
       _.extend(this, this.options);
       _.bindAll(this, "editorChangeHandler");
       this.views = {};
-      this.$el.addClass("" + this.position + "-positioned");
-      if (this.autoRender !== false) {
-        this.render();
-      }
-      return this.on("editor:change", _.debounce(this.editorChangeHandler, this.editorChangeThrottle), this);
-    },
-    setupCodeMirror: function() {
-      var changeHandler,
-        _this = this;
-      if (this.codeMirror != null) {
-        return;
-      }
-      this.height || (this.height = this.$el.height());
-      this.codeMirror = CodeMirror(this.$('.codesync-asset-editor')[0], this.getCodeMirrorOptions());
-      this.trigger("codemirror:setup", this.codeMirror);
-      changeHandler = function(changeObj) {
-        return _this.trigger("editor:change", _this.codeMirror.getValue(), changeObj);
-      };
-      this.codeMirror.on("change", _.debounce(changeHandler, this.editorChangeThrottle));
-      return this;
-    },
-    codeMirrorKeyBindings: {
-      "Ctrl-J": function() {
-        return this.toggle();
-      }
-    },
-    getCodeMirrorOptions: function() {
-      var handler, keyCommand, options, _ref;
-      _ref = this.codeMirrorKeyBindings;
-      for (keyCommand in _ref) {
-        handler = _ref[keyCommand];
-        this.codeMirrorKeyBindings[keyCommand] = _.bind(handler, this);
-      }
-      return options = {
-        theme: 'lesser-dark',
-        lineNumbers: true,
-        mode: CodeSync.Modes.guessModeFor(this.defaultExtension),
-        extraKeys: this.codeMirrorKeyBindings
-      };
-    },
-    editorChangeHandler: function(editorContents) {
-      var documentModel;
-      documentModel = this.views.documentManager.getCurrentDocument();
-      return documentModel.set("contents", editorContents);
-    },
-    setupToolbar: function() {
-      if (this.hideable === true) {
-        return this.$('.toolbar-wrapper').append("<div class='button hide-button'>Hide</div>");
-      }
-    },
-    render: function() {
-      var PluginClass, plugin, _i, _len, _ref,
-        _this = this;
-      if (this.rendered === true) {
-        return this;
-      }
+      this.modes = CodeSync.Modes.get();
+      this.startMode = this.modes.get(this.startMode) || CodeSync.Modes.defaultMode();
+      this.setPosition(this.position, false);
+      this.on("editor:change", _.debounce(this.editorChangeHandler, this.editorChangeThrottle), this);
+      this.on("codemirror:setup", function() {
+        return _this.loadDefaultDocument();
+      });
       this.$el.html(JST["code_sync/editor/templates/asset_editor"]());
+      this.loadPlugins();
+      if (this.autoRender !== false) {
+        return this.render();
+      }
+    },
+    loadPlugins: function() {
+      var PluginClass, plugin, _i, _len, _ref, _results;
       _ref = this.plugins;
+      _results = [];
       for (_i = 0, _len = _ref.length; _i < _len; _i++) {
         plugin = _ref[_i];
         if (!(CodeSync.plugins[plugin] != null)) {
           continue;
         }
         PluginClass = CodeSync.plugins[plugin];
-        PluginClass.setup.call(this, this);
+        _results.push(PluginClass.setup.call(this, this));
+      }
+      return _results;
+    },
+    render: function() {
+      var _this = this;
+      if (this.rendered === true) {
+        return this;
       }
       this.setupToolbar();
       this.delegateEvents();
@@ -13475,95 +13573,211 @@ CodeMirror.defineMIME("text/x-markdown", "markdown");
       }
       return this;
     },
-    onDocumentLoad: function(doc) {
+    setupCodeMirror: function() {
+      var changeHandler,
+        _this = this;
+      if (this.codeMirror != null) {
+        return;
+      }
+      this.height || (this.height = this.$el.height());
+      this.codeMirror = CodeMirror(this.$('.codesync-asset-editor')[0], this.getCodeMirrorOptions());
+      this.on("initial:document:load", function() {
+        if (_this.startMode) {
+          _this.setMode(_this.startMode);
+        }
+        if (_this.keyBindings) {
+          _this.setKeyMap(_this.keyBindings);
+        }
+        if (_this.theme) {
+          return _this.setTheme(_this.theme);
+        }
+      });
+      changeHandler = function(changeObj) {
+        return _this.trigger("editor:change", _this.codeMirror.getValue(), changeObj);
+      };
+      this.codeMirror.on("change", _.debounce(changeHandler, this.editorChangeThrottle));
+      this.trigger("codemirror:setup", this.codeMirror);
+      return this;
+    },
+    codeMirrorKeyBindings: {
+      "Ctrl-J": function() {
+        return this.toggle();
+      }
+    },
+    getCodeMirrorOptions: function() {
+      var handler, keyCommand, options, _ref, _ref1;
+      _ref = this.codeMirrorKeyBindings;
+      for (keyCommand in _ref) {
+        handler = _ref[keyCommand];
+        this.codeMirrorKeyBindings[keyCommand] = _.bind(handler, this);
+      }
+      return options = {
+        theme: 'lesser-dark',
+        lineNumbers: true,
+        mode: ((_ref1 = this.startMode) != null ? _ref1.get("codeMirrorMode") : void 0) || CodeSync.get("defaultFileType"),
+        extraKeys: this.codeMirrorKeyBindings
+      };
+    },
+    editorChangeHandler: function(editorContents) {
+      return this.currentDocument.set("contents", editorContents);
+    },
+    setPosition: function(position, show) {
+      var available, _i, _len, _ref;
+      this.position = position != null ? position : "top";
+      if (show == null) {
+        show = true;
+      }
+      _ref = ["top", "bottom"];
+      for (_i = 0, _len = _ref.length; _i < _len; _i++) {
+        available = _ref[_i];
+        if (available !== this.position) {
+          this.$el.removeClass("" + available + "-positioned");
+        }
+      }
+      this.$el.addClass("" + this.position + "-positioned");
+      if (show === true) {
+        this.show();
+      }
+      return this;
+    },
+    setKeyMap: function(keyMap) {
+      return this.codeMirror.setOption('keyMap', keyMap);
+    },
+    setTheme: function(theme) {
+      this.$el.attr("data-theme", theme);
+      return this.codeMirror.setOption('theme', theme);
+    },
+    setMode: function(newMode) {
+      var _ref;
+      if ((this.mode != null) && (newMode !== this.mode)) {
+        this.trigger("change:mode", newMode, newMode.id);
+      }
+      this.mode = newMode;
+      if (((_ref = this.mode) != null ? _ref.get : void 0) != null) {
+        this.codeMirror.setOption('mode', this.mode.get("codeMirrorMode"));
+        this.currentDocument.set('mode', this.mode.id);
+        this.currentDocument.set('extension', CodeSync.Modes.guessExtensionFor(this.mode.id));
+      }
+      return this;
+    },
+    setupToolbar: function() {
+      if (this.hideable === true) {
+        return this.$('.toolbar-wrapper').append("<div class='button hide-button'>Hide</div>");
+      }
+    },
+    getDefaultDocument: function() {
+      var defaultDocument;
+      return defaultDocument = new CodeSync.Document({
+        mode: this.options.startMode || CodeSync.get("defaultFileType"),
+        sticky: true,
+        doNotSave: true,
+        name: "codesync",
+        display: "CodeSync Editor"
+      });
+    },
+    loadDefaultDocument: function() {
+      return this.loadDocument(this.getDefaultDocument());
+    },
+    loadDocument: function(doc) {
       if (this.currentDocument != null) {
         this.currentDocument.off("status", this.showStatusMessage);
-        this.currentDocument.off("change:compiled", this.loadDocumentInPage);
-        this.currentDocument.off("change:mode", this.loadDocumentInPage, this);
+        this.currentDocument.off("change:compiled", this.applyDocumentContentToPage);
+        this.currentDocument.off("change:mode", this.applyDocumentContentToPage, this);
+      } else {
+        this.currentDocument = doc;
+        this.trigger("initial:document:load");
       }
       this.currentDocument = doc;
       this.trigger("document:loaded", doc);
       this.codeMirror.swapDoc(this.currentDocument.toCodeMirrorDocument());
       this.currentDocument.on("status", this.showStatusMessage, this);
-      this.currentDocument.on("change:compiled", this.loadDocumentInPage, this);
-      return this.currentDocument.on("change:mode", this.loadDocumentInPage, this);
+      this.currentDocument.on("change:compiled", this.applyDocumentContentToPage, this);
+      this.currentDocument.on("change:mode", this.applyDocumentContentToPage, this);
+      return this.currentDocument.on;
     },
-    loadDocumentInPage: function() {
+    applyDocumentContentToPage: function() {
       var _ref,
         _this = this;
+      if ((this.currentDocument != null) && (this.currentDocument.toMode() !== this.mode)) {
+        this.setMode(this.currentDocument.toMode());
+      }
       return (_ref = this.currentDocument) != null ? _ref.loadInPage({
         complete: function() {
-          var _ref1, _ref2, _ref3, _ref4;
-          if (((_ref1 = _this.currentDocument) != null ? _ref1.type() : void 0) === "script") {
-            if ((_ref2 = CodeSync.onScriptChange) != null) {
-              _ref2.call(window, _this.currentDocument.attributes);
+          var _ref1, _ref2;
+          if (_this.currentDocument.type() === "script" || _this.currentDocument.type() === "template") {
+            if ((_ref1 = CodeSync.onScriptChange) != null) {
+              _ref1.call(window, _this.currentDocument.attributes);
             }
           }
-          if (((_ref3 = _this.currentDocument) != null ? _ref3.type() : void 0) === "stylesheet") {
-            return (_ref4 = CodeSync.onStylesheetChange) != null ? _ref4.call(window, _this.currentDocument.attributes) : void 0;
+          if (_this.currentDocument.type() === "stylesheet") {
+            return (_ref2 = CodeSync.onStylesheetChange) != null ? _ref2.call(window, _this.currentDocument.attributes) : void 0;
           }
         }
       }) : void 0;
-    },
-    loadAdhocDocument: function() {
-      var documentModel;
-      documentModel = this.views.documentManager.createAdHocDocument();
-      return this.views.documentManager.loadDocument(documentModel);
     },
     removeStatusMessages: function() {
       return this.$('.status-message').remove();
     },
     showStatusMessage: function(options) {
-      var _this = this;
+      var _ref,
+        _this = this;
       if (options == null) {
         options = {};
       }
       this.removeStatusMessages();
-      this.$el.prepend("<div class='status-message " + options.type + "'>" + options.message + "</div>");
+      if (((_ref = options.message) != null ? _ref.length : void 0) > 0) {
+        this.$el.prepend("<div class='status-message " + options.type + "'>" + options.message + "</div>");
+      }
       if (options.type === "success") {
         return _.delay(function() {
-          return _this.$('.status-message').animate({
+          return _this.$('.status-message.success').animate({
             opacity: 0
           }, {
             duration: 400,
             complete: function() {
-              return _this.$('.status-message').remove();
+              return _this.$('.status-message.success').remove();
             }
           });
         }, 1200);
       }
     },
-    hiddenPosition: function() {
+    hintHeight: function() {
       var offset;
+      return offset = this.showVisibleTab ? this.$('.document-tabs-container').height() : 0;
+    },
+    visibleStyleSettings: function() {
+      var settings;
       if (this.position === "top") {
-        offset = this.showVisibleTab ? this.$('.document-tabs-container').height() : 0;
-        return {
-          top: "" + ((this.height + 5) * -1 + offset) + "px"
+        settings = {
+          top: '0px',
+          bottom: 'auto'
         };
       }
-    },
-    effectSettings: function() {
-      switch (this.effect) {
-        case "slide":
-          if (this.visible === true && this.position === "top") {
-            return this.hiddenPosition();
-          } else {
-            return {
-              top: "0px"
-            };
-          }
-          break;
-        case "fade":
-          if (this.visible === true) {
-            return {
-              opacity: 0
-            };
-          } else {
-            return {
-              opacity: 0.98
-            };
-          }
+      if (this.position === "bottom") {
+        settings = {
+          top: 'auto',
+          bottom: '0px',
+          height: '400px'
+        };
       }
+      return settings;
+    },
+    hiddenStyleSettings: function() {
+      var settings;
+      if (this.position === "top") {
+        settings = {
+          top: ((this.$el.height() + 8) * -1) + this.hintHeight(),
+          bottom: 'auto'
+        };
+      }
+      if (this.position === "bottom") {
+        settings = {
+          top: 'auto',
+          bottom: '0px',
+          height: '0px'
+        };
+      }
+      return settings;
     },
     hide: function(withEffect) {
       var completeFn, view, viewName, _ref,
@@ -13582,7 +13796,7 @@ CodeMirror.defineMIME("text/x-markdown", "markdown");
         return _this.animating = false;
       }, this.effectDuration + 20);
       if (withEffect !== false) {
-        this.$el.animate(this.effectSettings(), {
+        this.$el.animate(this.hiddenStyleSettings(), {
           duration: this.effectDuration,
           complete: completeFn
         });
@@ -13610,7 +13824,7 @@ CodeMirror.defineMIME("text/x-markdown", "markdown");
         return _this.animating = false;
       }, this.effectDuration);
       if (withEffect !== false) {
-        this.$el.animate(this.effectSettings(), {
+        this.$el.animate(this.visibleStyleSettings(), {
           duration: this.effectDuration,
           complete: completeFn
         });
@@ -13629,24 +13843,6 @@ CodeMirror.defineMIME("text/x-markdown", "markdown");
       } else {
         return this.show(true);
       }
-    },
-    setKeyMap: function(keyMap) {
-      return this.codeMirror.setOption('keyMap', keyMap);
-    },
-    setTheme: function(theme) {
-      this.$el.attr("data-theme", theme);
-      return this.codeMirror.setOption('theme', theme);
-    },
-    setMode: function(mode) {
-      var codeMirrorMode;
-      this.mode = mode;
-      if (!_.isString(this.mode)) {
-        codeMirrorMode = this.mode.get("codeMirrorMode");
-      }
-      this.codeMirror.setOption('mode', codeMirrorMode);
-      this.currentDocument.set('mode', this.mode.get("codeMirrorMode"));
-      this.currentDocument.set('extension', CodeSync.Modes.guessExtensionFor(this.mode.get("codeMirrorMode")));
-      return this;
     }
   });
 

@@ -1,7 +1,7 @@
 PATH
   remote: ..
   specs:
-    code_sync (0.6.2)
+    code_sync (0.6.5)
       faye
       listen
       pry
