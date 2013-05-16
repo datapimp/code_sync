@@ -266,7 +266,7 @@ CodeSync.AssetEditor = Backbone.View.extend
       settings =
         top: 'auto'
         bottom: '0px'
-        height: '0px'
+        height: "#{ @hintHeight() - 8 }px"
 
     settings
 
