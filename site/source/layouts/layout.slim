@@ -22,11 +22,12 @@ html lang="en"
         window.codeSyncClient = new CodeSync.Client()
 
     javascript:
-      CodeSync.AssetEditor.setHotKey('ctrl+j', {defaultFileType:"sass", defaultExtension:".css.sass"})
+      CodeSync.AssetEditor.setHotKey('ctrl+j')
 
       window.codeSyncEditor = new CodeSync.AssetEditor({
         autoAppend: true,
-        renderHidden: true
+        renderHidden: true,
+        startMode: 'scss'
       })
 
       $('.try-it-now').on("click", function(e){

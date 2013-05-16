@@ -8,10 +8,11 @@ CodeSync.plugins.DocumentManager = Backbone.View.extend
     "click .document-tab.new-document" : "createDocument"
     "click .document-tab.save-document" : "saveDocument"
     "click .document-tab.open-document": "toggleAssetSelector"
-    "dblclick .document-tab.selectable" : "onDoubleClickTab"
+
+    "dblclick .document-tab.editable" : "onDoubleClickTab"
 
     "blur .document-tab.editable .contents" : "onEditableTabBlur"
-    "keypress .document-tab.editable .contents" : "onEditableTabKeyPress"
+    "keydown .document-tab.editable .contents" : "onEditableTabKeyPress"
 
   initialize: (options={})->
     @editor = options.editor
@@ -38,7 +39,6 @@ CodeSync.plugins.DocumentManager = Backbone.View.extend
       @$('.document-tab.hideable').show()
       @toggleSaveButton()
 
-
     @views.assetSelector = new CodeSync.AssetSelector
       collection: @projectAssets
       documents: @openDocuments
@@ -46,86 +46,86 @@ CodeSync.plugins.DocumentManager = Backbone.View.extend
 
     @views.assetSelector.on "asset:selected", @onAssetSelection, @
 
+  documentInTab: (tabElement)->
+    tabElement = tabElement.parents('.document-tab').eq(0) unless tabElement.is('.document-tab')
+
+    if cid = tabElement.data('document-cid')
+      doc = @openDocuments.detect (model)->
+        model.cid == cid
+
   renderTabs: ()->
     container = @$('.document-tabs-container').empty()
+    tmpl = JST["code_sync/editor/templates/document_manager_tab"]
 
-    for documentModel,index in @openDocuments.models
-      cls = ""
-      closeAnchor = ""
+    @openDocuments.each (doc,index)->
+      container.append tmpl(doc: doc, index: index)
 
-      unless documentModel.id is 1
-        cls = 'closable hideable'
-        closeAnchor = "<small class='close-anchor'>x</small>"
-
-      container.append "<div class='document-tab selectable #{ cls }' data-document-id='#{ documentModel.id }' data-document-index='#{ index }'><span class='contents'>#{ documentModel.get('display') }</span> #{ closeAnchor }</div>"
-
-    container.append "<div class='document-tab static new-document hideable'>New</div>"
-
-    unless CodeSync.get("disableAssetOpen") is true
-      container.append "<div class='document-tab static open-document hideable'>Open</div>"
-
-    container.append "<div class='document-tab static save-document hideable'>Save</div>"
-
-    @
+    container.append tmpl(display:"New",cls:"new-document")
+    container.append tmpl(display:"Open",cls:"open-document")
 
   onAssetSelection: (path)->
-    @openDocuments.findOrCreateForPath path, (documentModel)=>
-      @loadDocument(documentModel)
+    @openDocuments.findOrCreateForPath path, (doc)=>
+      @openDocument(doc)
 
   onEditableTabKeyPress: (e)->
-
     target = @$(e.target).closest('.document-tab')
-    content = @$('.contents',target)
+    contents = target.children('.contents')
 
-    if e.keyCode is 13
+    if e.keyCode is 13 or e.keyCode is 27
       e.preventDefault()
-      target.removeClass('editable')
-      content.attr('contenteditable', false)
 
-      if documentModel = @openDocuments.at target.data('document-index')
-        documentModel.set('name', content.html() )
+      contents.attr('contenteditable', false)
+
+      if doc = @documentInTab(target)
+        if e.keyCode is 13
+          doc.set('name', contents.html() )
+
+        if e.keyCode is 27 and original = target.attr('data-original-value')
+          contents.html(original)
 
       @editor.codeMirror.focus()
 
-
   onEditableTabBlur: (e)->
     target = @$(e.target).closest('.document-tab')
-    content = @$('.contents', target)
+    contents = target.children('.contents')
 
-    if documentModel = @openDocuments.at target.data('document-index')
-      documentModel.set('name', content.html() )
-      content.attr('contenteditable', false)
+    console.log "On Editable Tab Blur", @documentInTab(target)?.cid
+    if doc = @documentInTab(target)
+      doc.set('name', contents.html() )
+      contents.attr('contenteditable', false)
 
   onDoubleClickTab: (e)->
     target = @$(e.target).closest('.document-tab')
-    target.addClass('editable')
+    contents = target.children('.contents')
 
-    if documentModel = @openDocuments.at target.data('document-index')
-      @loadDocument(documentModel)
-
-    @$('.contents',target).attr('contenteditable',true)
+    target.attr('data-original-value', contents.html())
+    contents.attr('contenteditable',true)
 
   onDocumentTabSelection: (e)->
     @trigger "tab:click"
     target = @$(e.target).closest('.document-tab')
-    documentModel = @openDocuments.at target.data('document-index')
-    @loadDocument(documentModel)
+    doc = @documentInTab(target)
+
+    @setCurrentDocument(doc)
 
   closeTab: (e)->
-    target = @$(e.target).closest('.document-tab')
-    index = target.data('document-index')
-    documentModel = @openDocuments.at(index)
-    @openDocuments.remove(documentModel)
+    target = @$(e.target)
+    doc = @documentInTab(target)
 
-    @loadDocument( @openDocuments.at(index - 1) || @openDocuments.at(0) )
+    index = @openDocuments.indexOf(doc)
+    @openDocuments.remove(doc)
+
+    @setCurrentDocument( @openDocuments.at(index - 1) || @openDocuments.at(0) )
 
   getCurrentDocument: ()->
     @currentDocument
 
-  loadDocument: (documentModel)->
-    @currentDocument = documentModel
-    @trigger "document:loaded", documentModel
-    @toggleSaveButton()
+  openDocument: (doc)->
+    @openDocuments.add(doc)
+    @setCurrentDocument(doc)
+
+  setCurrentDocument: (@currentDocument)->
+    @editor.loadDocument(@currentDocument)
 
   toggleSaveButton: ()->
     if @currentDocument?.get("path")?.length > 0
@@ -146,27 +146,14 @@ CodeSync.plugins.DocumentManager = Backbone.View.extend
       mode: CodeSync.get("defaultFileType")
       extension: CodeSync.Modes.guessExtensionFor(CodeSync.get("defaultFileType"))
 
-    documentModel = @openDocuments.last()
+    doc = @openDocuments.last()
 
-    @loadDocument(documentModel)
-
-  createAdHocDocument: ()->
-    @openDocuments.add
-      id: 1
-      extension: ".css.sass"
-      name: "scratch-pad"
-      mode: "sass"
-      path: undefined
-      display: "CodeSync Editor"
-      contents: "// Feel free to experiment with Sass"
-
-    @openDocuments.get(1)
+    @openDocument(doc)
 
   toggleAssetSelector: ()->
     @views.assetSelector.toggle()
 
   render: ()->
-    @loadDocument @createAdHocDocument()
     @$el.append( @views.assetSelector.render().el )
 
     @
@@ -185,12 +172,11 @@ CodeSync.plugins.DocumentManager.setup = (editor)->
     "Ctrl-N": ()->
       dm.createDocument()
 
-
   @$el.append(dm.render().el)
-
-  @on "codemirror:setup", @loadAdhocDocument, @
 
   dm.on "tab:click", ()=>
     @show() if @visible is false
 
-  dm.on "document:loaded", editor.onDocumentLoad, @
+  CodeSync.AssetEditor::loadDefaultDocument = ()->
+    defaultDocument = editor.getDefaultDocument()
+    dm.openDocument(defaultDocument)

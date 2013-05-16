@@ -1,0 +1,18 @@
+- displayValue  = @display || @doc.get("display") || @doc.get("name")
+- closable = true if @doc? && @doc.isSticky()
+
+- classes = ["document-tab"]
+- classes.push @cls if @cls?
+- classes.push("selectable") if @doc?
+- classes.push("closable") unless @doc?.isSticky()
+- classes.push("hideable") unless @index is 0
+- classes.push("editable") if @doc? && !@doc?.isSticky()
+
+div class="#{ classes.join(' ') }" data-document-cid="#{ @doc?.cid }"
+  .contents
+    = displayValue
+
+  - if closable
+    .close-anchor
+      X
+

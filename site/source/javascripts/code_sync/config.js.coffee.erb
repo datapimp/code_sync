@@ -5,7 +5,7 @@ if typeof(exports) isnt "undefined"
 else
   CodeSync = root.CodeSync = {}
 
-CodeSync.VERSION    = "0.6.1"
+CodeSync.VERSION    = "<%= CodeSync::Version %>"
 
 CodeSync.backends   = {}
 
@@ -35,4 +35,4 @@ CodeSync.log = (args...)->
     args.unshift "CodeSync Log:"
     console.log args...
 
-
+_originalSetOption = CodeMirror::setOption

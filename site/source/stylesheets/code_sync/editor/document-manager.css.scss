@@ -1,12 +1,13 @@
 .document-tabs-container {
   position: absolute;
   left: 10px;
-  bottom: -2px;
+  bottom: -8px;
   z-index: 9000;
   width: 940px;
 
 
   .document-tab {
+    font-size: 12px;
     float: left;
     border: 1px solid #777;
     border-top: 0px;
@@ -18,10 +19,16 @@
     color: #fff;
     height: 28px;
     margin-right: 2px;
+
     &.new-document {
       margin-right: 0px;
     }
-    &.static {
+
+    &.new-document {
+      float: right;
+    }
+
+    &.open-document {
       float: right;
     }
   }

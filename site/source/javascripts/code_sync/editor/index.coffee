@@ -24,6 +24,12 @@ CodeSync.AssetEditor = Backbone.View.extend
 
   hideable: true
 
+  startMode: "scss"
+
+  theme: "ambiance"
+
+  keyBindings: ""
+
   events:
     "click .status-message" : "removeStatusMessages"
     "click .hide-button" : "hide"
@@ -41,59 +47,30 @@ CodeSync.AssetEditor = Backbone.View.extend
 
     @views = {}
 
-    @$el.addClass "#{ @position }-positioned"
+    @modes = CodeSync.Modes.get()
 
-    @render() unless @autoRender is false
+    @startMode = @modes.get(@startMode) || CodeSync.Modes.defaultMode()
+
+    @$el.addClass "#{ @position }-positioned"
 
     @on "editor:change", _.debounce(@editorChangeHandler, @editorChangeThrottle), @
 
-  setupCodeMirror: ()->
-    return if @codeMirror?
-
-    @height ||= @$el.height()
-    @codeMirror = CodeMirror(@$('.codesync-asset-editor')[0], @getCodeMirrorOptions())
-
-    @trigger "codemirror:setup", @codeMirror
-
-    changeHandler = (changeObj)=>
-      @trigger "editor:change", @codeMirror.getValue(), changeObj
-
-    @codeMirror.on "change", _.debounce(changeHandler, @editorChangeThrottle)
-
-    #@codeMirror.on "focus", ()=> @views.preferencesPanel.$el.hide()
-
-    @
-
-  codeMirrorKeyBindings:
-    "Ctrl-J": ()->
-      @toggle()
-
-  getCodeMirrorOptions: ()->
-    for keyCommand, handler of @codeMirrorKeyBindings
-      @codeMirrorKeyBindings[keyCommand] = _.bind(handler, @)
-
-    options =
-      theme: 'lesser-dark'
-      lineNumbers: true
-      mode: CodeSync.Modes.guessModeFor(@defaultExtension)
-      extraKeys: @codeMirrorKeyBindings
-
-  editorChangeHandler: (editorContents)->
-    documentModel = @views.documentManager.getCurrentDocument()
-    documentModel.set("contents", editorContents)
-
-  setupToolbar: ()->
-    if @hideable is true
-      @$('.toolbar-wrapper').append "<div class='button hide-button'>Hide</div>"
-
-  render: ()->
-    return @ if @rendered is true
+    @on "codemirror:setup", ()=>
+      @loadDefaultDocument()
 
     @$el.html JST["code_sync/editor/templates/asset_editor"]()
 
+    @loadPlugins()
+
+    @render() unless @autoRender is false
+
+  loadPlugins: ()->
     for plugin in @plugins when CodeSync.plugins[plugin]?
       PluginClass = CodeSync.plugins[plugin]
       PluginClass.setup.call(@, @)
+
+  render: ()->
+    return @ if @rendered is true
 
     @setupToolbar()
 
@@ -113,11 +90,93 @@ CodeSync.AssetEditor = Backbone.View.extend
 
     @
 
-  onDocumentLoad: (doc)->
+  setupCodeMirror: ()->
+    return if @codeMirror?
+
+    @height ||= @$el.height()
+    @codeMirror = CodeMirror(@$('.codesync-asset-editor')[0], @getCodeMirrorOptions())
+
+    @on "initial:document:load", ()=>
+      if @startMode
+        @setMode(@startMode)
+
+      if @keyBindings
+        @setKeyMap(@keyBindings)
+
+      if @theme
+        @setTheme(@theme)
+
+    changeHandler = (changeObj)=>
+      @trigger "editor:change", @codeMirror.getValue(), changeObj
+
+    @codeMirror.on "change", _.debounce(changeHandler, @editorChangeThrottle)
+
+    @trigger "codemirror:setup", @codeMirror
+
+    @
+
+  codeMirrorKeyBindings:
+    "Ctrl-J": ()->
+      @toggle()
+
+  getCodeMirrorOptions: ()->
+    for keyCommand, handler of @codeMirrorKeyBindings
+      @codeMirrorKeyBindings[keyCommand] = _.bind(handler, @)
+
+    options =
+      theme: 'lesser-dark'
+      lineNumbers: true
+      mode: (@startMode?.get("codeMirrorMode") || CodeSync.get("defaultFileType"))
+      extraKeys: @codeMirrorKeyBindings
+
+  editorChangeHandler: (editorContents)->
+    @currentDocument.set("contents", editorContents)
+
+  setKeyMap: (keyMap)->
+    @codeMirror.setOption 'keyMap', keyMap
+
+  setTheme: (theme)->
+    @$el.attr("data-theme", theme)
+    @codeMirror.setOption 'theme', theme
+
+  setMode: (newMode)->
+    if @mode? and (newMode isnt @mode)
+      @trigger "change:mode", newMode, newMode.id
+
+    @mode = newMode
+
+    if @mode?.get?
+      @codeMirror.setOption 'mode', @mode.get("codeMirrorMode")
+      @currentDocument.set('mode', @mode.id)
+      @currentDocument.set('extension', CodeSync.Modes.guessExtensionFor(@mode.id) )
+
+    @
+
+  setupToolbar: ()->
+    if @hideable is true
+      @$('.toolbar-wrapper').append "<div class='button hide-button'>Hide</div>"
+
+  getDefaultDocument: ()->
+    defaultDocument = new CodeSync.Document
+      mode: @options.startMode || CodeSync.get("defaultFileType")
+      sticky: true
+      doNotSave: true
+      name: "codesync"
+      display: "CodeSync Editor"
+
+  # This is broken apart into separate methods
+  # so that plugins can tap in
+  loadDefaultDocument: ()->
+    @loadDocument @getDefaultDocument()
+
+  loadDocument: (doc)->
     if @currentDocument?
       @currentDocument.off "status", @showStatusMessage
-      @currentDocument.off "change:compiled", @loadDocumentInPage
-      @currentDocument.off "change:mode", @loadDocumentInPage, @
+      @currentDocument.off "change:compiled", @applyDocumentContentToPage
+      @currentDocument.off "change:mode", @applyDocumentContentToPage, @
+    else
+      @currentDocument = doc
+      @trigger "initial:document:load"
 
     @currentDocument = doc
 
@@ -126,21 +185,20 @@ CodeSync.AssetEditor = Backbone.View.extend
     @codeMirror.swapDoc @currentDocument.toCodeMirrorDocument()
 
     @currentDocument.on "status", @showStatusMessage, @
-    @currentDocument.on "change:compiled", @loadDocumentInPage, @
-    @currentDocument.on "change:mode", @loadDocumentInPage, @
+    @currentDocument.on "change:compiled", @applyDocumentContentToPage, @
+    @currentDocument.on "change:mode", @applyDocumentContentToPage, @
+    @currentDocument.on
 
+  applyDocumentContentToPage: ()->
+    if @currentDocument? && (@currentDocument.toMode() isnt @mode)
+      @setMode @currentDocument.toMode()
 
-  loadDocumentInPage: ()->
     @currentDocument?.loadInPage complete: ()=>
-      if @currentDocument?.type() is "script"
+      if @currentDocument.type() is "script" or @currentDocument.type() is "template"
         CodeSync.onScriptChange?.call(window, @currentDocument.attributes)
 
-      if @currentDocument?.type() is "stylesheet"
+      if @currentDocument.type() is "stylesheet"
         CodeSync.onStylesheetChange?.call(window, @currentDocument.attributes)
-
-  loadAdhocDocument: ()->
-    documentModel = @views.documentManager.createAdHocDocument()
-    @views.documentManager.loadDocument(documentModel)
 
   removeStatusMessages: ()->
     @$('.status-message').remove()
@@ -152,13 +210,13 @@ CodeSync.AssetEditor = Backbone.View.extend
 
     if options.type is "success"
       _.delay ()=>
-        @$('.status-message').animate({opacity:0}, duration: 400, complete: ()=> @$('.status-message').remove())
+        @$('.status-message.success').animate({opacity:0}, duration: 400, complete: ()=> @$('.status-message').remove())
       , 1200
 
   hiddenPosition: ()->
     if @position is "top"
       offset = if @showVisibleTab then @$('.document-tabs-container').height() else 0
-      return top: "#{ ((@height + 5) * -1 + offset) }px"
+      return top: "#{ ((@height + 8) * -1 + offset) }px"
 
   effectSettings: ()->
     switch @effect
@@ -221,22 +279,6 @@ CodeSync.AssetEditor = Backbone.View.extend
     else
       @show(true)
 
-  setKeyMap: (keyMap)->
-    @codeMirror.setOption 'keyMap', keyMap
-
-  setTheme: (theme)->
-    @$el.attr("data-theme", theme)
-    @codeMirror.setOption 'theme', theme
-
-  setMode: (@mode)->
-    if !_.isString(@mode)
-      codeMirrorMode = @mode.get("codeMirrorMode")
-
-    @codeMirror.setOption 'mode', codeMirrorMode
-    @currentDocument.set('mode', @mode.get("codeMirrorMode"))
-    @currentDocument.set('extension', CodeSync.Modes.guessExtensionFor(@mode.get("codeMirrorMode")) )
-
-    @
 
 
 # Private Helpers

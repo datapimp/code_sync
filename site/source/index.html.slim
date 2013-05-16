@@ -1,7 +1,7 @@
 .wrapper
   header
-    h1 CodeSync by Datapimp
-    h2 Powerful live reload and code editing tools for the Asset Pipeline
+    h1 CodeSync
+    h2 Powerful live refresh and code editing tools for the Asset Pipeline
 
   ul.links
     li
@@ -15,9 +15,9 @@
 
   section.marketing
     p CodeSync is a utility that works anywhere the Sprockets gem works, with any language supported by Sprockets.
-    p CodeSync is similar to LiveReload, but works directly with the Asset Pipeline for your project.  It aims to do much more than just refresh the browser for you whenever you make a change.
-    p Especially when developing complex single page apps or HTML5 games, having to refresh the browser every time you change a file is too expensive, as you end up losing too much state and wind up having to recreate it.
-    p The Chrome Developer Console is a great tool, and allows you to make changes and see immediate results, but having to then copy and paste your changes from the console back to your actual source code is a pain, and if your actual source code is made up of pre-processor languages, it is even worse.
+    p CodeSync is similar to LiveReload, but works directly with the Asset Pipeline for your project.
+    p Especially when developing complex single page apps or HTML5 games, having to refresh the browser every time you change a file is too expensive, as you end up losing too much state and wind up having to recreate it every time.
+    p The Chrome Developer Console is a great tool, and allows you to make some changes and see immediate results, but having to then copy and paste your changes from the console back to your actual source code is a pain, and if your actual source code is made up of pre-processor languages, it is even worse.
 
     p I developed CodeSync because I could no longer tolerate this.
 
@@ -29,33 +29,59 @@
           | Experiment with my favorite pre-processor languages directly in the browser, and get immediate results without refreshing.
 
         a.btn.try-it-now href="#"
-          | Try it out now
+          | &nbsp; Click here to try it out now
+        | &nbsp; or press 'ctrl + j' to toggle the editor.
 
-      li Edit and save my application's assets in the browser if I wanted to, using a great editor, with syntax highlighting and Vim keybindings.
-      li Also be able to make changes in my IDE or Text Editor and see the effects directly in the running browser session.
+      li
+        | Edit and save my application's assets in the browser if I wanted to, using a
+        a href="http://codemirror.net"
+          |  a great editor
+        | , with syntax highlighting and Vim keybindings.
+
+      li Make changes in my IDE or Text Editor and see the effects directly in the running browser session.
+
       li Write custom hooks which run whenever an asset changes, making it possible to hot reload code changes in a complex environment.
+
+    p To accomplish this, CodeSync has three major elements.
+
+    ul
+      li
+        a href="https://github.com/datapimp/code_sync/blob/master/lib/code_sync/manager.rb" target="_blank"
+          | CodeSync::Manager
+        |  is a component that runs in the command line, it is automatically started for you in your Rails or Middleman project.  It is responsible for watching the files in your project when they change, compiling them, and notifying interested browsers that there has been an update.
+      li
+        a href="https://github.com/datapimp/code_sync/blob/master/site/source/javascripts/code_sync/client/index.coffee" target="_blank"
+          | CodeSync.Client
+        |  is a browser component which connects to the CodeSync::Manager and applies the changes that are made to the browser session you are in.
+      li
+        a href="https://github.com/datapimp/code_sync/blob/master/site/source/javascripts/code_sync/editor/index.coffee" target="_blank"
+          | CodeSync.AssetEditor
+        |  is a powerful text editing tool that supports all of the major Asset Pipeline languages.  It runs directly in your application, and stays out of your way until you need it.  Think of it very similar to how you think of the Chrome Developer Console or Firebug.  When you want to start experimenting with javascript and css to make changes to your site, this editor is available to you.
+
+
 
   section.usage
     h2 Usage
     section.server-side
-      h2 Using in Rails
+      h3 In a Rails project
       == partial "samples/rails"
 
-      h2 Using in MiddleMan
+      h3 In a MiddleMan project
       == partial "samples/middleman"
 
     section.client-side
-      h2 The CodeSync Client
+      h3 The CodeSync browser client
       == partial "samples/client"
 
-      h2 The CodeSync Editor Component
+      h3 The CodeSync AssetEditor
       == partial "samples/editor"
 
+    h2 Advanced Features
     section.advanced-usage
-      h2 Using Standalone
+      h3 Using Standalone
       == partial "samples/standalone"
 
-      h2 Hooking into asset changes
+      h3 Hooking into asset changes
       == partial "samples/hooks"
 
 

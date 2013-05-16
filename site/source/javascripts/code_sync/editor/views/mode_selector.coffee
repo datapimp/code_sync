@@ -5,10 +5,14 @@ CodeSync.plugins.ModeSelector = Backbone.View.extend
     "change select" : "onSelect"
 
   initialize: (options={})->
-    @modes = CodeSync.Modes.get()
+    @editor = options.editor
+
+    @modes = @editor.modes
+
     @modes.on "reset", @render, @
 
-    @editor = options.editor
+    @editor.on "change:mode", (modeModel, modeId)=>
+      @setValue(modeId)
 
     Backbone.View::initialize.apply(@, arguments)
 

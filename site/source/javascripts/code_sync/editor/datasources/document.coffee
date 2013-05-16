@@ -4,10 +4,11 @@ CodeSync.Document = Backbone.Model.extend
   initialize: (@attributes,options)->
     Backbone.Model::initialize.apply(@, arguments)
 
-    @on "change:contents", @process, @
+    @on "change:contents", @onContentChange
 
     @on "change:name", ()=>
-      @set("mode", @determineMode(), silent: false)
+      @set("mode", @determineMode())
+      @set("display", @nameWithoutExtension() )
 
     @on "change:mode", ()=>
       @set('extension', @determineExtension(), silent: true)
@@ -16,10 +17,8 @@ CodeSync.Document = Backbone.Model.extend
     CodeSync.get("assetCompilationEndpoint")
 
   saveToDisk: ()->
-    console.log "Document Save To Disk", @get("path"), @get("path")?.length
-
-    if @get("path")?.length > 0
-      @process(true, "Save To Disk")
+    if @isSaveable()
+      @sendToServer(true, "saveToDisk")
 
   loadSourceFromDisk: (callback)->
     $.ajax
@@ -30,28 +29,38 @@ CodeSync.Document = Backbone.Model.extend
           @set("contents", response.contents, silent: true)
           callback(@)
 
-
-  # Meh this isn't working so great
-  applyDefaults: ()->
-    @attributes = _.defaults @attributes,
-      name: "untitled"
-      mode: @determineMode() || CodeSync.get("defaultFileType")
-      extension: @determineExtension()
-      compiled: ""
-      display: "Untitled"
-      contents: "//"
-
   toJSON: ()->
-    name: @get('name')
+    name: @nameWithoutExtension()
     path: @get('path')
-    extension: @get('extension')
-    contents: @get('contents')
+    extension: @get('extension') || @determineExtension()
+    contents: @toContent()
+
+  nameWithoutExtension: ()->
+    extension = @get('extension') || @determineExtension()
+    (@get("name") || "untitled").replace(extension,'')
+
+  toMode: ()->
+    mode = @get("mode") || @determineMode()
+    modeModel = CodeSync.Modes.getMode(mode)
+
+  toCodeMirrorMode: ()->
+    @toMode()?.get("codeMirrorMode")
 
   toCodeMirrorDocument: ()->
-    CodeMirror.Doc "#{ @get("contents") || '' }", @get("mode"), 0
+    CodeMirror.Doc @toContent(), @toCodeMirrorMode(), 0
 
-  process: (allowSaveToDisk=false)->
+  toContent: ()->
+    "#{ @get("contents") || @toMode()?.get("defaultContent") || " " }"
+
+  onContentChange: ()->
+    @sendToServer(false, "onContentChange")
+
+  sendToServer: (allowSaveToDisk=false, reason="")->
+    allowSaveToDisk = false unless @isSaveable()
+
     data = if allowSaveToDisk is true then @toJSON() else _(@toJSON()).pick('name','extension','contents')
+
+    CodeSync.log("Sending Data To #{ CodeSync.get("assetCompilationEndpoint") }", data)
 
     $.ajax
       type: "POST"
@@ -63,8 +72,8 @@ CodeSync.Document = Backbone.Model.extend
       success: (response)=>
         CodeSync.log("Document Process Response", response)
 
-        if response.success is true
-          @trigger "status", type: "success", message: "Success"
+        if response.success is true and message = @successMessage(reason)
+          @trigger "status", type: "success", message: message
 
         if response.success is true and response.compiled?
           @set("compiled", response.compiled)
@@ -76,7 +85,7 @@ CodeSync.Document = Backbone.Model.extend
   loadInPage: (options={})->
     if @type() is "stylesheet"
       helpers.processStyleContent.call(@, @get('compiled'))
-    else if @type() is "script"
+    else if (@type() is "script" or @type() is "template")
       helpers.processScriptContent.call(@, @get('compiled'))
 
       if options.complete
@@ -87,8 +96,10 @@ CodeSync.Document = Backbone.Model.extend
     switch @get("mode")
       when "css","sass","scss","less"
         "stylesheet"
-      when "coffeescript","javascript","skim","mustache","jst","haml","eco"
+      when "coffeescript","javascript"
         "script"
+      when "skim","mustache","jst","haml","eco"
+        "template"
 
   missingFileName: ()->
     name = (@get('path') || @get('name'))
@@ -110,6 +121,16 @@ CodeSync.Document = Backbone.Model.extend
   determineMode: ->
     path = @get("path") || @get("name") || @get("extension")
     CodeSync.Modes.guessModeFor(path)
+
+  successMessage: (reason)->
+    if @type() is "template"
+      "Success.  Template will be available as JST[\"#{ @nameWithoutExtension() }\"]"
+
+  isSticky: ()->
+    @get("sticky")? is true
+
+  isSaveable: ()->
+    @get("path")?.length > 0 && !@get("doNotSave")
 
 CodeSync.Document.getFileNameFrom = (string="")->
   string.split('/').pop()
@@ -141,10 +162,8 @@ CodeSync.Documents = Backbone.Collection.extend
       id = @nextId()
 
       documentModel = new CodeSync.Document({name,extension,display,path,id})
-      documentModel.applyDefaults()
 
       documentModel.loadSourceFromDisk ()=>
-        @add(documentModel)
         callback?(documentModel)
 
 helpers =
@@ -153,5 +172,12 @@ helpers =
     $('head').append "<style type='text/css' data-codesync-document=true>#{ content }</style>"
 
   processScriptContent: (code)->
-    evalRunner = (code)-> eval(code)
+    doc = @
+    evalRunner = (code)->
+      try
+        eval(code)
+      catch e
+        doc.trigger "status", type: "error", message: "JS Error: #{ e.message }", sticky: true
+        throw(e)
+
     evalRunner.call(window, code)

@@ -5,9 +5,10 @@ You can pass options for the AssetEditor as the second argument.
 The editor is going to be running on this page.  You can enable it by pressing `ctrl+j`, or by clicking at the tab at the top of the screen.
 
 ```javascript
+  // start the editor in SCSS mode, with VIM keybindings
   CodeSync.AssetEditor.setHotKey('ctrl+j', {
-    defaultFileType:"sass",
-    defaultExtension:".css.sass"
+    startMode:"scss",
+    keyBindings: "vim"
   });
 ```
 

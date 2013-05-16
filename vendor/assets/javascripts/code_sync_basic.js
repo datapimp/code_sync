@@ -3,7 +3,8 @@
 //     keymaster.js may be freely distributed under the MIT license.
 (function(a){function b(a,b){var c=a.length;while(c--)if(a[c]===b)return c;return-1}function c(a,c){var d,e,g,h,i;d=a.keyCode,b(u,d)==-1&&u.push(d);if(d==93||d==224)d=91;if(d in q){q[d]=!0;for(g in s)s[g]==d&&(f[g]=!0);return}if(!f.filter.call(this,a))return;if(!(d in p))return;for(h=0;h<p[d].length;h++){e=p[d][h];if(e.scope==c||e.scope=="all"){i=e.mods.length>0;for(g in q)if(!q[g]&&b(e.mods,+g)>-1||q[g]&&b(e.mods,+g)==-1)i=!1;(e.mods.length==0&&!q[16]&&!q[18]&&!q[17]&&!q[91]||i)&&e.method(a,e)===!1&&(a.preventDefault?a.preventDefault():a.returnValue=!1,a.stopPropagation&&a.stopPropagation(),a.cancelBubble&&(a.cancelBubble=!0))}}}function d(a){var c=a.keyCode,d,e=b(u,c);e>=0&&u.splice(e,1);if(c==93||c==224)c=91;if(c in q){q[c]=!1;for(d in s)s[d]==c&&(f[d]=!1)}}function e(){for(o in q)q[o]=!1;for(o in s)f[o]=!1}function f(a,b,c){var d,e,f,g;c===undefined&&(c=b,b="all"),a=a.replace(/\s/g,""),d=a.split(","),d[d.length-1]==""&&(d[d.length-2]+=",");for(f=0;f<d.length;f++){e=[],a=d[f].split("+");if(a.length>1){e=a.slice(0,a.length-1);for(g=0;g<e.length;g++)e[g]=s[e[g]];a=[a[a.length-1]]}a=a[0],a=t[a]||a.toUpperCase().charCodeAt(0),a in p||(p[a]=[]),p[a].push({shortcut:d[f],scope:b,method:c,key:d[f],mods:e})}}function g(a){if(typeof a=="string"){if(a.length!=1)return!1;a=a.toUpperCase().charCodeAt(0)}return b(u,a)!=-1}function h(){return u}function i(a){var b=(a.target||a.srcElement).tagName;return b!="INPUT"&&b!="SELECT"&&b!="TEXTAREA"}function j(a){r=a||"all"}function k(){return r||"all"}function l(a){var b,c,d;for(b in p){c=p[b];for(d=0;d<c.length;)c[d].scope===a?c.splice(d,1):d++}}function m(a,b,c){a.addEventListener?a.addEventListener(b,c,!1):a.attachEvent&&a.attachEvent("on"+b,function(){c(window.event)})}function n(){var b=a.key;return a.key=v,b}var o,p={},q={16:!1,18:!1,17:!1,91:!1},r="all",s={"⇧":16,shift:16,"⌥":18,alt:18,option:18,"⌃":17,ctrl:17,control:17,"⌘":91,command:91},t={backspace:8,tab:9,clear:12,enter:13,"return":13,esc:27,escape:27,space:32,left:37,up:38,right:39,down:40,del:46,"delete":46,home:36,end:35,pageup:33,pagedown:34,",":188,".":190,"/":191,"`":192,"-":189,"=":187,";":186,"'":222,"[":219,"]":221,"\\":220},u=[];for(o=1;o<20;o++)s["f"+o]=111+o;for(o in s)f[o]=!1;m(document,"keydown",function(a){c(a,r)}),m(document,"keyup",d),m(window,"focus",e);var v=a.key;a.key=f,a.key.setScope=j,a.key.getScope=k,a.key.deleteScope=l,a.key.filter=i,a.key.isPressed=g,a.key.getPressedKeyCodes=h,a.key.noConflict=n,typeof module!="undefined"&&(module.exports=key)})(this),function(){var a;window.KeyLauncher||(window.KeyLauncher={}),(a=window.KeyLauncher).loaders||(a.loaders={}),window.loadedScripts={},window.scriptTimers={},KeyLauncher.loaders.stylesheet=function(a,b,c){var d;return b==null&&(b={}),d=document.createElement("link"),d.type="text/css",d.rel="stylesheet",d.href=a,document.getElementsByTagName("head")[0].appendChild(d),c.call(this)},KeyLauncher.loaders.script=function(a,b,c){var d,e,f,g,h,i;b==null&&(b={}),e=loadedScripts,i=scriptTimers,typeof b=="function"&&c==null&&(c=b,b={}),d=document.getElementsByTagName("head")[0],g=document.createElement("script"),g.src=a,g.type="text/javascript",h=this,f=function(){typeof c=="function"&&c.call(h,a,b,g);try{d.removeChild(g)}catch(f){!0}return e[a]=!0};if(b.once===!0&&e[a])return!1;d.appendChild(g),g.onreadystatechange=function(){if(g.readyState==="loaded"||g.readyState==="complete")return f()},g.onload=f;if(typeof navigator!="undefined"&&navigator!==null?navigator.userAgent.match(/WebKit/):void 0)return i[a]=setInterval(function(){return f(),clearInterval(i[a])},10)}}.call(this),function(){window.KeyLauncher.Launcher=function(){function Launcher(a){var b,c,d;this.options=a!=null?a:{},this.fn=a.fn,this.before=a.before,this.command=a.command,d=this.options.requires;for(b in d)c=d[b],this._dependencies[c]={loaded:!1,provides:b}}return Launcher.prototype._dependencies={},Launcher.prototype.run=function(){var state,type,url,_ref,_ref1,_results,_this=this;this.ran=!1,(_ref=this.before)!=null&&typeof _ref.call=="function"&&_ref.call(this);if(this.isReady())return this.onReady();_ref1=this._dependencies,_results=[];for(url in _ref1){state=_ref1[url];try{state.loaded=eval(state.provides)!=null}catch(e){state.loaded=!1}state.loaded!==!0?(type=url.match(/\.css/)?"stylesheet":"script",_results.push(KeyLauncher.loaders[type](url,function(a){return _this.onDependencyLoad(a)}))):_results.push(void 0)}return _results},Launcher.prototype.requires=function(a){return this._dependencies[a]={loaded:!1}},Launcher.prototype.isReady=function(){var a,b,c,d;b=!0,d=this._dependencies;for(a in d)c=d[a],c.loaded===!1&&(b=!1);return b},Launcher.prototype.onDependencyLoad=function(a){this._dependencies[a].loaded=!0;if(this.isReady())return this.onReady()},Launcher.prototype.onReady=function(){var a=this;if(!this.isReady()||this.ran!==!1)return;return function(){return a.fn.call(a),a.ran=!0}()},Launcher}()}.call(this),function(){var a;KeyLauncher.VERSION="0.0.4",KeyLauncher.on=function(a,b,c){var d;c==null&&(c={});if(a==null)throw"Must specify a valid key command";return d=new KeyLauncher.Launcher({command:a,fn:b||function(){},before:c.before,requires:c.requires||[]}),key(a,function(){return d.run.call(d)}),d},a=function(a,b){var c,d,e,f,g;f=KeyLauncher.currentSequence||"",g=b.shortcut,KeyLauncher.currentSequence=""+f+g,e=function(){var a,b;a=KeyLauncher.sequences,b=[];for(c in a)d=a[c],c.match(KeyLauncher.currentSequence)&&b.push(c);return b}(),e.length>0||(KeyLauncher.currentSequence="");if(e.length===1&&(d=KeyLauncher.sequences[KeyLauncher.currentSequence]))return d.run.call(d),KeyLauncher.currentSequence=""},KeyLauncher.onSequence=function(b,c,d){var e,f,g,h,i;d==null&&(d={}),KeyLauncher.sequences||(KeyLauncher.sequences={}),f=KeyLauncher.sequences[b]=new KeyLauncher.Launcher({fn:c||function(){},requires:d.requires||[],before:d.before}),i=b.split("");for(g=0,h=i.length;g<h;g++)e=i[g],key(e,a);return f}}.call(this);
 (function() {
-  var CodeSync, root;
+  var CodeSync, root,
+    __slice = [].slice;
 
   root = this;
 
@@ -13,7 +14,7 @@
     CodeSync = root.CodeSync = {};
   }
 
-  CodeSync.VERSION = "0.6.1";
+  CodeSync.VERSION = "0.6.2";
 
   CodeSync.backends = {};
 
@@ -27,7 +28,8 @@
     serverInfoEndpoint: "http://localhost:9295/info",
     sprocketsEndpoint: "http://localhost:9295/assets",
     socketEndpoint: "http://localhost:9295/faye",
-    editorToggleHotkey: "ctrl+j"
+    editorToggleHotkey: "ctrl+j",
+    debugMode: false
   });
 
   CodeSync.set = function(setting, value) {
@@ -36,6 +38,19 @@
 
   CodeSync.get = function(setting) {
     return CodeSync._config[setting];
+  };
+
+  CodeSync.enableLogging = function() {
+    return CodeSync.set("debugMode", true);
+  };
+
+  CodeSync.log = function() {
+    var args;
+    args = 1 <= arguments.length ? __slice.call(arguments, 0) : [];
+    if (CodeSync.get("debugMode") !== false) {
+      args.unshift("CodeSync Log:");
+      return console.log.apply(console, args);
+    }
   };
 
 }).call(this);
@@ -471,14 +486,16 @@
         allowSaveToDisk = false;
       }
       data = allowSaveToDisk === true ? this.toJSON() : _(this.toJSON()).pick('name', 'extension', 'contents');
-      console.log("Process", arguments, data);
       return $.ajax({
         type: "POST",
         url: CodeSync.get("assetCompilationEndpoint"),
         data: JSON.stringify(data),
+        error: function(response) {
+          return CodeSync.log("Document Process Error", arguments);
+        },
         success: function(response) {
           var _ref, _ref1;
-          console.log("Process Response", response);
+          CodeSync.log("Document Process Response", response);
           if (response.success === true) {
             _this.trigger("status", {
               type: "success",

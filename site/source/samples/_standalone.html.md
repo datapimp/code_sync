@@ -29,7 +29,7 @@ You will want to include the code sync libraries and css in your project.
     <link rel="stylesheet" href="//datapimp.github.io/code_sync/vendor/assets/stylesheets/code_sync.css" />
   </head>
   <body>
-    <script type="text/javascript" src="//datapimp.github.io/code_sync/vendor/assets/javascripts/code_sync.js"
+    <script type="text/javascript" src="//datapimp.github.io/code_sync/vendor/assets/javascripts/code_sync.js"></script>
   </body>
 </html>
 ```
