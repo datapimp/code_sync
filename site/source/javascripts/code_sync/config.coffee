@@ -19,9 +19,20 @@ CodeSync._config ||=
   sprocketsEndpoint: "http://localhost:9295/assets"
   socketEndpoint: "http://localhost:9295/faye"
   editorToggleHotkey: "ctrl+j"
+  debugMode: false
 
 CodeSync.set = (setting, value)->
   CodeSync._config[setting] = value
 
 CodeSync.get = (setting)->
   CodeSync._config[setting]
+
+CodeSync.enableLogging = ()->
+  CodeSync.set("debugMode", true)
+
+CodeSync.log = (args...)->
+  if CodeSync.get("debugMode") isnt false
+    args.unshift "CodeSync Log:"
+    console.log args...
+
+

@@ -53,14 +53,16 @@ CodeSync.Document = Backbone.Model.extend
   process: (allowSaveToDisk=false)->
     data = if allowSaveToDisk is true then @toJSON() else _(@toJSON()).pick('name','extension','contents')
 
-    console.log "Process", arguments, data
-
     $.ajax
       type: "POST"
       url: CodeSync.get("assetCompilationEndpoint")
       data: JSON.stringify(data)
+      error: (response)=>
+        CodeSync.log("Document Process Error", arguments)
+
       success: (response)=>
-        console.log "Process Response", response
+        CodeSync.log("Document Process Response", response)
+
         if response.success is true
           @trigger "status", type: "success", message: "Success"
 

@@ -99,14 +99,14 @@ module CodeSync
           end
         end
 
-        unless options[:disable_listener]
+        unless options[:enable_listener]
           listen_for_changes_from_clients do |changed_assets|
           end
         end
       end
 
       def create_pubsub_server
-        @server = CodeSync::Server.new(assets: sprockets, root: root)
+        @server = CodeSync::Server.new(assets: sprockets, root: root, forbid_saving: !!(options[:forbid_saving]) )
 
         manage_child_process("server") do
           server.start()
@@ -171,7 +171,9 @@ module CodeSync
       end
 
       def watcher
-        puts "Codesync watch is looking for assets in: #{ root }"
+        if !@watcher
+          puts "Codesync watch is looking for assets in: #{ root }"
+        end
 
         @watcher ||= Listen.to(root)
                       .filter(assets_filter)

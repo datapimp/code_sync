@@ -12,25 +12,32 @@ module CodeSync
     attr_accessor :assets,
                   :faye,
                   :root,
-                  :options
+                  :options,
+                  :forbid_saving
 
 
     def initialize options={}
-      @options = options.dup
-      @assets = options[:assets] || CodeSync::SprocketsAdapter.new(root:Dir.pwd())
-      @root   = options[:root]
+      @options        = options.dup
+      @assets         = options[:assets] || CodeSync::SprocketsAdapter.new(root:Dir.pwd())
+      @root           = options[:root]
+      @forbid_saving  = !!(options[:forbid_saving])
 
       Faye::WebSocket.load_adapter('thin')
+
       @faye   = Faye::RackAdapter.new(mount:"/faye",timeout:25)
 
       faye.add_extension(FayeMonitor.new)
     end
 
+    def allow_saving?
+      forbid_saving == true
+    end
+
     def start port=9295
       app = Rack::URLMap.new  "/assets" => assets.env,
                               "/" => faye,
-                              "/info" => ServerInfo.new(sprockets:assets, options: options, root: root),
-                              "/source" => SourceProvider.new(sprockets:assets)
+                              "/info" => ServerInfo.new(sprockets:assets, options: options, root: root, allow_saving: allow_saving?),
+                              "/source" => SourceProvider.new(sprockets:assets, allow_saving: allow_saving?)
 
       Rack::Server.start(app:app,:Port=>port,:server=>'thin')
     end
@@ -45,15 +52,20 @@ module CodeSync
     end
 
     class SourceProvider
-      attr_accessor :sprockets, :root
+      attr_accessor :sprockets, :root, :options
 
       def initialize options={}
+        @options = options
         @sprockets = options[:sprockets]
         @root = options[:root] || Dir.pwd()
       end
 
       def to_s
         "codesync source gateway"
+      end
+
+      def allow_saving?
+        options[:allow_saving] == true
       end
 
       def handle_file_write(params={}, response)
@@ -64,7 +76,7 @@ module CodeSync
         end
 
         begin
-          raise 'Saving is disabled' unless CodeSync.allow_saving?
+          raise 'Saving is disabled' unless allow_saving?
 
           if File.exists?(path)
             File.open(path,"w+") {|fh| fh.puts(contents)}
@@ -178,8 +190,12 @@ module CodeSync
         "codesync server info"
       end
 
+      def allow_saving?
+        options[:allow_saving] == true
+      end
+
       def call(env)
-        response = JSON.generate(project_assets: sprockets.project_assets, codesync_version: CodeSync::Version,paths:sprockets.env.paths, root:@options[:root])
+        response = JSON.generate(project_assets: sprockets.project_assets, codesync_version: CodeSync::Version,paths:sprockets.env.paths, root:@options[:root], allow_saving: allow_saving?)
         [200, {"Access-Control-Allow-Origin"=>"*","Content-Type" => "application/json"}, [response]]
       end
     end
