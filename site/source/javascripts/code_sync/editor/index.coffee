@@ -112,7 +112,7 @@ CodeSync.AssetEditor = Backbone.View.extend
       if @keyBindings
         @setKeyMap(@keyBindings)
 
-      if @theme
+      if @theme ||= localStorage.getItem("codesync:theme")
         @setTheme(@theme)
 
     changeHandler = (changeObj)=>
@@ -154,9 +154,9 @@ CodeSync.AssetEditor = Backbone.View.extend
   setKeyMap: (keyMap)->
     @codeMirror.setOption 'keyMap', keyMap
 
-  setTheme: (theme)->
-    @$el.attr("data-theme", theme)
-    @codeMirror.setOption 'theme', theme
+  setTheme: (@theme)->
+    @$el.attr("data-theme", @theme)
+    @codeMirror.setOption 'theme', @theme
 
   setMode: (newMode)->
     if @mode? and (newMode isnt @mode)
@@ -176,12 +176,16 @@ CodeSync.AssetEditor = Backbone.View.extend
       @$('.toolbar-wrapper').append "<div class='button hide-button'>Hide</div>"
 
   getDefaultDocument: ()->
-    defaultDocument = new CodeSync.Document
+    defaultOptions =
       mode: @options.startMode || CodeSync.get("defaultFileType")
       sticky: true
       doNotSave: true
       name: @defaultDocumentName || "codesync"
       display: "CodeSync Editor"
+
+    options = _.extend(defaultOptions, @document)
+
+    defaultDocument = new CodeSync.Document(options)
 
   # This is broken apart into separate methods
   # so that plugins can tap in

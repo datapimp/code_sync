@@ -2,6 +2,9 @@ CodeSync.Document = Backbone.Model.extend
   callbackDelay: 150
 
   initialize: (@attributes,options)->
+    if localKey = @attributes.localStorageKey
+      @attributes.contents ||= localStorage.getItem(localKey)
+
     Backbone.Model::initialize.apply(@, arguments)
 
     @on "change:contents", @onContentChange
@@ -53,6 +56,9 @@ CodeSync.Document = Backbone.Model.extend
     "#{ @get("contents") || @toMode()?.get("defaultContent") || " " }"
 
   onContentChange: ()->
+    if localKey = @get("localStorageKey")
+      localStorage.setItem(localKey, @get("contents"))
+
     @sendToServer(false, "onContentChange")
 
   sendToServer: (allowSaveToDisk=false, reason="")->

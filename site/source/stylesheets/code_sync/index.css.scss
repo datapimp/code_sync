@@ -44,8 +44,8 @@
   }
 
   .status-message {
-    position: relative;
-    top: 80%;
+    position: absolute;
+    top: 50%;
     width: 50%;
     margin: 0px auto;
     z-index: 8000;
