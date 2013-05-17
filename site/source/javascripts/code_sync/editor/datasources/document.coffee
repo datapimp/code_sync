@@ -52,6 +52,9 @@ CodeSync.Document = Backbone.Model.extend
   toCodeMirrorDocument: ()->
     CodeMirror.Doc @toContent(), @toCodeMirrorMode(), 0
 
+  toCodeMirrorOptions: ()->
+    @toMode().get("codeMirrorOptions")
+
   toContent: ()->
     "#{ @get("contents") || @toMode()?.get("defaultContent") || " " }"
 
