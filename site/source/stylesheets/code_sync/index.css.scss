@@ -2,28 +2,25 @@
   *= require_tree ./editor
 */
 
-$editorWidth: 960px;
-$editorHeight: 400px;
-
 .codesync-editor {
-
-  background: rgba(200,200,200,0.0);
-  opacity: 0.99;
-  width: $editorWidth;
-  height: $editorHeight;
+  height: 400px;
+  width: 100%;
+  margin: 0px;
+  padding: 0px;
+  position: relative;
 
   .document-tabs-container {
     position: absolute;
-    width: $editorWidth;
+    width: 100%;
   }
 
   .codesync-asset-editor {
-    position: absolute;
-    width: 100%;
     z-index: 90;
     margin: 0px auto;
+    width: 100%;
+    position: absolute;
     .CodeMirror {
-      height: $editorHeight - 25;
+      height: 375px;
     }
   }
 
@@ -48,14 +45,13 @@ $editorHeight: 400px;
 
   .status-message {
     position: absolute;
-    left: 50%;
-    margin-left: $editorWidth * 0.4 * -1;
-    bottom: 60px;
+    top: 50%;
+    width: 50%;
+    margin: 0px auto;
     z-index: 8000;
     padding: 6px;
     border-radius: 3px;
     box-shadow: 0 0 3px #fff;
-    min-width: $editorWidth * 0.8;
     color: #fff;
     &.error {
       background-color: rgba(235,90,90,0.3);
@@ -69,9 +65,8 @@ $editorHeight: 400px;
 
 .codesync-editor.top-positioned, .codesync-editor.bottom-positioned {
   position: fixed;
-  left: 50%;
-  margin-left: $editorWidth * 0.5 * -1;
   z-index: 30000;
+  width: 100%;
 }
 
 .codesync-editor.top-positioned {

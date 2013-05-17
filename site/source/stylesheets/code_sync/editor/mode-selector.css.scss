@@ -8,3 +8,14 @@
     }
   }
 }
+
+.codesync-editor {
+  .codesync-asset-editor {
+    .keymap-selector {
+      position: absolute;
+      bottom: 35px;
+      right: 20px;
+      z-index: 9000;
+    }
+  }
+}

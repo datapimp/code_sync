@@ -49,6 +49,12 @@ CodeSync.Modes.defaultMode = ()->
 modes =
   coffeescript:
     extension: ".coffee"
+    codeMirrorOptions:
+      indentUnit: 2
+      smartIndent: true
+      tabSize: 2
+      indentWithTabs: false
+
     defaultContent:  """
     # You are currently in Coffeescript Mode
     #
@@ -69,6 +75,12 @@ modes =
     extension: ".css.sass"
     defaultContent: "// You are currently in Sass mode."
 
+    codeMirrorOptions:
+      indentUnit: 2
+      smartIndent: true
+      tabSize: 2
+      indentWithTabs: false
+
   scss:
     codeMirrorMode: "css"
     extension: ".css.scss"
@@ -79,6 +91,11 @@ modes =
     extension: ".jst.skim"
     defaultContent: "// You are currently in Skim mode.\n// The contents of this template will be available on the JST object."
     template: true
+    codeMirrorOptions:
+      indentUnit: 2
+      smartIndent: true
+      tabSize: 2
+      indentWithTabs: false
 
   css:
     name: "CSS"

@@ -5,8 +5,12 @@
   CodeSync.Document = Backbone.Model.extend({
     callbackDelay: 150,
     initialize: function(attributes, options) {
-      var _this = this;
+      var localKey, _base,
+        _this = this;
       this.attributes = attributes;
+      if (localKey = this.attributes.localStorageKey) {
+        (_base = this.attributes).contents || (_base.contents = localStorage.getItem(localKey));
+      }
       Backbone.Model.prototype.initialize.apply(this, arguments);
       this.on("change:contents", this.onContentChange);
       this.on("change:name", function() {
@@ -70,11 +74,18 @@
     toCodeMirrorDocument: function() {
       return CodeMirror.Doc(this.toContent(), this.toCodeMirrorMode(), 0);
     },
+    toCodeMirrorOptions: function() {
+      return this.toMode().get("codeMirrorOptions");
+    },
     toContent: function() {
       var _ref;
       return "" + (this.get("contents") || ((_ref = this.toMode()) != null ? _ref.get("defaultContent") : void 0) || " ");
     },
     onContentChange: function() {
+      var localKey;
+      if (localKey = this.get("localStorageKey")) {
+        localStorage.setItem(localKey, this.get("contents"));
+      }
       return this.sendToServer(false, "onContentChange");
     },
     sendToServer: function(allowSaveToDisk, reason) {

@@ -1,12 +1,26 @@
 .demos-page {
-  .editors-container {
+  .canvas-container {
+    position: absolute;
+    top: 375px;
+    left: 0px;
+    width: 100%;
+  }
+  .editor-container {
+    clear: both;
+    position: absolute;
+    top: 0px;
+    left: 0px;
+    width: 100%;
+    margin: 0px;
+    padding: 0px;
+    height: 375px;
     .codesync-editor {
-      position: relative !important;
-      width: 500px;
-      top: auto;
-      bottom: auto;
-      left: auto;
-      margin: auto;
+      width: 33.33%;
+      float: left;
+      height: 375px !important;
+      .asset-editor-container {
+        height: 375px;
+      }
     }
   }
 }

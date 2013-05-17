@@ -1,39 +1,35 @@
 (function() {
-  var codeEditor, styleEditor, templateEditor;
+  var mode, _i, _len, _ref;
 
-  styleEditor = new CodeSync.AssetEditor({
-    hideable: false,
-    autoRender: true,
-    appendTo: "#styleEditor",
-    renderVisible: true,
-    startMode: "scss",
-    position: "static",
-    plugins: ["ModeSelector"]
-  });
+  $('.editor-container').empty();
 
-  codeEditor = new CodeSync.AssetEditor({
-    hideable: false,
-    autoRender: true,
-    appendTo: "#codeEditor",
-    renderVisible: true,
-    position: "static",
-    startMode: "coffeescript",
-    plugins: ["ModeSelector"]
-  });
+  _ref = ["coffeescript", "skim", "scss"];
+  for (_i = 0, _len = _ref.length; _i < _len; _i++) {
+    mode = _ref[_i];
+    window["" + mode + "Editor"] = new CodeSync.AssetEditor({
+      hideable: false,
+      autoRender: true,
+      appendTo: ".editor-container",
+      renderVisible: true,
+      startMode: mode,
+      position: "static",
+      document: {
+        localStorageKey: "demo." + mode
+      },
+      plugins: ["ModeSelector", "KeymapSelector"]
+    });
+  }
 
-  templateEditor = new CodeSync.AssetEditor({
-    hideable: false,
-    autoRender: true,
-    renderVisible: true,
-    position: "static",
-    appendTo: "#templateEditor",
-    startMode: "skim",
-    defaultDocumentName: "codesync_template",
-    plugins: ["ModeSelector"]
-  });
-
-  CodeSync.onScriptChange = function() {
-    return $('#canvas').html(JST["codesync_template"]);
+  CodeSync.onScriptChange = function(changeObject) {
+    if (changeObject.mode === "skim" && changeObject.name === "codesync") {
+      return $('.canvas-container').html(JST["codesync"]());
+    }
   };
+
+  _.delay(function() {
+    window.skimEditor.currentDocument.trigger("change:contents");
+    window.scssEditor.currentDocument.trigger("change:contents");
+    return window.coffeescriptEditor.currentDocument.trigger("change:contents");
+  }, 1200);
 
 }).call(this);

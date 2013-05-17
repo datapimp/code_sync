@@ -82,12 +82,24 @@
   modes = {
     coffeescript: {
       extension: ".coffee",
+      codeMirrorOptions: {
+        indentUnit: 2,
+        smartIndent: true,
+        tabSize: 2,
+        indentWithTabs: false
+      },
       defaultContent: "# You are currently in Coffeescript Mode\n#\n# Any coffeescript you type in here will be evaluated.\n#\n# defining this function will allow you to respond\n# to code and template changes that happen in this editor.\n#\n#\n# CodeSync.onScriptChange = (changeObject)->\n#   console.log \"Detected new code from CodeSync\", changeObject\n#\n#"
     },
     sass: {
       name: "Sass",
       extension: ".css.sass",
-      defaultContent: "// You are currently in Sass mode."
+      defaultContent: "// You are currently in Sass mode.",
+      codeMirrorOptions: {
+        indentUnit: 2,
+        smartIndent: true,
+        tabSize: 2,
+        indentWithTabs: false
+      }
     },
     scss: {
       codeMirrorMode: "css",
@@ -98,7 +110,13 @@
     skim: {
       extension: ".jst.skim",
       defaultContent: "// You are currently in Skim mode.\n// The contents of this template will be available on the JST object.",
-      template: true
+      template: true,
+      codeMirrorOptions: {
+        indentUnit: 2,
+        smartIndent: true,
+        tabSize: 2,
+        indentWithTabs: false
+      }
     },
     css: {
       name: "CSS",

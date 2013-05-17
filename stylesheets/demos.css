@@ -1,8 +1,24 @@
-/* line 3, /Users/jonathan/Projects/code_sync/site/source/stylesheets/demos.css.scss */
-.demos-page .editors-container .codesync-editor {
-  position: relative !important;
-  width: 500px;
-  top: auto;
-  bottom: auto;
-  left: auto;
-  margin: auto; }
+/* line 2, /Users/jonathan/Projects/code_sync/site/source/stylesheets/demos.css.scss */
+.demos-page .canvas-container {
+  position: absolute;
+  top: 375px;
+  left: 0px;
+  width: 100%; }
+/* line 8, /Users/jonathan/Projects/code_sync/site/source/stylesheets/demos.css.scss */
+.demos-page .editor-container {
+  clear: both;
+  position: absolute;
+  top: 0px;
+  left: 0px;
+  width: 100%;
+  margin: 0px;
+  padding: 0px;
+  height: 375px; }
+  /* line 17, /Users/jonathan/Projects/code_sync/site/source/stylesheets/demos.css.scss */
+  .demos-page .editor-container .codesync-editor {
+    width: 33.33%;
+    float: left;
+    height: 375px !important; }
+    /* line 21, /Users/jonathan/Projects/code_sync/site/source/stylesheets/demos.css.scss */
+    .demos-page .editor-container .codesync-editor .asset-editor-container {
+      height: 375px; }

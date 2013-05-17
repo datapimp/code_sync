@@ -353,7 +353,7 @@
       return Skim.withContext.call({}, context, function() {
         var _buf;
         _buf = [];
-        _buf.push("<div class=\"codesync-editor-wrapper\"><div class=\"codesync-asset-editor\"><div class=\"toolbar-wrapper\"></div><div class=\"mode-selector-wrapper\"></div></div></div>");
+        _buf.push("<div class=\"codesync-asset-editor\"><div class=\"toolbar-wrapper\"></div><div class=\"mode-selector-wrapper\"></div></div>");
         return _buf.join('');
       });
     };
@@ -476,8 +476,12 @@
   CodeSync.Document = Backbone.Model.extend({
     callbackDelay: 150,
     initialize: function(attributes, options) {
-      var _this = this;
+      var localKey, _base,
+        _this = this;
       this.attributes = attributes;
+      if (localKey = this.attributes.localStorageKey) {
+        (_base = this.attributes).contents || (_base.contents = localStorage.getItem(localKey));
+      }
       Backbone.Model.prototype.initialize.apply(this, arguments);
       this.on("change:contents", this.onContentChange);
       this.on("change:name", function() {
@@ -541,11 +545,18 @@
     toCodeMirrorDocument: function() {
       return CodeMirror.Doc(this.toContent(), this.toCodeMirrorMode(), 0);
     },
+    toCodeMirrorOptions: function() {
+      return this.toMode().get("codeMirrorOptions");
+    },
     toContent: function() {
       var _ref;
       return "" + (this.get("contents") || ((_ref = this.toMode()) != null ? _ref.get("defaultContent") : void 0) || " ");
     },
     onContentChange: function() {
+      var localKey;
+      if (localKey = this.get("localStorageKey")) {
+        localStorage.setItem(localKey, this.get("contents"));
+      }
       return this.sendToServer(false, "onContentChange");
     },
     sendToServer: function(allowSaveToDisk, reason) {
@@ -820,12 +831,24 @@
   modes = {
     coffeescript: {
       extension: ".coffee",
+      codeMirrorOptions: {
+        indentUnit: 2,
+        smartIndent: true,
+        tabSize: 2,
+        indentWithTabs: false
+      },
       defaultContent: "# You are currently in Coffeescript Mode\n#\n# Any coffeescript you type in here will be evaluated.\n#\n# defining this function will allow you to respond\n# to code and template changes that happen in this editor.\n#\n#\n# CodeSync.onScriptChange = (changeObject)->\n#   console.log \"Detected new code from CodeSync\", changeObject\n#\n#"
     },
     sass: {
       name: "Sass",
       extension: ".css.sass",
-      defaultContent: "// You are currently in Sass mode."
+      defaultContent: "// You are currently in Sass mode.",
+      codeMirrorOptions: {
+        indentUnit: 2,
+        smartIndent: true,
+        tabSize: 2,
+        indentWithTabs: false
+      }
     },
     scss: {
       codeMirrorMode: "css",
@@ -836,7 +859,13 @@
     skim: {
       extension: ".jst.skim",
       defaultContent: "// You are currently in Skim mode.\n// The contents of this template will be available on the JST object.",
-      template: true
+      template: true,
+      codeMirrorOptions: {
+        indentUnit: 2,
+        smartIndent: true,
+        tabSize: 2,
+        indentWithTabs: false
+      }
     },
     css: {
       name: "CSS",
@@ -1014,6 +1043,42 @@
     render: function() {
       this.$el.html(JST["code_sync/editor/templates/asset_selector"]());
       this.wrapper || (this.wrapper = this.$('.search-results-wrapper'));
+      return this;
+    }
+  });
+
+}).call(this);
+(function() {
+
+  CodeSync.plugins.ColorPicker = Backbone.View.extend({
+    className: "codesync-color-picker",
+    spectrumOptions: {
+      showAlpha: true,
+      preferredFormat: "hex6",
+      flat: true,
+      showInput: true,
+      chooseText: "Choose"
+    },
+    initialize: function(options) {
+      this.options = options != null ? options : {};
+      _.extend(this, this.options);
+      this.$el.append("<input type='color' class='color-picker-widget' />");
+      return this.widget = this.$('.color-picker-widget');
+    },
+    remove: function() {
+      this.widget.spectrum("destroy");
+      return this.$el.remove();
+    },
+    hide: function() {
+      this.widget.spectrum("hide");
+      return this.$el.hide();
+    },
+    show: function() {
+      this.widget.spectrum("show");
+      return this.$el.show();
+    },
+    render: function() {
+      this.widget.spectrum(this.spectrumOptions);
       return this;
     }
   });
@@ -1226,6 +1291,54 @@
       defaultDocument = editor.getDefaultDocument();
       return dm.openDocument(defaultDocument);
     };
+  };
+
+}).call(this);
+(function() {
+
+  CodeSync.plugins.KeymapSelector = Backbone.View.extend({
+    className: "keymap-selector",
+    events: {
+      "change select": "onSelect"
+    },
+    initialize: function(options) {
+      var _this = this;
+      if (options == null) {
+        options = {};
+      }
+      this.editor = options.editor;
+      this.editor.on("change:keymap", function(keyMap) {
+        return _this.setValue(keyMap);
+      });
+      return Backbone.View.prototype.initialize.apply(this, arguments);
+    },
+    onSelect: function() {
+      var selected;
+      selected = this.$('select').val();
+      return this.editor.setKeyMap(selected);
+    },
+    setValue: function(val) {
+      return this.$('select').val(val);
+    },
+    render: function() {
+      var mode, options, _i, _len, _ref;
+      options = "";
+      _ref = ["default", "vim"];
+      for (_i = 0, _len = _ref.length; _i < _len; _i++) {
+        mode = _ref[_i];
+        options += "<option value='" + mode + "'>" + mode + "</option>";
+      }
+      this.$el.html("<select>" + options + "</select>");
+      return this;
+    }
+  });
+
+  CodeSync.plugins.KeymapSelector.setup = function(editor) {
+    var v;
+    v = this.views.keymapSelector = new CodeSync.plugins.KeymapSelector({
+      editor: editor
+    });
+    return editor.$('.codesync-asset-editor').append(v.render().el);
   };
 
 }).call(this);
@@ -1505,7 +1618,7 @@
         if (_this.keyBindings) {
           _this.setKeyMap(_this.keyBindings);
         }
-        if (_this.theme) {
+        if (_this.theme || (_this.theme = localStorage.getItem("codesync:theme"))) {
           return _this.setTheme(_this.theme);
         }
       });
@@ -1561,8 +1674,9 @@
       return this.codeMirror.setOption('keyMap', keyMap);
     },
     setTheme: function(theme) {
-      this.$el.attr("data-theme", theme);
-      return this.codeMirror.setOption('theme', theme);
+      this.theme = theme;
+      this.$el.attr("data-theme", this.theme);
+      return this.codeMirror.setOption('theme', this.theme);
     },
     setMode: function(newMode) {
       var _ref;
@@ -1583,14 +1697,16 @@
       }
     },
     getDefaultDocument: function() {
-      var defaultDocument;
-      return defaultDocument = new CodeSync.Document({
+      var defaultDocument, defaultOptions, options;
+      defaultOptions = {
         mode: this.options.startMode || CodeSync.get("defaultFileType"),
         sticky: true,
         doNotSave: true,
         name: this.defaultDocumentName || "codesync",
         display: "CodeSync Editor"
-      });
+      };
+      options = _.extend(defaultOptions, this.document);
+      return defaultDocument = new CodeSync.Document(options);
     },
     loadDefaultDocument: function() {
       return this.loadDocument(this.getDefaultDocument());
@@ -1697,7 +1813,7 @@
         settings = {
           top: 'auto',
           bottom: '0px',
-          height: '0px'
+          height: "" + (this.hintHeight() - 8) + "px"
         };
       }
       return settings;

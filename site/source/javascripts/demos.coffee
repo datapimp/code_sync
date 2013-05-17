@@ -1,38 +1,28 @@
-styleEditor = new CodeSync.AssetEditor
-  hideable: false
-  autoRender: true
-  appendTo: "#styleEditor"
-  renderVisible: true
-  startMode: "scss"
-  position: "static"
-  plugins:[
-    "ModeSelector"
-  ]
+$('.editor-container').empty()
 
-codeEditor = new CodeSync.AssetEditor
-  hideable: false
-  autoRender: true
-  appendTo: "#codeEditor"
-  renderVisible: true
-  position: "static"
-  startMode: "coffeescript"
-  plugins:[
-    "ModeSelector"
-  ]
-
-templateEditor = new CodeSync.AssetEditor
-  hideable: false
-  autoRender: true
-  renderVisible: true
-  position: "static"
-  appendTo: "#templateEditor"
-  startMode: "skim"
-  defaultDocumentName: "codesync_template"
-  plugins:[
-    "ModeSelector"
-  ]
+for mode in ["coffeescript","skim","scss"]
+  window["#{ mode }Editor"] = new CodeSync.AssetEditor
+    hideable: false
+    autoRender: true
+    appendTo: ".editor-container"
+    renderVisible: true
+    startMode: mode
+    position: "static"
+    document:
+      localStorageKey: "demo.#{ mode }"
+    plugins:[
+      "ModeSelector"
+      "KeymapSelector"
+    ]
 
 
-CodeSync.onScriptChange = ()->
-  $('#canvas').html JST["codesync_template"]
+CodeSync.onScriptChange = (changeObject)->
+  if changeObject.mode is "skim" and changeObject.name is "codesync"
+    $('.canvas-container').html JST["codesync"]()
 
+
+_.delay ()->
+    window.skimEditor.currentDocument.trigger "change:contents"
+    window.scssEditor.currentDocument.trigger "change:contents"
+    window.coffeescriptEditor.currentDocument.trigger "change:contents"
+, 1200

@@ -87,6 +87,13 @@
   bottom: 10px;
   right: 20px;
   z-index: 9000; }
+
+/* line 14, /Users/jonathan/Projects/code_sync/site/source/stylesheets/code_sync/editor/mode-selector.css.scss */
+.codesync-editor .codesync-asset-editor .keymap-selector {
+  position: absolute;
+  bottom: 35px;
+  right: 20px;
+  z-index: 9000; }
 /* line 2, /Users/jonathan/Projects/code_sync/site/source/stylesheets/code_sync/editor/preferences-panel.css.scss */
 .codesync-editor .preferences-panel {
   margin-bottom: 4px;
@@ -111,33 +118,34 @@
 /*
 
 */
-/* line 9, /Users/jonathan/Projects/code_sync/site/source/stylesheets/code_sync/index.css.scss */
+/* line 6, /Users/jonathan/Projects/code_sync/site/source/stylesheets/code_sync/index.css.scss */
 .codesync-editor {
-  background: rgba(200, 200, 200, 0);
-  opacity: 0.99;
-  width: 960px;
-  height: 400px; }
-  /* line 16, /Users/jonathan/Projects/code_sync/site/source/stylesheets/code_sync/index.css.scss */
+  height: 400px;
+  width: 100%;
+  margin: 0px;
+  padding: 0px;
+  position: relative; }
+  /* line 13, /Users/jonathan/Projects/code_sync/site/source/stylesheets/code_sync/index.css.scss */
   .codesync-editor .document-tabs-container {
     position: absolute;
-    width: 960px; }
-  /* line 21, /Users/jonathan/Projects/code_sync/site/source/stylesheets/code_sync/index.css.scss */
+    width: 100%; }
+  /* line 18, /Users/jonathan/Projects/code_sync/site/source/stylesheets/code_sync/index.css.scss */
   .codesync-editor .codesync-asset-editor {
-    position: absolute;
-    width: 100%;
     z-index: 90;
-    margin: 0px auto; }
-    /* line 26, /Users/jonathan/Projects/code_sync/site/source/stylesheets/code_sync/index.css.scss */
+    margin: 0px auto;
+    width: 100%;
+    position: absolute; }
+    /* line 23, /Users/jonathan/Projects/code_sync/site/source/stylesheets/code_sync/index.css.scss */
     .codesync-editor .codesync-asset-editor .CodeMirror {
       height: 375px; }
-  /* line 31, /Users/jonathan/Projects/code_sync/site/source/stylesheets/code_sync/index.css.scss */
+  /* line 28, /Users/jonathan/Projects/code_sync/site/source/stylesheets/code_sync/index.css.scss */
   .codesync-editor .toolbar-wrapper {
     position: absolute;
     z-index: 9000;
     color: #fff;
     top: 10px;
     right: 10px; }
-    /* line 38, /Users/jonathan/Projects/code_sync/site/source/stylesheets/code_sync/index.css.scss */
+    /* line 35, /Users/jonathan/Projects/code_sync/site/source/stylesheets/code_sync/index.css.scss */
     .codesync-editor .toolbar-wrapper .button {
       float: left;
       margin: 0px 4px;
@@ -147,73 +155,71 @@
       font-size: 12px;
       line-height: 18px;
       padding: 0px 4px; }
-  /* line 50, /Users/jonathan/Projects/code_sync/site/source/stylesheets/code_sync/index.css.scss */
+  /* line 47, /Users/jonathan/Projects/code_sync/site/source/stylesheets/code_sync/index.css.scss */
   .codesync-editor .status-message {
     position: absolute;
-    left: 50%;
-    margin-left: -384px;
-    bottom: 60px;
+    top: 50%;
+    width: 50%;
+    margin: 0px auto;
     z-index: 8000;
     padding: 6px;
     border-radius: 3px;
     box-shadow: 0 0 3px #fff;
-    min-width: 768px;
     color: #fff; }
-    /* line 61, /Users/jonathan/Projects/code_sync/site/source/stylesheets/code_sync/index.css.scss */
+    /* line 57, /Users/jonathan/Projects/code_sync/site/source/stylesheets/code_sync/index.css.scss */
     .codesync-editor .status-message.error {
       background-color: rgba(235, 90, 90, 0.3); }
-    /* line 64, /Users/jonathan/Projects/code_sync/site/source/stylesheets/code_sync/index.css.scss */
+    /* line 60, /Users/jonathan/Projects/code_sync/site/source/stylesheets/code_sync/index.css.scss */
     .codesync-editor .status-message.success {
       background-color: rgba(90, 235, 90, 0.3); }
 
-/* line 71, /Users/jonathan/Projects/code_sync/site/source/stylesheets/code_sync/index.css.scss */
+/* line 67, /Users/jonathan/Projects/code_sync/site/source/stylesheets/code_sync/index.css.scss */
 .codesync-editor.top-positioned, .codesync-editor.bottom-positioned {
   position: fixed;
-  left: 50%;
-  margin-left: -480px;
-  z-index: 30000; }
+  z-index: 30000;
+  width: 100%; }
 
-/* line 78, /Users/jonathan/Projects/code_sync/site/source/stylesheets/code_sync/index.css.scss */
+/* line 73, /Users/jonathan/Projects/code_sync/site/source/stylesheets/code_sync/index.css.scss */
 .codesync-editor.top-positioned {
   border-radius: 0px 0px 4px 4px;
   bottom: auto;
   top: 0px; }
-  /* line 83, /Users/jonathan/Projects/code_sync/site/source/stylesheets/code_sync/index.css.scss */
+  /* line 78, /Users/jonathan/Projects/code_sync/site/source/stylesheets/code_sync/index.css.scss */
   .codesync-editor.top-positioned .codesync-asset-editor {
     top: 0px;
     bottom: auto; }
-  /* line 88, /Users/jonathan/Projects/code_sync/site/source/stylesheets/code_sync/index.css.scss */
+  /* line 83, /Users/jonathan/Projects/code_sync/site/source/stylesheets/code_sync/index.css.scss */
   .codesync-editor.top-positioned .document-tabs-container {
     top: auto;
     bottom: -8px; }
-    /* line 92, /Users/jonathan/Projects/code_sync/site/source/stylesheets/code_sync/index.css.scss */
+    /* line 87, /Users/jonathan/Projects/code_sync/site/source/stylesheets/code_sync/index.css.scss */
     .codesync-editor.top-positioned .document-tabs-container .document-tab {
       border-radius: 0px 0px 4px 4px; }
 
-/* line 98, /Users/jonathan/Projects/code_sync/site/source/stylesheets/code_sync/index.css.scss */
+/* line 93, /Users/jonathan/Projects/code_sync/site/source/stylesheets/code_sync/index.css.scss */
 .codesync-editor.bottom-positioned {
   border-radius: 4px 4px 0px 0px;
   bottom: 0px;
   top: auto; }
-  /* line 103, /Users/jonathan/Projects/code_sync/site/source/stylesheets/code_sync/index.css.scss */
+  /* line 98, /Users/jonathan/Projects/code_sync/site/source/stylesheets/code_sync/index.css.scss */
   .codesync-editor.bottom-positioned .codesync-asset-editor {
     top: 26px; }
-  /* line 107, /Users/jonathan/Projects/code_sync/site/source/stylesheets/code_sync/index.css.scss */
+  /* line 102, /Users/jonathan/Projects/code_sync/site/source/stylesheets/code_sync/index.css.scss */
   .codesync-editor.bottom-positioned .document-tabs-container {
     top: 0px;
     bottom: auto; }
-    /* line 111, /Users/jonathan/Projects/code_sync/site/source/stylesheets/code_sync/index.css.scss */
+    /* line 106, /Users/jonathan/Projects/code_sync/site/source/stylesheets/code_sync/index.css.scss */
     .codesync-editor.bottom-positioned .document-tabs-container .document-tab {
       border-radius: 4px 4px 0px 0px; }
 
-/* line 120, /Users/jonathan/Projects/code_sync/site/source/stylesheets/code_sync/index.css.scss */
+/* line 115, /Users/jonathan/Projects/code_sync/site/source/stylesheets/code_sync/index.css.scss */
 .codesync-editor[data-theme="xq-light"] .toolbar-wrapper .button {
   background-color: #777;
   color: #ffffff; }
-/* line 126, /Users/jonathan/Projects/code_sync/site/source/stylesheets/code_sync/index.css.scss */
+/* line 121, /Users/jonathan/Projects/code_sync/site/source/stylesheets/code_sync/index.css.scss */
 .codesync-editor[data-theme="xq-light"] .document-tabs-container .document-tab {
   background-color: #fff;
   color: #777; }
-/* line 131, /Users/jonathan/Projects/code_sync/site/source/stylesheets/code_sync/index.css.scss */
+/* line 126, /Users/jonathan/Projects/code_sync/site/source/stylesheets/code_sync/index.css.scss */
 .codesync-editor[data-theme="xq-light"] .status-message.error {
   color: #ff6666; }

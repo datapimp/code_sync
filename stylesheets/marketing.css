@@ -4,9 +4,11 @@ body {
   line-height: 26.4px;
   font-size: 16px;
   background-color: #a6a6a6;
-  color: #333333; }
+  color: #333333;
+  margin: 0px;
+  padding: 0px; }
 
-/* line 16, /Users/jonathan/Projects/code_sync/site/source/stylesheets/marketing.css.sass */
+/* line 18, /Users/jonathan/Projects/code_sync/site/source/stylesheets/marketing.css.sass */
 .wrapper {
   width: 960px;
   margin: 40px auto;
@@ -14,27 +16,27 @@ body {
   border-radius: 3px;
   box-shadow: 0 0 6px rgba(0, 0, 0, 0.9);
   padding: 20px 20px 40px 20px; }
-  /* line 24, /Users/jonathan/Projects/code_sync/site/source/stylesheets/marketing.css.sass */
+  /* line 26, /Users/jonathan/Projects/code_sync/site/source/stylesheets/marketing.css.sass */
   .wrapper p {
     line-height: 26.4px;
     margin-bottom: 13.2px; }
-  /* line 28, /Users/jonathan/Projects/code_sync/site/source/stylesheets/marketing.css.sass */
+  /* line 30, /Users/jonathan/Projects/code_sync/site/source/stylesheets/marketing.css.sass */
   .wrapper ul.links {
     margin: 0px;
     padding: 0px;
     margin-bottom: 13.2px; }
-    /* line 32, /Users/jonathan/Projects/code_sync/site/source/stylesheets/marketing.css.sass */
+    /* line 34, /Users/jonathan/Projects/code_sync/site/source/stylesheets/marketing.css.sass */
     .wrapper ul.links li {
       display: inline;
       margin-right: 12px;
       list-style-type: none; }
-  /* line 38, /Users/jonathan/Projects/code_sync/site/source/stylesheets/marketing.css.sass */
+  /* line 40, /Users/jonathan/Projects/code_sync/site/source/stylesheets/marketing.css.sass */
   .wrapper .codehilite pre {
     padding: 10px;
     border-radius: 8px;
     max-width: 940px;
     overflow: scroll; }
-  /* line 45, /Users/jonathan/Projects/code_sync/site/source/stylesheets/marketing.css.sass */
+  /* line 47, /Users/jonathan/Projects/code_sync/site/source/stylesheets/marketing.css.sass */
   .wrapper section p, .wrapper section ul {
     width: 80%; }
 /* line 1, /Users/jonathan/Projects/code_sync/site/source/stylesheets/marketing/syntax.css.scss */
