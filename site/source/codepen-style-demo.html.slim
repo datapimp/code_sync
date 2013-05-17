@@ -1,10 +1,10 @@
 .demos-page
-  #editors-container
-    #templateEditor
-    #styleEditor
-    #codeEditor
+  .editor-container
+  .canvas-container
+  javascript:
+    window.codeSyncClient = new CodeSync.Client()
 
-  #canvas
+    //CodeSync.AssetEditor.setHotKey('ctrl+j')
 
 == stylesheet_link_tag 'demos'
 == javascript_include_tag 'demos'

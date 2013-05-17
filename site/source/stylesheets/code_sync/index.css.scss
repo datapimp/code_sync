@@ -3,10 +3,11 @@
 */
 
 .codesync-editor {
-  background: rgba(200,200,200,0.0);
-  opacity: 0.99;
   height: 400px;
   width: 100%;
+  margin: 0px;
+  padding: 0px;
+  position: relative;
 
   .document-tabs-container {
     position: absolute;
@@ -14,10 +15,10 @@
   }
 
   .codesync-asset-editor {
-    position: absolute;
     z-index: 90;
     margin: 0px auto;
     width: 100%;
+    position: absolute;
     .CodeMirror {
       height: 375px;
     }

@@ -1,12 +1,8 @@
 .demos-page {
-  .editors-container {
+  .editor-container {
     .codesync-editor {
-      position: relative !important;
-      width: 500px;
-      top: auto;
-      bottom: auto;
-      left: auto;
-      margin: auto;
+      width: 33.33%;
+      float: left;
     }
   }
 }
