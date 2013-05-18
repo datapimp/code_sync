@@ -5,13 +5,10 @@
 #= require_self
 
 CodeSync.AssetEditor = Backbone.View.extend
-
   className: "codesync-editor"
 
   autoRender: true
-
   autoAppend: true
-
   appendTo: "body"
 
   renderVisible: true
@@ -33,6 +30,8 @@ CodeSync.AssetEditor = Backbone.View.extend
   startMode: "scss"
 
   theme: "ambiance"
+
+  name: "code_sync"
 
   keyBindings: ""
 
@@ -66,9 +65,15 @@ CodeSync.AssetEditor = Backbone.View.extend
 
     @$el.html JST["code_sync/editor/templates/asset_editor"]()
 
+    if @name?
+      @$el.attr 'data-codesync', @name
+
     @loadPlugins()
 
     @render() unless @autoRender is false
+
+  addPlugin: (plugin)->
+    CodeSync.plugins[plugin]?.setup.call(@,@)
 
   loadPlugins: ()->
     for plugin in @plugins when CodeSync.plugins[plugin]?
@@ -125,18 +130,30 @@ CodeSync.AssetEditor = Backbone.View.extend
     @
 
   codeMirrorKeyBindings:
-    "Ctrl-J": ()->
+    "Ctrl+Command+1": ()->
+      CodeSync.get("commandOne")?.call?(@)
+
+    "Ctrl+Command+2": ()->
+      CodeSync.get("commandTwo")?.call?(@)
+
+    "Ctrl+Command+3": ()->
+      CodeSync.get("commandThree")?.call(@)
+
+    "Ctrl+J": ()->
       @toggle()
 
   getCodeMirrorOptions: ()->
+    passthrough = {}
+
     for keyCommand, handler of @codeMirrorKeyBindings
-      @codeMirrorKeyBindings[keyCommand] = _.bind(handler, @)
+       passthrough[keyCommand] = false
+       key(keyCommand,_.bind(handler, @))
 
     options =
       theme: 'lesser-dark'
       lineNumbers: true
       mode: (@startMode?.get("codeMirrorMode") || CodeSync.get("defaultFileType"))
-      extraKeys: @codeMirrorKeyBindings
+      extraKeys: passthrough
 
   editorChangeHandler: (editorContents)->
     @currentDocument.set("contents", editorContents)
@@ -155,10 +172,12 @@ CodeSync.AssetEditor = Backbone.View.extend
     @codeMirror.setOption 'keyMap', keyMap
 
   setTheme: (@theme)->
-    @$el.attr("data-theme", @theme)
+    @$el.attr("data-codesync-theme", @theme)
     @codeMirror.setOption 'theme', @theme
 
   setMode: (newMode)->
+    @$el.attr("data-codesync-mode", @mode)
+
     if @mode? and (newMode isnt @mode)
       @trigger "change:mode", newMode, newMode.id
 
@@ -170,6 +189,10 @@ CodeSync.AssetEditor = Backbone.View.extend
       @currentDocument.set('extension', CodeSync.Modes.guessExtensionFor(@mode.id) )
 
     @
+
+  setCodeMirrorOptions: (options={})->
+    for option,value of options
+      @codeMirror.setOption(option,value)
 
   setupToolbar: ()->
     if @hideable is true
@@ -210,7 +233,8 @@ CodeSync.AssetEditor = Backbone.View.extend
     @currentDocument.on "status", @showStatusMessage, @
     @currentDocument.on "change:compiled", @applyDocumentContentToPage, @
     @currentDocument.on "change:mode", @applyDocumentContentToPage, @
-    @currentDocument.on
+
+    @setCodeMirrorOptions @currentDocument.toCodeMirrorOptions()
 
   applyDocumentContentToPage: ()->
     if @currentDocument? && (@currentDocument.toMode() isnt @mode)
@@ -324,6 +348,10 @@ CodeSync.AssetEditor = Backbone.View.extend
 
 
 # Private Helpers
+CodeSync.commands =
+  commandOne: ->
+  commandTwo: ->
+  commandThree: ->
 
 CodeSync.AssetEditor.keyboardShortcutInfo = """
 ctrl+j: toggle editor ctrl+t: open asset

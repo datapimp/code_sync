@@ -1,3 +1,4 @@
+#= require ../vendor/keymaster.min
 #= require ../vendor/jquery
 #= require ../vendor/underscore-min
 #= require ../vendor/underscore.string.min
