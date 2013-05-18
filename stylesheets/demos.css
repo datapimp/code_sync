@@ -16,9 +16,75 @@
   height: 375px; }
   /* line 17, /Users/jonathan/Projects/code_sync/site/source/stylesheets/demos.css.scss */
   .demos-page .editor-container .codesync-editor {
-    width: 33.33%;
-    float: left;
-    height: 375px !important; }
-    /* line 21, /Users/jonathan/Projects/code_sync/site/source/stylesheets/demos.css.scss */
-    .demos-page .editor-container .codesync-editor .asset-editor-container {
-      height: 375px; }
+    position: absolute; }
+    /* line 19, /Users/jonathan/Projects/code_sync/site/source/stylesheets/demos.css.scss */
+    .demos-page .editor-container .codesync-editor .CodeMirror {
+      font-size: 12px;
+      line-height: 21px; }
+
+/* line 27, /Users/jonathan/Projects/code_sync/site/source/stylesheets/demos.css.scss */
+#layout-selector {
+  position: fixed;
+  top: auto;
+  bottom: 25px;
+  right: 25px;
+  z-index: 15000;
+  background-color: #777;
+  border-radius: 3px;
+  box-shadow: 0 0 6px #333;
+  margin: 0px;
+  padding: 0px; }
+  /* line 38, /Users/jonathan/Projects/code_sync/site/source/stylesheets/demos.css.scss */
+  #layout-selector li {
+    margin: 0px;
+    display: inline;
+    cursor: pointer;
+    color: #fff;
+    border-right: 1px solid;
+    padding: 4px 12px; }
+    /* line 45, /Users/jonathan/Projects/code_sync/site/source/stylesheets/demos.css.scss */
+    #layout-selector li:last-child {
+      border-right: 0px; }
+
+/* line 51, /Users/jonathan/Projects/code_sync/site/source/stylesheets/demos.css.scss */
+#layout-selector li {
+  cursor: pointer; }
+
+/* line 55, /Users/jonathan/Projects/code_sync/site/source/stylesheets/demos.css.scss */
+.editor-container[data-layout="one"] {
+  opacity: 1.0; }
+  /* line 57, /Users/jonathan/Projects/code_sync/site/source/stylesheets/demos.css.scss */
+  .editor-container[data-layout="one"] .codesync-editor[data-codesync="panel-1"] {
+    width: 100%;
+    left: 0%; }
+  /* line 61, /Users/jonathan/Projects/code_sync/site/source/stylesheets/demos.css.scss */
+  .editor-container[data-layout="one"] .codesync-editor[data-codesync="panel-2"] {
+    display: none; }
+  /* line 64, /Users/jonathan/Projects/code_sync/site/source/stylesheets/demos.css.scss */
+  .editor-container[data-layout="one"] .codesync-editor[data-codesync="panel-3"] {
+    display: none; }
+
+/* line 70, /Users/jonathan/Projects/code_sync/site/source/stylesheets/demos.css.scss */
+.editor-container[data-layout="two"] .codesync-editor[data-codesync="panel-1"] {
+  left: 0px;
+  width: 50%; }
+/* line 74, /Users/jonathan/Projects/code_sync/site/source/stylesheets/demos.css.scss */
+.editor-container[data-layout="two"] .codesync-editor[data-codesync="panel-2"] {
+  display: none; }
+/* line 77, /Users/jonathan/Projects/code_sync/site/source/stylesheets/demos.css.scss */
+.editor-container[data-layout="two"] .codesync-editor[data-codesync="panel-3"] {
+  width: 50% !important;
+  left: 50%; }
+
+/* line 84, /Users/jonathan/Projects/code_sync/site/source/stylesheets/demos.css.scss */
+.editor-container[data-layout="three"] .codesync-editor[data-codesync="panel-1"] {
+  width: 33.333333%;
+  left: 0px; }
+/* line 88, /Users/jonathan/Projects/code_sync/site/source/stylesheets/demos.css.scss */
+.editor-container[data-layout="three"] .codesync-editor[data-codesync="panel-2"] {
+  width: 33.333333%;
+  left: 33.33333%; }
+/* line 92, /Users/jonathan/Projects/code_sync/site/source/stylesheets/demos.css.scss */
+.editor-container[data-layout="three"] .codesync-editor[data-codesync="panel-3"] {
+  width: 33.333333%;
+  left: 66.66666%; }

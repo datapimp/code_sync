@@ -457,6 +457,17 @@
 
 }).call(this);
 (function() {
+
+  CodeSync.Gist = Backbone.Model.extend({
+    initialize: function(attributes) {
+      this.attributes = attributes != null ? attributes : {};
+    },
+    url: function() {},
+    toDocuments: function() {}
+  });
+
+}).call(this);
+(function() {
   var modes;
 
   CodeSync.Modes = Backbone.Collection.extend({
@@ -762,7 +773,7 @@
   CodeSync.plugins.ColorPicker = Backbone.View.extend({
     className: "codesync-color-picker",
     spectrumOptions: {
-      showAlpha: true,
+      showAlpha: false,
       preferredFormat: "hex6",
       flat: true,
       showInput: true,
@@ -780,17 +791,67 @@
     },
     hide: function() {
       this.widget.spectrum("hide");
-      return this.$el.hide();
+      this.$el.hide();
+      return this.off("color:change");
     },
     show: function() {
       this.widget.spectrum("show");
       return this.$el.show();
     },
+    syncWithToken: function(token, cursor) {
+      var cm, endch, line, startch,
+        _this = this;
+      cm = this.editor.codeMirror;
+      cm.addWidget(cursor, this.el);
+      this.show();
+      line = cm.getLine(cursor.line);
+      startch = token.start;
+      endch = token.end;
+      this.widget.spectrum("set", token.string);
+      return this.on("color:change", _.debounce(function(colorObject, hexValue) {
+        var _ref;
+        cm.replaceRange("#" + hexValue, {
+          line: cursor.line,
+          ch: startch
+        }, {
+          line: cursor.line,
+          ch: endch
+        });
+        return (_ref = _this.editor.currentDocument) != null ? _ref.trigger("change:contents") : void 0;
+      }));
+    },
     render: function() {
+      var opts,
+        _this = this;
+      opts = _.extend(this.spectrumOptions, {
+        move: _.debounce(function(color) {
+          return _this.trigger("color:change", color, color.toHex());
+        }, 200)
+      });
       this.widget.spectrum(this.spectrumOptions);
       return this;
     }
   });
+
+  CodeSync.plugins.ColorPicker.setup = function(editor) {
+    var cm;
+    this.colorPicker = new CodeSync.plugins.ColorPicker({
+      editor: editor
+    });
+    this.$el.append(editor.colorPicker.render().el);
+    this.colorPicker.hide();
+    cm = editor.codeMirror;
+    return cm.on("cursorActivity", function() {
+      var cursor, token, _ref, _ref1;
+      cursor = cm.getCursor();
+      token = cm.getTokenAt(cursor);
+      if (((_ref = token.string) != null ? _ref.match(/#[a-fA-F0-9]{3,6}/g) : void 0) && ((_ref1 = token.string) != null ? _ref1.length : void 0) >= 6) {
+        return editor.colorPicker.syncWithToken(token, cursor);
+      } else {
+        return editor.colorPicker.hide();
+      }
+    });
+  };
 
 }).call(this);
 (function() {
@@ -1251,6 +1312,7 @@
     hideable: true,
     startMode: "scss",
     theme: "ambiance",
+    name: "code_sync",
     keyBindings: "",
     events: {
       "click .status-message": "removeStatusMessages",
@@ -1271,10 +1333,17 @@
         return _this.loadDefaultDocument();
       });
       this.$el.html(JST["code_sync/editor/templates/asset_editor"]());
+      if (this.name != null) {
+        this.$el.attr('data-codesync', this.name);
+      }
       this.loadPlugins();
       if (this.autoRender !== false) {
         return this.render();
       }
+    },
+    addPlugin: function(plugin) {
+      var _ref;
+      return (_ref = CodeSync.plugins[plugin]) != null ? _ref.setup.call(this, this) : void 0;
     },
     loadPlugins: function() {
       var PluginClass, plugin, _i, _len, _ref, _results;
@@ -1339,22 +1408,36 @@
       return this;
     },
     codeMirrorKeyBindings: {
-      "Ctrl-J": function() {
+      "Ctrl+Command+1": function() {
+        var _ref;
+        return (_ref = CodeSync.get("commandOne")) != null ? typeof _ref.call === "function" ? _ref.call(this) : void 0 : void 0;
+      },
+      "Ctrl+Command+2": function() {
+        var _ref;
+        return (_ref = CodeSync.get("commandTwo")) != null ? typeof _ref.call === "function" ? _ref.call(this) : void 0 : void 0;
+      },
+      "Ctrl+Command+3": function() {
+        var _ref;
+        return (_ref = CodeSync.get("commandThree")) != null ? _ref.call(this) : void 0;
+      },
+      "Ctrl+J": function() {
         return this.toggle();
       }
     },
     getCodeMirrorOptions: function() {
-      var handler, keyCommand, options, _ref, _ref1;
+      var handler, keyCommand, options, passthrough, _ref, _ref1;
+      passthrough = {};
       _ref = this.codeMirrorKeyBindings;
       for (keyCommand in _ref) {
         handler = _ref[keyCommand];
-        this.codeMirrorKeyBindings[keyCommand] = _.bind(handler, this);
+        passthrough[keyCommand] = false;
+        key(keyCommand, _.bind(handler, this));
       }
       return options = {
         theme: 'lesser-dark',
         lineNumbers: true,
         mode: ((_ref1 = this.startMode) != null ? _ref1.get("codeMirrorMode") : void 0) || CodeSync.get("defaultFileType"),
-        extraKeys: this.codeMirrorKeyBindings
+        extraKeys: passthrough
       };
     },
     editorChangeHandler: function(editorContents) {
@@ -1384,11 +1467,12 @@
     },
     setTheme: function(theme) {
       this.theme = theme;
-      this.$el.attr("data-theme", this.theme);
+      this.$el.attr("data-codesync-theme", this.theme);
       return this.codeMirror.setOption('theme', this.theme);
     },
     setMode: function(newMode) {
       var _ref;
+      this.$el.attr("data-codesync-mode", this.mode);
       if ((this.mode != null) && (newMode !== this.mode)) {
         this.trigger("change:mode", newMode, newMode.id);
       }
@@ -1399,6 +1483,18 @@
         this.currentDocument.set('extension', CodeSync.Modes.guessExtensionFor(this.mode.id));
       }
       return this;
+    },
+    setCodeMirrorOptions: function(options) {
+      var option, value, _results;
+      if (options == null) {
+        options = {};
+      }
+      _results = [];
+      for (option in options) {
+        value = options[option];
+        _results.push(this.codeMirror.setOption(option, value));
+      }
+      return _results;
     },
     setupToolbar: function() {
       if (this.hideable === true) {
@@ -1435,7 +1531,7 @@
       this.currentDocument.on("status", this.showStatusMessage, this);
       this.currentDocument.on("change:compiled", this.applyDocumentContentToPage, this);
       this.currentDocument.on("change:mode", this.applyDocumentContentToPage, this);
-      return this.currentDocument.on;
+      return this.setCodeMirrorOptions(this.currentDocument.toCodeMirrorOptions());
     },
     applyDocumentContentToPage: function() {
       var _ref,
@@ -1593,6 +1689,12 @@
       }
     }
   });
+
+  CodeSync.commands = {
+    commandOne: function() {},
+    commandTwo: function() {},
+    commandThree: function() {}
+  };
 
   CodeSync.AssetEditor.keyboardShortcutInfo = "ctrl+j: toggle editor ctrl+t: open asset";
 
