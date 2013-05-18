@@ -1,3 +1,7 @@
+//     keymaster.js
+//     (c) 2011-2012 Thomas Fuchs
+//     keymaster.js may be freely distributed under the MIT license.
+(function(e){function a(e,t){var n=e.length;while(n--)if(e[n]===t)return n;return-1}function f(e,t){var i,o,f,l,c;i=e.keyCode,a(u,i)==-1&&u.push(i);if(i==93||i==224)i=91;if(i in r){r[i]=!0;for(f in s)s[f]==i&&(h[f]=!0);return}if(!h.filter.call(this,e))return;if(!(i in n))return;for(l=0;l<n[i].length;l++){o=n[i][l];if(o.scope==t||o.scope=="all"){c=o.mods.length>0;for(f in r)if(!r[f]&&a(o.mods,+f)>-1||r[f]&&a(o.mods,+f)==-1)c=!1;(o.mods.length==0&&!r[16]&&!r[18]&&!r[17]&&!r[91]||c)&&o.method(e,o)===!1&&(e.preventDefault?e.preventDefault():e.returnValue=!1,e.stopPropagation&&e.stopPropagation(),e.cancelBubble&&(e.cancelBubble=!0))}}}function l(e){var t=e.keyCode,n,i=a(u,t);i>=0&&u.splice(i,1);if(t==93||t==224)t=91;if(t in r){r[t]=!1;for(n in s)s[n]==t&&(h[n]=!1)}}function c(){for(t in r)r[t]=!1;for(t in s)h[t]=!1}function h(e,t,r){var i,u,a,f;r===undefined&&(r=t,t="all"),e=e.replace(/\s/g,""),i=e.split(","),i[i.length-1]==""&&(i[i.length-2]+=",");for(a=0;a<i.length;a++){u=[],e=i[a].split("+");if(e.length>1){u=e.slice(0,e.length-1);for(f=0;f<u.length;f++)u[f]=s[u[f]];e=[e[e.length-1]]}e=e[0],e=o[e]||e.toUpperCase().charCodeAt(0),e in n||(n[e]=[]),n[e].push({shortcut:i[a],scope:t,method:r,key:i[a],mods:u})}}function p(e){if(typeof e=="string"){if(e.length!=1)return!1;e=e.toUpperCase().charCodeAt(0)}return a(u,e)!=-1}function d(){return u}function v(e){var t=(e.target||e.srcElement).tagName;return t!="INPUT"&&t!="SELECT"&&t!="TEXTAREA"}function m(e){i=e||"all"}function g(){return i||"all"}function y(e){var t,r,i;for(t in n){r=n[t];for(i=0;i<r.length;)r[i].scope===e?r.splice(i,1):i++}}function b(e,t,n){e.addEventListener?e.addEventListener(t,n,!1):e.attachEvent&&e.attachEvent("on"+t,function(){n(window.event)})}function E(){var t=e.key;return e.key=w,t}var t,n={},r={16:!1,18:!1,17:!1,91:!1},i="all",s={"⇧":16,shift:16,"⌥":18,alt:18,option:18,"⌃":17,ctrl:17,control:17,"⌘":91,command:91},o={backspace:8,tab:9,clear:12,enter:13,"return":13,esc:27,escape:27,space:32,left:37,up:38,right:39,down:40,del:46,"delete":46,home:36,end:35,pageup:33,pagedown:34,",":188,".":190,"/":191,"`":192,"-":189,"=":187,";":186,"'":222,"[":219,"]":221,"\\":220},u=[];for(t=1;t<20;t++)s["f"+t]=111+t;for(t in s)h[t]=!1;b(document,"keydown",function(e){f(e,i)}),b(document,"keyup",l),b(window,"focus",c);var w=e.key;e.key=h,e.key.setScope=m,e.key.getScope=g,e.key.deleteScope=y,e.key.filter=v,e.key.isPressed=p,e.key.getPressedKeyCodes=d,e.key.noConflict=E,typeof module!="undefined"&&(module.exports=key)})(this);
 /*! jQuery v1.9.1 | (c) 2005, 2012 jQuery Foundation, Inc. | jquery.org/license
 //@ sourceMappingURL=jquery.min.map
 */
@@ -14707,6 +14711,17 @@ CodeMirror.defineMIME("text/x-markdown", "markdown");
 
 }).call(this);
 (function() {
+
+  CodeSync.Gist = Backbone.Model.extend({
+    initialize: function(attributes) {
+      this.attributes = attributes != null ? attributes : {};
+    },
+    url: function() {},
+    toDocuments: function() {}
+  });
+
+}).call(this);
+(function() {
   var modes;
 
   CodeSync.Modes = Backbone.Collection.extend({
@@ -15012,7 +15027,7 @@ CodeMirror.defineMIME("text/x-markdown", "markdown");
   CodeSync.plugins.ColorPicker = Backbone.View.extend({
     className: "codesync-color-picker",
     spectrumOptions: {
-      showAlpha: true,
+      showAlpha: false,
       preferredFormat: "hex6",
       flat: true,
       showInput: true,
@@ -15030,17 +15045,67 @@ CodeMirror.defineMIME("text/x-markdown", "markdown");
     },
     hide: function() {
       this.widget.spectrum("hide");
-      return this.$el.hide();
+      this.$el.hide();
+      return this.off("color:change");
     },
     show: function() {
       this.widget.spectrum("show");
       return this.$el.show();
     },
+    syncWithToken: function(token, cursor) {
+      var cm, endch, line, startch,
+        _this = this;
+      cm = this.editor.codeMirror;
+      cm.addWidget(cursor, this.el);
+      this.show();
+      line = cm.getLine(cursor.line);
+      startch = token.start;
+      endch = token.end;
+      this.widget.spectrum("set", token.string);
+      return this.on("color:change", _.debounce(function(colorObject, hexValue) {
+        var _ref;
+        cm.replaceRange("#" + hexValue, {
+          line: cursor.line,
+          ch: startch
+        }, {
+          line: cursor.line,
+          ch: endch
+        });
+        return (_ref = _this.editor.currentDocument) != null ? _ref.trigger("change:contents") : void 0;
+      }));
+    },
     render: function() {
+      var opts,
+        _this = this;
+      opts = _.extend(this.spectrumOptions, {
+        move: _.debounce(function(color) {
+          return _this.trigger("color:change", color, color.toHex());
+        }, 200)
+      });
       this.widget.spectrum(this.spectrumOptions);
       return this;
     }
   });
+
+  CodeSync.plugins.ColorPicker.setup = function(editor) {
+    var cm;
+    this.colorPicker = new CodeSync.plugins.ColorPicker({
+      editor: editor
+    });
+    this.$el.append(editor.colorPicker.render().el);
+    this.colorPicker.hide();
+    cm = editor.codeMirror;
+    return cm.on("cursorActivity", function() {
+      var cursor, token, _ref, _ref1;
+      cursor = cm.getCursor();
+      token = cm.getTokenAt(cursor);
+      if (((_ref = token.string) != null ? _ref.match(/#[a-fA-F0-9]{3,6}/g) : void 0) && ((_ref1 = token.string) != null ? _ref1.length : void 0) >= 6) {
+        return editor.colorPicker.syncWithToken(token, cursor);
+      } else {
+        return editor.colorPicker.hide();
+      }
+    });
+  };
 
 }).call(this);
 (function() {
@@ -15501,6 +15566,7 @@ CodeMirror.defineMIME("text/x-markdown", "markdown");
     hideable: true,
     startMode: "scss",
     theme: "ambiance",
+    name: "code_sync",
     keyBindings: "",
     events: {
       "click .status-message": "removeStatusMessages",
@@ -15521,10 +15587,17 @@ CodeMirror.defineMIME("text/x-markdown", "markdown");
         return _this.loadDefaultDocument();
       });
       this.$el.html(JST["code_sync/editor/templates/asset_editor"]());
+      if (this.name != null) {
+        this.$el.attr('data-codesync', this.name);
+      }
       this.loadPlugins();
       if (this.autoRender !== false) {
         return this.render();
       }
+    },
+    addPlugin: function(plugin) {
+      var _ref;
+      return (_ref = CodeSync.plugins[plugin]) != null ? _ref.setup.call(this, this) : void 0;
     },
     loadPlugins: function() {
       var PluginClass, plugin, _i, _len, _ref, _results;
@@ -15589,22 +15662,36 @@ CodeMirror.defineMIME("text/x-markdown", "markdown");
       return this;
     },
     codeMirrorKeyBindings: {
-      "Ctrl-J": function() {
+      "Ctrl+Command+1": function() {
+        var _ref;
+        return (_ref = CodeSync.get("commandOne")) != null ? typeof _ref.call === "function" ? _ref.call(this) : void 0 : void 0;
+      },
+      "Ctrl+Command+2": function() {
+        var _ref;
+        return (_ref = CodeSync.get("commandTwo")) != null ? typeof _ref.call === "function" ? _ref.call(this) : void 0 : void 0;
+      },
+      "Ctrl+Command+3": function() {
+        var _ref;
+        return (_ref = CodeSync.get("commandThree")) != null ? _ref.call(this) : void 0;
+      },
+      "Ctrl+J": function() {
         return this.toggle();
       }
     },
     getCodeMirrorOptions: function() {
-      var handler, keyCommand, options, _ref, _ref1;
+      var handler, keyCommand, options, passthrough, _ref, _ref1;
+      passthrough = {};
       _ref = this.codeMirrorKeyBindings;
       for (keyCommand in _ref) {
         handler = _ref[keyCommand];
-        this.codeMirrorKeyBindings[keyCommand] = _.bind(handler, this);
+        passthrough[keyCommand] = false;
+        key(keyCommand, _.bind(handler, this));
       }
       return options = {
         theme: 'lesser-dark',
         lineNumbers: true,
         mode: ((_ref1 = this.startMode) != null ? _ref1.get("codeMirrorMode") : void 0) || CodeSync.get("defaultFileType"),
-        extraKeys: this.codeMirrorKeyBindings
+        extraKeys: passthrough
       };
     },
     editorChangeHandler: function(editorContents) {
@@ -15634,11 +15721,12 @@ CodeMirror.defineMIME("text/x-markdown", "markdown");
     },
     setTheme: function(theme) {
       this.theme = theme;
-      this.$el.attr("data-theme", this.theme);
+      this.$el.attr("data-codesync-theme", this.theme);
       return this.codeMirror.setOption('theme', this.theme);
     },
     setMode: function(newMode) {
       var _ref;
+      this.$el.attr("data-codesync-mode", this.mode);
       if ((this.mode != null) && (newMode !== this.mode)) {
         this.trigger("change:mode", newMode, newMode.id);
       }
@@ -15649,6 +15737,18 @@ CodeMirror.defineMIME("text/x-markdown", "markdown");
         this.currentDocument.set('extension', CodeSync.Modes.guessExtensionFor(this.mode.id));
       }
       return this;
+    },
+    setCodeMirrorOptions: function(options) {
+      var option, value, _results;
+      if (options == null) {
+        options = {};
+      }
+      _results = [];
+      for (option in options) {
+        value = options[option];
+        _results.push(this.codeMirror.setOption(option, value));
+      }
+      return _results;
     },
     setupToolbar: function() {
       if (this.hideable === true) {
@@ -15685,7 +15785,7 @@ CodeMirror.defineMIME("text/x-markdown", "markdown");
       this.currentDocument.on("status", this.showStatusMessage, this);
       this.currentDocument.on("change:compiled", this.applyDocumentContentToPage, this);
       this.currentDocument.on("change:mode", this.applyDocumentContentToPage, this);
-      return this.currentDocument.on;
+      return this.setCodeMirrorOptions(this.currentDocument.toCodeMirrorOptions());
     },
     applyDocumentContentToPage: function() {
       var _ref,
@@ -15843,6 +15943,12 @@ CodeMirror.defineMIME("text/x-markdown", "markdown");
       }
     }
   });
+
+  CodeSync.commands = {
+    commandOne: function() {},
+    commandTwo: function() {},
+    commandThree: function() {}
+  };
 
   CodeSync.AssetEditor.keyboardShortcutInfo = "ctrl+j: toggle editor ctrl+t: open asset";
 
