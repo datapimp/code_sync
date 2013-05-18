@@ -16,6 +16,10 @@
     height: 375px;
     .codesync-editor {
       position: absolute;
+      .CodeMirror {
+        font-size: 12px;
+        line-height: 21px;
+      }
     }
   }
 }

@@ -2,6 +2,10 @@ window.coffeescriptDefault = """
 """
 
 window.skimDefault = """
+.masthead
+  h1 CodeSync Editor Components
+  p Use them however you want, boo.
+
 .explanations
   .explanation.coffeescript
     h4
@@ -33,6 +37,20 @@ body {
   background-color: #449add;
 }
 
+.masthead {
+  h1 {
+    font-size: 60px;
+    color: #ffffff;
+  text-shadow: 2px 2px #333333;
+    font-weight: 400;
+  }
+  position: fixed;
+  bottom: 120px;
+  left: 50%;
+  width: 800px;
+  margin-left: -400px;
+  text-align: center;
+}
 .canvas-container {
   h1,h2,h3,h4,h5 {
     font-family: "Lobster";
@@ -102,6 +120,10 @@ LayoutSelector = Backbone.View.extend
 
 window.setupEditors = _.once ()->
   for mode, index in ["scss","skim","coffeescript"]
+
+    if "#{ localStorage.getItem("demo.#{ mode }") }".length < 10
+      localStorage.setItem("demo.#{ mode }", window["#{ mode }Default"] )
+
     window["#{ mode }Editor"] ||= new CodeSync.AssetEditor
       hideable: false
       autoRender: true
@@ -111,8 +133,7 @@ window.setupEditors = _.once ()->
       name: "panel-#{ index + 1 }"
       position: "static"
       document:
-        contents: window["#{ mode }Default"]
-
+        localStorageKey: "demo.#{ mode }"
       plugins:[
         "ModeSelector"
         "KeymapSelector"
