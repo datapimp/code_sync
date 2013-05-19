@@ -12,17 +12,18 @@ javascript:
     window.codeSyncClient = new CodeSync.Client()
 
 javascript:
-  CodeSync.AssetEditor.setHotKey('ctrl+j')
+  window.enableGlobalEditor = function(){
+    CodeSync.AssetEditor.setHotKey('ctrl+j')
 
-  window.codeSyncEditor = new CodeSync.AssetEditor({
-    autoAppend: true,
-    renderHidden: true,
-    startMode: 'scss'
-    position: "bottom"
-  })
+    window.codeSyncEditor = new CodeSync.AssetEditor({
+      autoAppend: true,
+      renderHidden: true,
+      startMode: 'scss',
+      position: "bottom"
+    })
+  }
 
 - content_for(:head) do
   == stylesheet_link_tag 'demos', 'vendor/animate'
 
 == javascript_include_tag 'demos'
-

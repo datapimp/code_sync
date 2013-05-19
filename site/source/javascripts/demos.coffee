@@ -43,4 +43,5 @@ _.delay ()->
 
 _.delay ()->
   window.coffeescriptEditor.currentDocument.trigger "change:contents"
+  window.enableGlobalEditor()
 , 1800
