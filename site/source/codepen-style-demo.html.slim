@@ -1,10 +1,21 @@
+javascript:
+  window.coffeescriptDefault = "CodeSync.onScriptChange ||= (changeObject)->\n"
+  coffeescriptDefault = coffeescriptDefault + '  if changeObject.mode is "skim" and changeObject.name is "codesync"'
+  coffeescriptDefault = coffeescriptDefault + "\n" + '    $(".canvas-container").html JST["codesync"]()'
+
 .demos-page
   .editor-container data-layout="three"
   .canvas-container
+
+- if development?
   javascript:
     window.codeSyncClient = new CodeSync.Client()
 
-    //CodeSync.AssetEditor.setHotKey('ctrl+j')
+javascript:
+  CodeSync.AssetEditor.setHotKey('ctrl+j', {position:"bottom"})
 
-== stylesheet_link_tag 'demos', 'animate'
+- content_for(:head) do
+  == stylesheet_link_tag 'demos', 'vendor/animate'
+
 == javascript_include_tag 'demos'
+
