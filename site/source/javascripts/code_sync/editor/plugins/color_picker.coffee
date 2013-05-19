@@ -52,7 +52,8 @@ CodeSync.plugins.ColorPicker = Backbone.View.extend
 
     @on "color:change", _.debounce (colorObject, hexValue)=>
       cm.replaceRange("#"+hexValue, {line:cursor.line,ch:startch}, {line:cursor.line,ch:endch})
-      @editor.currentDocument?.trigger("change:contents")
+    , 1200
+
 
   render: ()->
     opts = _.extend @spectrumOptions,
