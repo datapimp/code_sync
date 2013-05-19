@@ -15026,6 +15026,7 @@ CodeMirror.defineMIME("text/x-markdown", "markdown");
 
   CodeSync.plugins.ColorPicker = Backbone.View.extend({
     className: "codesync-color-picker",
+    widget: false,
     spectrumOptions: {
       showAlpha: false,
       preferredFormat: "hex6",
@@ -15050,13 +15051,19 @@ CodeMirror.defineMIME("text/x-markdown", "markdown");
     },
     show: function() {
       this.widget.spectrum("show");
+      if (!this.widget) {
+        this.$el.addClass('anchored');
+      }
       return this.$el.show();
     },
     syncWithToken: function(token, cursor) {
       var cm, endch, line, startch,
         _this = this;
       cm = this.editor.codeMirror;
-      cm.addWidget(cursor, this.el);
+      if (this.widget === true) {
+        this.$el.removeClass('anchored');
+        cm.addWidget(cursor, this.el);
+      }
       this.show();
       line = cm.getLine(cursor.line);
       startch = token.start;
@@ -15111,6 +15118,7 @@ CodeMirror.defineMIME("text/x-markdown", "markdown");
 (function() {
 
   CodeSync.plugins.DocumentManager = Backbone.View.extend({
+    className: "codesync-document-manager",
     views: {},
     events: {
       "click .document-tab.selectable": "onDocumentTabSelection",
@@ -15124,9 +15132,8 @@ CodeMirror.defineMIME("text/x-markdown", "markdown");
     },
     initialize: function(options) {
       var _this = this;
-      if (options == null) {
-        options = {};
-      }
+      this.options = options != null ? options : {};
+      _.extend(this, options);
       this.editor = options.editor;
       this.$el.append("<div class='document-tabs-container' />");
       this.openDocuments = new CodeSync.Documents();
@@ -15164,23 +15171,30 @@ CodeMirror.defineMIME("text/x-markdown", "markdown");
       }
     },
     renderTabs: function() {
-      var container, tmpl;
+      var container, tmpl,
+        _this = this;
       container = this.$('.document-tabs-container').empty();
       tmpl = JST["code_sync/editor/templates/document_manager_tab"];
       this.openDocuments.each(function(doc, index) {
-        return container.append(tmpl({
-          doc: doc,
-          index: index
-        }));
+        if (!(_this.skipTabForDefault === true && index === 0)) {
+          return container.append(tmpl({
+            doc: doc,
+            index: index
+          }));
+        }
       });
-      container.append(tmpl({
-        display: "New",
-        cls: "new-document"
-      }));
-      return container.append(tmpl({
-        display: "Open",
-        cls: "open-document"
-      }));
+      if (this.allowNew !== false) {
+        container.append(tmpl({
+          display: "New",
+          cls: "new-document"
+        }));
+      }
+      if (this.allowOpen !== false) {
+        return container.append(tmpl({
+          display: "Open",
+          cls: "open-document"
+        }));
+      }
     },
     onAssetSelection: function(path) {
       var _this = this;
@@ -15241,13 +15255,15 @@ CodeMirror.defineMIME("text/x-markdown", "markdown");
     getCurrentDocument: function() {
       return this.currentDocument;
     },
-    openDocument: function(doc) {
+    openDocument: function(doc, editor) {
+      editor || (editor = this.editor);
       this.openDocuments.add(doc);
-      return this.setCurrentDocument(doc);
+      return this.setCurrentDocument(doc, editor);
     },
-    setCurrentDocument: function(currentDocument) {
+    setCurrentDocument: function(currentDocument, editor) {
       this.currentDocument = currentDocument;
-      return this.editor.loadDocument(this.currentDocument);
+      editor || (editor = this.editor);
+      return editor.loadDocument(this.currentDocument);
     },
     toggleSaveButton: function() {
       var _ref, _ref1;
@@ -15287,12 +15303,14 @@ CodeMirror.defineMIME("text/x-markdown", "markdown");
     }
   });
 
-  CodeSync.plugins.DocumentManager.setup = function(editor) {
+  CodeSync.plugins.DocumentManager.setup = function(editor, options) {
     var dm,
       _this = this;
-    dm = this.views.documentManager = new CodeSync.plugins.DocumentManager({
-      editor: this
-    });
+    if (options == null) {
+      options = {};
+    }
+    options.editor = editor;
+    dm = this.views.documentManager = new CodeSync.plugins.DocumentManager(options);
     _.extend(editor.codeMirrorKeyBindings, {
       "Ctrl-T": function() {
         return dm.toggleAssetSelector();
@@ -15573,6 +15591,7 @@ CodeMirror.defineMIME("text/x-markdown", "markdown");
       "click .hide-button": "hide"
     },
     plugins: ["DocumentManager", "ModeSelector", "PreferencesPanel"],
+    pluginOptions: {},
     initialize: function(options) {
       var _this = this;
       this.options = options != null ? options : {};
@@ -15600,7 +15619,7 @@ CodeMirror.defineMIME("text/x-markdown", "markdown");
       return (_ref = CodeSync.plugins[plugin]) != null ? _ref.setup.call(this, this) : void 0;
     },
     loadPlugins: function() {
-      var PluginClass, plugin, _i, _len, _ref, _results;
+      var PluginClass, options, plugin, _i, _len, _ref, _results;
       _ref = this.plugins;
       _results = [];
       for (_i = 0, _len = _ref.length; _i < _len; _i++) {
@@ -15608,8 +15627,9 @@ CodeMirror.defineMIME("text/x-markdown", "markdown");
         if (!(CodeSync.plugins[plugin] != null)) {
           continue;
         }
+        options = this.pluginOptions[plugin] || {};
         PluginClass = CodeSync.plugins[plugin];
-        _results.push(PluginClass.setup.call(this, this));
+        _results.push(PluginClass.setup.call(this, this, options));
       }
       return _results;
     },
@@ -15717,21 +15737,37 @@ CodeMirror.defineMIME("text/x-markdown", "markdown");
       return this;
     },
     setKeyMap: function(keyMap) {
-      return this.codeMirror.setOption('keyMap', keyMap);
+      var _ref;
+      if ((this.keyMap != null) && keyMap !== this.keyMap) {
+        this.trigger("change:keyMap", keyMap, this.keyMap);
+        if ((_ref = this.onKeyMapChange) != null) {
+          _ref.call(this, keyMap, this.keyMap);
+        }
+      }
+      return this.codeMirror.setOption('keyMap', this.keyMap = keyMap);
     },
     setTheme: function(theme) {
-      this.theme = theme;
-      this.$el.attr("data-codesync-theme", this.theme);
-      return this.codeMirror.setOption('theme', this.theme);
+      var _ref;
+      if ((this.theme != null) && theme !== this.theme) {
+        this.trigger("change:theme", theme, this.theme);
+        if ((_ref = this.onThemeChange) != null) {
+          _ref.call(this, theme, this.theme);
+        }
+      }
+      this.$el.attr("data-codesync-theme", this.theme = theme);
+      return this.codeMirror.setOption('theme', this.theme = theme);
     },
     setMode: function(newMode) {
-      var _ref;
+      var _ref, _ref1;
       this.$el.attr("data-codesync-mode", this.mode);
       if ((this.mode != null) && (newMode !== this.mode)) {
         this.trigger("change:mode", newMode, newMode.id);
+        if ((_ref = this.onModeChange) != null) {
+          _ref.call(this, newMode, this.mode);
+        }
       }
       this.mode = newMode;
-      if (((_ref = this.mode) != null ? _ref.get : void 0) != null) {
+      if (((_ref1 = this.mode) != null ? _ref1.get : void 0) != null) {
         this.codeMirror.setOption('mode', this.mode.get("codeMirrorMode"));
         this.currentDocument.set('mode', this.mode.id);
         this.currentDocument.set('extension', CodeSync.Modes.guessExtensionFor(this.mode.id));
@@ -15762,7 +15798,7 @@ CodeMirror.defineMIME("text/x-markdown", "markdown");
         sticky: true,
         doNotSave: true,
         name: this.defaultDocumentName || "codesync",
-        display: "CodeSync Editor"
+        display: "CodeSync"
       };
       options = _.extend(defaultOptions, this.document);
       return defaultDocument = new CodeSync.Document(options);

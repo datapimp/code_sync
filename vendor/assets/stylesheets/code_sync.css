@@ -982,6 +982,12 @@ div.CodeMirror span.CodeMirror-nonmatchingbracket {color: #f22;}
     font-size: 18px;
     line-height: 24px;
     box-shadow: 2px 2px 4px rgba(255, 255, 255, 0.2); }
+/* line 1, /Users/jonathan/Projects/code_sync/site/source/stylesheets/code_sync/editor/codesync-color-picker.css.sass */
+.codesync-color-picker {
+  position: absolute;
+  top: 15px;
+  right: 15px;
+  border-radius: 4px; }
 /* line 3, /Users/jonathan/Projects/code_sync/site/source/stylesheets/code_sync/editor/document-manager.css.scss */
 .codesync-editor .document-tabs-container .document-tab {
   font-size: 12px;
