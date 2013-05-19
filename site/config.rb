@@ -11,9 +11,11 @@ set :markdown_engine, :redcarpet
 set :markdown, :fenced_code_blocks => true, :smartypants => true
 activate :syntax, :cssclass => "codehilite"
 
+activate :directory_indexes
+
 configure :build do
-  #activate :minify_css
-  #activate :minify_javascript
+  activate :minify_css
+  activate :minify_javascript
   activate :relative_assets
 end
 

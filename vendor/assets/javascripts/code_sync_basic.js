@@ -1107,16 +1107,14 @@
       endch = token.end;
       this.widget.spectrum("set", token.string);
       return this.on("color:change", _.debounce(function(colorObject, hexValue) {
-        var _ref;
-        cm.replaceRange("#" + hexValue, {
+        return cm.replaceRange("#" + hexValue, {
           line: cursor.line,
           ch: startch
         }, {
           line: cursor.line,
           ch: endch
         });
-        return (_ref = _this.editor.currentDocument) != null ? _ref.trigger("change:contents") : void 0;
-      }));
+      }, 1200));
     },
     render: function() {
       var opts,
