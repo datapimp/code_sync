@@ -1,4 +1,5 @@
 CodeSync.plugins.DocumentManager = Backbone.View.extend
+  className: "codesync-document-manager"
 
   views: {}
 
@@ -14,7 +15,9 @@ CodeSync.plugins.DocumentManager = Backbone.View.extend
     "blur .document-tab.editable .contents" : "onEditableTabBlur"
     "keydown .document-tab.editable .contents" : "onEditableTabKeyPress"
 
-  initialize: (options={})->
+  initialize: (@options={})->
+    _.extend(@, options)
+
     @editor = options.editor
 
     @$el.append "<div class='document-tabs-container' />"
@@ -57,11 +60,15 @@ CodeSync.plugins.DocumentManager = Backbone.View.extend
     container = @$('.document-tabs-container').empty()
     tmpl = JST["code_sync/editor/templates/document_manager_tab"]
 
-    @openDocuments.each (doc,index)->
-      container.append tmpl(doc: doc, index: index)
+    @openDocuments.each (doc,index)=>
+      unless @skipTabForDefault is true and index is 0
+        container.append tmpl(doc: doc, index: index)
 
-    container.append tmpl(display:"New",cls:"new-document")
-    container.append tmpl(display:"Open",cls:"open-document")
+    unless @allowNew is false
+      container.append tmpl(display:"New",cls:"new-document")
+
+    unless @allowOpen is false
+      container.append tmpl(display:"Open",cls:"open-document")
 
   onAssetSelection: (path)->
     @openDocuments.findOrCreateForPath path, (doc)=>
@@ -120,12 +127,15 @@ CodeSync.plugins.DocumentManager = Backbone.View.extend
   getCurrentDocument: ()->
     @currentDocument
 
-  openDocument: (doc)->
-    @openDocuments.add(doc)
-    @setCurrentDocument(doc)
+  openDocument: (doc, editor)->
+    editor ||= @editor
 
-  setCurrentDocument: (@currentDocument)->
-    @editor.loadDocument(@currentDocument)
+    @openDocuments.add(doc)
+    @setCurrentDocument(doc, editor)
+
+  setCurrentDocument: (@currentDocument, editor)->
+    editor ||= @editor
+    editor.loadDocument(@currentDocument)
 
   toggleSaveButton: ()->
     if @currentDocument?.get("path")?.length > 0
@@ -159,8 +169,9 @@ CodeSync.plugins.DocumentManager = Backbone.View.extend
     @
 
 
-CodeSync.plugins.DocumentManager.setup = (editor)->
-  dm = @views.documentManager = new CodeSync.plugins.DocumentManager(editor: @)
+CodeSync.plugins.DocumentManager.setup = (editor, options={})->
+  options.editor = editor
+  dm = @views.documentManager = new CodeSync.plugins.DocumentManager(options)
 
   _.extend editor.codeMirrorKeyBindings,
     "Ctrl-T": ()->

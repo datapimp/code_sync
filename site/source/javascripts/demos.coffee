@@ -134,11 +134,19 @@ window.setupEditors = _.once ()->
       position: "static"
       document:
         localStorageKey: "demo.#{ mode }"
+        display: _.str.titleize(mode)
+
       plugins:[
         "ModeSelector"
         "KeymapSelector"
         "DocumentManager"
       ]
+
+      pluginOptions:
+        "DocumentManager":
+          allowNew: true
+          allowOpen: false
+
 
 
   scssEditor.addPlugin("ColorPicker")

@@ -1,12 +1,15 @@
 CodeSync.plugins.ColorPicker = Backbone.View.extend
   className: "codesync-color-picker"
 
+  widget: false
+
   spectrumOptions:
     showAlpha: false
     preferredFormat: "hex6"
     flat: true
     showInput: true
     chooseText: "Choose"
+
 
   initialize: (@options={})->
     _.extend(@,@options)
@@ -27,13 +30,16 @@ CodeSync.plugins.ColorPicker = Backbone.View.extend
 
   show: ()->
     @widget.spectrum("show")
+    @$el.addClass('anchored') unless @widget
     @$el.show()
 
   syncWithToken: (token, cursor)->
 
     cm = @editor.codeMirror
 
-    cm.addWidget(cursor, @el)
+    if @widget is true
+      @$el.removeClass('anchored')
+      cm.addWidget(cursor, @el)
 
     @show()
 

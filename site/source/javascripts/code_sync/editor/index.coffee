@@ -1,7 +1,7 @@
 #= require skim
 #= require_tree ./templates
 #= require_tree ./datasources
-#= require_tree ./views
+#= require_tree ./plugins
 #= require_self
 
 CodeSync.AssetEditor = Backbone.View.extend
@@ -45,6 +45,8 @@ CodeSync.AssetEditor = Backbone.View.extend
     "PreferencesPanel"
   ]
 
+  pluginOptions: {}
+
   initialize: (@options={})->
     _.extend(@, @options)
 
@@ -77,8 +79,10 @@ CodeSync.AssetEditor = Backbone.View.extend
 
   loadPlugins: ()->
     for plugin in @plugins when CodeSync.plugins[plugin]?
+      options = @pluginOptions[plugin] || {}
       PluginClass = CodeSync.plugins[plugin]
-      PluginClass.setup.call(@, @)
+
+      PluginClass.setup.call(@,@,options)
 
   render: ()->
     return @ if @rendered is true
@@ -169,17 +173,26 @@ CodeSync.AssetEditor = Backbone.View.extend
     @
 
   setKeyMap: (keyMap)->
-    @codeMirror.setOption 'keyMap', keyMap
+    if @keyMap? and keyMap isnt @keyMap
+      @trigger "change:keyMap", keyMap, @keyMap
+      @onKeyMapChange?.call(@,keyMap,@keyMap)
 
-  setTheme: (@theme)->
-    @$el.attr("data-codesync-theme", @theme)
-    @codeMirror.setOption 'theme', @theme
+    @codeMirror.setOption 'keyMap', @keyMap = keyMap
+
+  setTheme: (theme)->
+    if @theme? and theme isnt @theme
+      @trigger "change:theme", theme, @theme
+      @onThemeChange?.call(@,theme,@theme)
+
+    @$el.attr("data-codesync-theme", @theme = theme)
+    @codeMirror.setOption 'theme', @theme = theme
 
   setMode: (newMode)->
     @$el.attr("data-codesync-mode", @mode)
 
     if @mode? and (newMode isnt @mode)
       @trigger "change:mode", newMode, newMode.id
+      @onModeChange?.call(@,newMode,@mode)
 
     @mode = newMode
 
@@ -204,7 +217,7 @@ CodeSync.AssetEditor = Backbone.View.extend
       sticky: true
       doNotSave: true
       name: @defaultDocumentName || "codesync"
-      display: "CodeSync Editor"
+      display: "CodeSync"
 
     options = _.extend(defaultOptions, @document)
 
