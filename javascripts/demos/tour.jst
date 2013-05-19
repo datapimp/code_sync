@@ -1,0 +1,16 @@
+(function() { this.JST || (this.JST = {}); this.JST["demos/tour"] = (function() {
+  
+    return function(context) {
+      if (context == null) {
+        context = {};
+      }
+      return Skim.withContext.call({}, context, function() {
+        var _buf;
+        _buf = [];
+        _buf.push("<div class=\"codesync-tour-content\" style=\"display: none\"><div class=\"content\" data-target=\"[data-codesync='panel-1']\" data-tour-step=\"0\"><h4>SCSS Editor</h4><p>This is a SCSS editor.  It allows you to use SCSS or SASS to write some CSS to style the contents of the page.</p><a class=\"next\">Next</a></div><div class=\"content\" data-target=\"[data-codesync='panel-2']\" data-tour-step=\"1\"><h4>Skim Editor</h4><p>This is a Skim template editor.  A CodeSync.onScriptChange hook is wired up so that whenever it changes, the contents will be rendered in the canvas below.</p><a class=\"next\">Next</a></div><div class=\"content\" data-target=\"[data-codesync='panel-3']\" data-tour-step=\"2\"><h4>Coffeescript Editor</h4><p>This is a Coffeescript editor.  The contents of your code will be evaluated and ran as you type.</p><a class=\"next\">Next</a></div><div class=\"content\" data-position=\"above\" data-target=\"#layout-selector\" data-tour-step=\"3\"><h4>Layout Selector</h4><p>This little widget will control the layout of the editors on this page.</p><a class=\"next\">Cool Homie.</a></div></div>");
+        return _buf.join('');
+      });
+    };
+  
+  }).call(this);;
+}).call(this);

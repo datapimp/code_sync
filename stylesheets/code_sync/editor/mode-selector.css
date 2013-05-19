@@ -1,13 +1,1 @@
-/* line 3, /Users/jonathan/Projects/code_sync/site/source/stylesheets/code_sync/editor/mode-selector.css.scss */
-.codesync-editor .codesync-asset-editor .mode-selector {
-  position: absolute;
-  bottom: 10px;
-  right: 20px;
-  z-index: 9000; }
-
-/* line 14, /Users/jonathan/Projects/code_sync/site/source/stylesheets/code_sync/editor/mode-selector.css.scss */
-.codesync-editor .codesync-asset-editor .keymap-selector {
-  position: absolute;
-  bottom: 35px;
-  right: 20px;
-  z-index: 9000; }
+.codesync-editor .codesync-asset-editor .mode-selector{position:absolute;bottom:10px;right:20px;z-index:9000}.codesync-editor .codesync-asset-editor .keymap-selector{position:absolute;bottom:35px;right:20px;z-index:9000}

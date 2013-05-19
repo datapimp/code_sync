@@ -1,11 +1,1 @@
-(function() {
-
-  CodeSync.Gist = Backbone.Model.extend({
-    initialize: function(attributes) {
-      this.attributes = attributes != null ? attributes : {};
-    },
-    url: function() {},
-    toDocuments: function() {}
-  });
-
-}).call(this);
+(function(){CodeSync.Gist=Backbone.Model.extend({initialize:function(e){this.attributes=e!=null?e:{}},url:function(){},toDocuments:function(){}})}).call(this);
