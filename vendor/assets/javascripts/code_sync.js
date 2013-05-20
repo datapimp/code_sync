@@ -15879,12 +15879,12 @@ CodeMirror.defineMIME("text/x-markdown", "markdown");
       if (this.position === "top") {
         settings = {
           top: '0px',
-          bottom: 'auto'
+          bottom: ''
         };
       }
       if (this.position === "bottom") {
         settings = {
-          top: 'auto',
+          top: '',
           bottom: '0px',
           height: '400px'
         };
