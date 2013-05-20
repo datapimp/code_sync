@@ -284,11 +284,11 @@ CodeSync.AssetEditor = Backbone.View.extend
     if @position is "top"
       settings =
         top: '0px'
-        bottom: 'auto'
+        bottom: ''
 
     if @position is "bottom"
       settings =
-        top: 'auto'
+        top: ''
         bottom: '0px'
         height: '400px'
 
