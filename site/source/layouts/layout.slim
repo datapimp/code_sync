@@ -11,7 +11,15 @@ html lang="en"
 
   body
     == javascript_include_tag 'code_sync', 'marketing'
+
+    - if build?
+      javascript:
+        CodeSync.set("assetCompilationEndpoint", "http://infinite-beyond-8679.herokuapp.com/code-sync/source")
+        CodeSync.set("serverInfoEndpoint", "http://infinite-beyond-8679.herokuapp.com/code-sync/info")
+        CodeSync.set("disableAssetSave", true)
+
     == yield
+
 
 
 

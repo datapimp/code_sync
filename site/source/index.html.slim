@@ -63,7 +63,7 @@
     h2 Advanced Demos
     ul
       li
-        a href="codepen-style-demo.html" A Codepen.io style web canvas
+        a href="demo" A Codepen.io style web canvas
 
   section.usage
     h2 Usage
@@ -98,13 +98,6 @@
       span
         | &nbsp;AKA&nbsp;
       a href="https://github.com/datapimp" Datapimp
-
-
-    - if build?
-      javascript:
-        CodeSync.set("assetCompilationEndpoint", "http://infinite-beyond-8679.herokuapp.com/code-sync/source")
-        CodeSync.set("serverInfoEndpoint", "http://infinite-beyond-8679.herokuapp.com/code-sync/info")
-        CodeSync.set("disableAssetSave", true)
 
     - if development?
       javascript:
