@@ -15729,6 +15729,7 @@ CodeMirror.defineMIME("text/x-markdown", "markdown");
         }
       }
       this.$el.addClass("" + this.position + "-positioned");
+      this.$el.removeAttr('style');
       if (show === true) {
         this.show();
       }
@@ -15878,13 +15879,11 @@ CodeMirror.defineMIME("text/x-markdown", "markdown");
       }
       if (this.position === "top") {
         settings = {
-          top: '0px',
-          bottom: ''
+          top: '0px'
         };
       }
       if (this.position === "bottom") {
         settings = {
-          top: '',
           bottom: '0px',
           height: '400px'
         };
@@ -15904,7 +15903,6 @@ CodeMirror.defineMIME("text/x-markdown", "markdown");
       }
       if (this.position === "bottom") {
         settings = {
-          top: 'auto',
           bottom: '0px',
           height: "" + (this.hintHeight() - 8) + "px"
         };
@@ -15956,6 +15954,8 @@ CodeMirror.defineMIME("text/x-markdown", "markdown");
         return _this.animating = false;
       }, this.effectDuration);
       if (withEffect !== false) {
+        this.$el.removeAttr('style').css('top', '').css('bottom', '');
+        console.log("Vis Settings", this.visibleStyleSettings());
         this.$el.animate(this.visibleStyleSettings(), {
           duration: this.effectDuration,
           complete: completeFn
