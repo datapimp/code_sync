@@ -1,1 +1,210 @@
-(function(){CodeSync.plugins.DocumentManager=Backbone.View.extend({views:{},events:{"click .document-tab.selectable":"onDocumentTabSelection","click .document-tab.closable .close-anchor":"closeTab","click .document-tab.new-document":"createDocument","click .document-tab.save-document":"saveDocument","click .document-tab.open-document":"toggleAssetSelector","dblclick .document-tab.editable":"onDoubleClickTab","blur .document-tab.editable .contents":"onEditableTabBlur","keydown .document-tab.editable .contents":"onEditableTabKeyPress"},initialize:function(e){var t=this;return e==null&&(e={}),this.editor=e.editor,this.$el.append("<div class='document-tabs-container' />"),this.openDocuments=new CodeSync.Documents,this.openDocuments.on("add",this.renderTabs,this),this.openDocuments.on("remove",this.renderTabs,this),this.openDocuments.on("change:display",this.renderTabs,this),this.projectAssets=new CodeSync.ProjectAssets,this.state=new Backbone.Model({currentDocument:void 0}),this.state.on("change:currentDocument",this.highlightActiveDocumentTab,this),this.on("editor:hidden",function(){return t.$(".document-tab.hideable").hide()}),this.on("editor:visible",function(){return t.$(".document-tab.hideable").show(),t.toggleSaveButton()}),this.views.assetSelector=new CodeSync.AssetSelector({collection:this.projectAssets,documents:this.openDocuments,editor:this.editor}),this.views.assetSelector.on("asset:selected",this.onAssetSelection,this)},documentInTab:function(e){var t,n;e.is(".document-tab")||(e=e.parents(".document-tab").eq(0));if(t=e.data("document-cid"))return n=this.openDocuments.detect(function(e){return e.cid===t})},renderTabs:function(){var e,t;return e=this.$(".document-tabs-container").empty(),t=JST["code_sync/editor/templates/document_manager_tab"],this.openDocuments.each(function(n,r){return e.append(t({doc:n,index:r}))}),e.append(t({display:"New",cls:"new-document"})),e.append(t({display:"Open",cls:"open-document"}))},onAssetSelection:function(e){var t=this;return this.openDocuments.findOrCreateForPath(e,function(e){return t.openDocument(e)})},onEditableTabKeyPress:function(e){var t,n,r,i;i=this.$(e.target).closest(".document-tab"),t=i.children(".contents");if(e.keyCode===13||e.keyCode===27){e.preventDefault(),t.attr("contenteditable",!1);if(n=this.documentInTab(i))e.keyCode===13&&n.set("name",t.html()),e.keyCode===27&&(r=i.attr("data-original-value"))&&t.html(r);return this.editor.codeMirror.focus()}},onEditableTabBlur:function(e){var t,n,r,i;r=this.$(e.target).closest(".document-tab"),t=r.children(".contents"),console.log("On Editable Tab Blur",(i=this.documentInTab(r))!=null?i.cid:void 0);if(n=this.documentInTab(r))return n.set("name",t.html()),t.attr("contenteditable",!1)},onDoubleClickTab:function(e){var t,n;return n=this.$(e.target).closest(".document-tab"),t=n.children(".contents"),n.attr("data-original-value",t.html()),t.attr("contenteditable",!0)},onDocumentTabSelection:function(e){var t,n;return this.trigger("tab:click"),n=this.$(e.target).closest(".document-tab"),t=this.documentInTab(n),this.setCurrentDocument(t)},closeTab:function(e){var t,n,r;return r=this.$(e.target),t=this.documentInTab(r),n=this.openDocuments.indexOf(t),this.openDocuments.remove(t),this.setCurrentDocument(this.openDocuments.at(n-1)||this.openDocuments.at(0))},getCurrentDocument:function(){return this.currentDocument},openDocument:function(e){return this.openDocuments.add(e),this.setCurrentDocument(e)},setCurrentDocument:function(e){return this.currentDocument=e,this.editor.loadDocument(this.currentDocument)},toggleSaveButton:function(){var e,t;return((e=this.currentDocument)!=null?(t=e.get("path"))!=null?t.length:void 0:void 0)>0?this.$(".save-document").show():this.$(".save-document").hide()},saveDocument:function(){return CodeSync.get("disableAssetSave")?this.editor.showStatusMessage({type:"error",message:"Saving is disabled in this demo."}):this.currentDocument.saveToDisk()},createDocument:function(){var e;return this.openDocuments.add({name:"untitled",display:"Untitled",mode:CodeSync.get("defaultFileType"),extension:CodeSync.Modes.guessExtensionFor(CodeSync.get("defaultFileType"))}),e=this.openDocuments.last(),this.openDocument(e)},toggleAssetSelector:function(){return this.views.assetSelector.toggle()},render:function(){return this.$el.append(this.views.assetSelector.render().el),this}}),CodeSync.plugins.DocumentManager.setup=function(e){var t,n=this;return t=this.views.documentManager=new CodeSync.plugins.DocumentManager({editor:this}),_.extend(e.codeMirrorKeyBindings,{"Ctrl-T":function(){return t.toggleAssetSelector()},"Ctrl-S":function(){return t.getCurrentDocument().save()},"Ctrl-N":function(){return t.createDocument()}}),this.$el.append(t.render().el),t.on("tab:click",function(){if(n.visible===!1)return n.show()}),CodeSync.AssetEditor.prototype.loadDefaultDocument=function(){var n;return n=e.getDefaultDocument(),t.openDocument(n)}}}).call(this);
+(function() {
+
+  CodeSync.plugins.DocumentManager = Backbone.View.extend({
+    views: {},
+    events: {
+      "click .document-tab.selectable": "onDocumentTabSelection",
+      "click .document-tab.closable .close-anchor": "closeTab",
+      "click .document-tab.new-document": "createDocument",
+      "click .document-tab.save-document": "saveDocument",
+      "click .document-tab.open-document": "toggleAssetSelector",
+      "dblclick .document-tab.editable": "onDoubleClickTab",
+      "blur .document-tab.editable .contents": "onEditableTabBlur",
+      "keydown .document-tab.editable .contents": "onEditableTabKeyPress"
+    },
+    initialize: function(options) {
+      var _this = this;
+      if (options == null) {
+        options = {};
+      }
+      this.editor = options.editor;
+      this.$el.append("<div class='document-tabs-container' />");
+      this.openDocuments = new CodeSync.Documents();
+      this.openDocuments.on("add", this.renderTabs, this);
+      this.openDocuments.on("remove", this.renderTabs, this);
+      this.openDocuments.on("change:display", this.renderTabs, this);
+      this.projectAssets = new CodeSync.ProjectAssets();
+      this.state = new Backbone.Model({
+        currentDocument: void 0
+      });
+      this.state.on("change:currentDocument", this.highlightActiveDocumentTab, this);
+      this.on("editor:hidden", function() {
+        return _this.$('.document-tab.hideable').hide();
+      });
+      this.on("editor:visible", function() {
+        _this.$('.document-tab.hideable').show();
+        return _this.toggleSaveButton();
+      });
+      this.views.assetSelector = new CodeSync.AssetSelector({
+        collection: this.projectAssets,
+        documents: this.openDocuments,
+        editor: this.editor
+      });
+      return this.views.assetSelector.on("asset:selected", this.onAssetSelection, this);
+    },
+    documentInTab: function(tabElement) {
+      var cid, doc;
+      if (!tabElement.is('.document-tab')) {
+        tabElement = tabElement.parents('.document-tab').eq(0);
+      }
+      if (cid = tabElement.data('document-cid')) {
+        return doc = this.openDocuments.detect(function(model) {
+          return model.cid === cid;
+        });
+      }
+    },
+    renderTabs: function() {
+      var container, tmpl;
+      container = this.$('.document-tabs-container').empty();
+      tmpl = JST["code_sync/editor/templates/document_manager_tab"];
+      this.openDocuments.each(function(doc, index) {
+        return container.append(tmpl({
+          doc: doc,
+          index: index
+        }));
+      });
+      container.append(tmpl({
+        display: "New",
+        cls: "new-document"
+      }));
+      return container.append(tmpl({
+        display: "Open",
+        cls: "open-document"
+      }));
+    },
+    onAssetSelection: function(path) {
+      var _this = this;
+      return this.openDocuments.findOrCreateForPath(path, function(doc) {
+        return _this.openDocument(doc);
+      });
+    },
+    onEditableTabKeyPress: function(e) {
+      var contents, doc, original, target;
+      target = this.$(e.target).closest('.document-tab');
+      contents = target.children('.contents');
+      if (e.keyCode === 13 || e.keyCode === 27) {
+        e.preventDefault();
+        contents.attr('contenteditable', false);
+        if (doc = this.documentInTab(target)) {
+          if (e.keyCode === 13) {
+            doc.set('name', contents.html());
+          }
+          if (e.keyCode === 27 && (original = target.attr('data-original-value'))) {
+            contents.html(original);
+          }
+        }
+        return this.editor.codeMirror.focus();
+      }
+    },
+    onEditableTabBlur: function(e) {
+      var contents, doc, target, _ref;
+      target = this.$(e.target).closest('.document-tab');
+      contents = target.children('.contents');
+      console.log("On Editable Tab Blur", (_ref = this.documentInTab(target)) != null ? _ref.cid : void 0);
+      if (doc = this.documentInTab(target)) {
+        doc.set('name', contents.html());
+        return contents.attr('contenteditable', false);
+      }
+    },
+    onDoubleClickTab: function(e) {
+      var contents, target;
+      target = this.$(e.target).closest('.document-tab');
+      contents = target.children('.contents');
+      target.attr('data-original-value', contents.html());
+      return contents.attr('contenteditable', true);
+    },
+    onDocumentTabSelection: function(e) {
+      var doc, target;
+      this.trigger("tab:click");
+      target = this.$(e.target).closest('.document-tab');
+      doc = this.documentInTab(target);
+      return this.setCurrentDocument(doc);
+    },
+    closeTab: function(e) {
+      var doc, index, target;
+      target = this.$(e.target);
+      doc = this.documentInTab(target);
+      index = this.openDocuments.indexOf(doc);
+      this.openDocuments.remove(doc);
+      return this.setCurrentDocument(this.openDocuments.at(index - 1) || this.openDocuments.at(0));
+    },
+    getCurrentDocument: function() {
+      return this.currentDocument;
+    },
+    openDocument: function(doc) {
+      this.openDocuments.add(doc);
+      return this.setCurrentDocument(doc);
+    },
+    setCurrentDocument: function(currentDocument) {
+      this.currentDocument = currentDocument;
+      return this.editor.loadDocument(this.currentDocument);
+    },
+    toggleSaveButton: function() {
+      var _ref, _ref1;
+      if (((_ref = this.currentDocument) != null ? (_ref1 = _ref.get("path")) != null ? _ref1.length : void 0 : void 0) > 0) {
+        return this.$('.save-document').show();
+      } else {
+        return this.$('.save-document').hide();
+      }
+    },
+    saveDocument: function() {
+      if (CodeSync.get("disableAssetSave")) {
+        return this.editor.showStatusMessage({
+          type: "error",
+          message: "Saving is disabled in this demo."
+        });
+      } else {
+        return this.currentDocument.saveToDisk();
+      }
+    },
+    createDocument: function() {
+      var doc;
+      this.openDocuments.add({
+        name: "untitled",
+        display: "Untitled",
+        mode: CodeSync.get("defaultFileType"),
+        extension: CodeSync.Modes.guessExtensionFor(CodeSync.get("defaultFileType"))
+      });
+      doc = this.openDocuments.last();
+      return this.openDocument(doc);
+    },
+    toggleAssetSelector: function() {
+      return this.views.assetSelector.toggle();
+    },
+    render: function() {
+      this.$el.append(this.views.assetSelector.render().el);
+      return this;
+    }
+  });
+
+  CodeSync.plugins.DocumentManager.setup = function(editor) {
+    var dm,
+      _this = this;
+    dm = this.views.documentManager = new CodeSync.plugins.DocumentManager({
+      editor: this
+    });
+    _.extend(editor.codeMirrorKeyBindings, {
+      "Ctrl-T": function() {
+        return dm.toggleAssetSelector();
+      },
+      "Ctrl-S": function() {
+        return dm.getCurrentDocument().save();
+      },
+      "Ctrl-N": function() {
+        return dm.createDocument();
+      }
+    });
+    this.$el.append(dm.render().el);
+    dm.on("tab:click", function() {
+      if (_this.visible === false) {
+        return _this.show();
+      }
+    });
+    return CodeSync.AssetEditor.prototype.loadDefaultDocument = function() {
+      var defaultDocument;
+      defaultDocument = editor.getDefaultDocument();
+      return dm.openDocument(defaultDocument);
+    };
+  };
+
+}).call(this);

@@ -1,1 +1,137 @@
-(function(){CodeSync.AssetSelector=Backbone.View.extend({className:"codesync-asset-selector",events:{"keyup input":"keyHandler","click .search-result":"selectSearchResult"},initialize:function(e){var t=this;return e==null&&(e={}),Backbone.View.prototype.initialize.apply(this,arguments),this.editor=e.editor,_.bindAll(this,"keyHandler","loadAsset"),this.selected=new Backbone.Model({index:-1}),this.selected.on("change:index",function(e,n){return t.$(".search-result").removeClass("active"),t.$(".search-result").eq(n).addClass("active")})},keyHandler:function(e){switch(e.keyCode){case 13:return this.openCurrentSearchResult();case 27:return this.hide();case 38:return this.previousSearchResult();case 40:return this.nextSearchResult();default:return this.filterAssetsBy(this.$("input").val())}},openCurrentSearchResult:function(){var e,t,n=this;t=this.selected.attributes.index;if(e=this.searchResults[t])return this.selected.set("index",0,{silent:!0}),_.delay(function(){return n.loadAsset(n.searchResults[t].get("path"))},10),this.hide()},previousSearchResult:function(){var e;return e=this.selected.attributes.index,e-=1,e<0&&(e=0),this.selected.set({index:e})},nextSearchResult:function(){var e;return e=this.selected.attributes.index,e+=1,e>this.searchResults.length&&(e=0),this.selected.set({index:e})},selectSearchResult:function(e){var t;return this.loadAsset((t=$(e.target))!=null?t.data("path"):void 0)},loadAsset:function(e){return this.trigger("asset:selected",e)},filterAssetsBy:function(e){var t,n,r,i,s,o;if(e.length<=1)return;r=this.showSearchResults(),r.empty(),this.selected.set("index",-1,{silent:!0}),this.searchResults=this.collection.select(function(t){var n,r,i;return n=new RegExp(""+e),((r=t.get("description"))!=null?r.match(n):void 0)||((i=t.get("path"))!=null?i.match(n):void 0)}),this.searchResults=this.searchResults.slice(0,5),o=this.searchResults;for(t=i=0,s=o.length;i<s;t=++i)n=o[t],r.append("<div data-path='"+n.get("path")+"' class='search-result'>"+n.get("description")+"</div>");return r.height(this.searchResults.length*40)},showSearchResults:function(){return this.wrapper.show()},hideSearchResults:function(){return this.wrapper.hide()},toggle:function(){return this.visible?this.hide():this.show()},show:function(){return this.wrapper.empty(),this.visible=!0,this.$el.show(),this.hideSearchResults(),this.$("input").val("").focus()},hide:function(){return this.$el.hide(),this.visible=!1,this.editor.codeMirror.focus()},render:function(){return this.$el.html(JST["code_sync/editor/templates/asset_selector"]()),this.wrapper||(this.wrapper=this.$(".search-results-wrapper")),this}})}).call(this);
+(function() {
+
+  CodeSync.AssetSelector = Backbone.View.extend({
+    className: "codesync-asset-selector",
+    events: {
+      "keyup input": "keyHandler",
+      "click .search-result": "selectSearchResult"
+    },
+    initialize: function(options) {
+      var _this = this;
+      if (options == null) {
+        options = {};
+      }
+      Backbone.View.prototype.initialize.apply(this, arguments);
+      this.editor = options.editor;
+      _.bindAll(this, "keyHandler", "loadAsset");
+      this.selected = new Backbone.Model({
+        index: -1
+      });
+      return this.selected.on("change:index", function(model, value) {
+        _this.$('.search-result').removeClass('active');
+        return _this.$('.search-result').eq(value).addClass('active');
+      });
+    },
+    keyHandler: function(e) {
+      switch (e.keyCode) {
+        case 13:
+          return this.openCurrentSearchResult();
+        case 27:
+          return this.hide();
+        case 38:
+          return this.previousSearchResult();
+        case 40:
+          return this.nextSearchResult();
+        default:
+          return this.filterAssetsBy(this.$('input').val());
+      }
+    },
+    openCurrentSearchResult: function() {
+      var asset, index,
+        _this = this;
+      index = this.selected.attributes.index;
+      if (asset = this.searchResults[index]) {
+        this.selected.set('index', 0, {
+          silent: true
+        });
+        _.delay(function() {
+          return _this.loadAsset(_this.searchResults[index].get('path'));
+        }, 10);
+        return this.hide();
+      }
+    },
+    previousSearchResult: function() {
+      var index;
+      index = this.selected.attributes.index;
+      index -= 1;
+      if (index < 0) {
+        index = 0;
+      }
+      return this.selected.set({
+        index: index
+      });
+    },
+    nextSearchResult: function() {
+      var index;
+      index = this.selected.attributes.index;
+      index += 1;
+      if (index > this.searchResults.length) {
+        index = 0;
+      }
+      return this.selected.set({
+        index: index
+      });
+    },
+    selectSearchResult: function(e) {
+      var _ref;
+      return this.loadAsset((_ref = $(e.target)) != null ? _ref.data('path') : void 0);
+    },
+    loadAsset: function(path) {
+      return this.trigger("asset:selected", path);
+    },
+    filterAssetsBy: function(value) {
+      var index, model, wrapper, _i, _len, _ref;
+      if (value.length <= 1) {
+        return;
+      }
+      wrapper = this.showSearchResults();
+      wrapper.empty();
+      this.selected.set('index', -1, {
+        silent: true
+      });
+      this.searchResults = this.collection.select(function(model) {
+        var regex, _ref, _ref1;
+        regex = new RegExp("" + value);
+        return ((_ref = model.get("description")) != null ? _ref.match(regex) : void 0) || ((_ref1 = model.get("path")) != null ? _ref1.match(regex) : void 0);
+      });
+      this.searchResults = this.searchResults.slice(0, 5);
+      _ref = this.searchResults;
+      for (index = _i = 0, _len = _ref.length; _i < _len; index = ++_i) {
+        model = _ref[index];
+        wrapper.append("<div data-path='" + (model.get('path')) + "' class='search-result'>" + (model.get('description')) + "</div>");
+      }
+      return wrapper.height(this.searchResults.length * 40);
+    },
+    showSearchResults: function() {
+      return this.wrapper.show();
+    },
+    hideSearchResults: function() {
+      return this.wrapper.hide();
+    },
+    toggle: function() {
+      if (this.visible) {
+        return this.hide();
+      } else {
+        return this.show();
+      }
+    },
+    show: function() {
+      this.wrapper.empty();
+      this.visible = true;
+      this.$el.show();
+      this.hideSearchResults();
+      return this.$('input').val('').focus();
+    },
+    hide: function() {
+      this.$el.hide();
+      this.visible = false;
+      return this.editor.codeMirror.focus();
+    },
+    render: function() {
+      this.$el.html(JST["code_sync/editor/templates/asset_selector"]());
+      this.wrapper || (this.wrapper = this.$('.search-results-wrapper'));
+      return this;
+    }
+  });
+
+}).call(this);

@@ -1,1 +1,78 @@
-(function(){CodeSync.plugins.PreferencesPanel=Backbone.View.extend({className:"preferences-panel",events:{"change select,input":function(){return this.trigger("update:preferences")}},renderHidden:!0,initialize:function(e){return this.editor=e.editor,this.$el.html(JST["code_sync/editor/templates/preferences_panel"]()),Backbone.View.prototype.initialize.apply(this,arguments)},values:function(){var e,t,n,r,i,s;n={},s=this.$("input,select");for(r=0,i=s.length;r<i;r++)e=s[r],t=$(e),n[t.attr("name")]=t.val();return n},toggle:function(){return this.syncWithEditorOptions(),this.$el.toggle()},syncWithEditorOptions:function(){return this.$('select[name="theme"]').val(this.editor.codeMirror.getOption("theme")),this.$('select[name="keyMap"]').val(this.editor.codeMirror.getOption("keyMap")),this.$('input[name="asset_endpoint"]').val(CodeSync.get("assetCompilationEndpoint")),this.$('input[name="editor_hotkey"]').val(CodeSync.get("editorToggleHotKey"))},render:function(){return this.renderHidden===!0&&this.$el.hide(),this}}),CodeSync.plugins.PreferencesPanel.setup=function(e){var t,n=this;return t=new CodeSync.plugins.PreferencesPanel({editor:this}),this.$(".toolbar-wrapper").append("<div class='button toggle-preferences'>Preferences</div>"),this.events["click .toggle-preferences"]=function(){return t.toggle()},this.$el.append(t.render().el),t.on("update:preferences",function(){var n;return n=t.values(),e.setTheme(n.theme),e.setKeyMap(n.keyMap),CodeSync.set("assetCompilationEndpoint",n.asset_endpoint),CodeSync.AssetEditor.setHotKey(n.editor_hotkey)}),e.on("codemirror:setup",function(e){return e.on("focus",function(){return t.$el.hide()})}),t.on("update:preferences",function(){var n;n=t.values();if(e.position!==n.position)return e.setPosition(n.position)})}}).call(this);
+(function() {
+
+  CodeSync.plugins.PreferencesPanel = Backbone.View.extend({
+    className: "preferences-panel",
+    events: {
+      "change select,input": function() {
+        return this.trigger("update:preferences");
+      }
+    },
+    renderHidden: true,
+    initialize: function(options) {
+      this.editor = options.editor;
+      this.$el.html(JST["code_sync/editor/templates/preferences_panel"]());
+      return Backbone.View.prototype.initialize.apply(this, arguments);
+    },
+    values: function() {
+      var el, input, values, _i, _len, _ref;
+      values = {};
+      _ref = this.$('input,select');
+      for (_i = 0, _len = _ref.length; _i < _len; _i++) {
+        el = _ref[_i];
+        input = $(el);
+        values[input.attr('name')] = input.val();
+      }
+      return values;
+    },
+    toggle: function() {
+      this.syncWithEditorOptions();
+      return this.$el.toggle();
+    },
+    syncWithEditorOptions: function() {
+      this.$('select[name="theme"]').val(this.editor.codeMirror.getOption('theme'));
+      this.$('select[name="keyMap"]').val(this.editor.codeMirror.getOption('keyMap'));
+      this.$('input[name="asset_endpoint"]').val(CodeSync.get("assetCompilationEndpoint"));
+      return this.$('input[name="editor_hotkey"]').val(CodeSync.get("editorToggleHotKey"));
+    },
+    render: function() {
+      if (this.renderHidden === true) {
+        this.$el.hide();
+      }
+      return this;
+    }
+  });
+
+  CodeSync.plugins.PreferencesPanel.setup = function(editor) {
+    var panel,
+      _this = this;
+    panel = new CodeSync.plugins.PreferencesPanel({
+      editor: this
+    });
+    this.$('.toolbar-wrapper').append("<div class='button toggle-preferences'>Preferences</div>");
+    this.events["click .toggle-preferences"] = function() {
+      return panel.toggle();
+    };
+    this.$el.append(panel.render().el);
+    panel.on("update:preferences", function() {
+      var values;
+      values = panel.values();
+      editor.setTheme(values.theme);
+      editor.setKeyMap(values.keyMap);
+      CodeSync.set("assetCompilationEndpoint", values.asset_endpoint);
+      return CodeSync.AssetEditor.setHotKey(values.editor_hotkey);
+    });
+    editor.on("codemirror:setup", function(cm) {
+      return cm.on("focus", function() {
+        return panel.$el.hide();
+      });
+    });
+    return panel.on("update:preferences", function() {
+      var values;
+      values = panel.values();
+      if (editor.position !== values.position) {
+        return editor.setPosition(values.position);
+      }
+    });
+  };
+
+}).call(this);

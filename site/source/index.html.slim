@@ -99,6 +99,13 @@
         | &nbsp;AKA&nbsp;
       a href="https://github.com/datapimp" Datapimp
 
+
+    - if build?
+      javascript:
+        CodeSync.set("assetCompilationEndpoint", "http://infinite-beyond-8679.herokuapp.com/code-sync/source")
+        CodeSync.set("serverInfoEndpoint", "http://infinite-beyond-8679.herokuapp.com/code-sync/info")
+        CodeSync.set("disableAssetSave", true)
+
     - if development?
       javascript:
         window.codeSyncClient = new CodeSync.Client()

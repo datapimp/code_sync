@@ -1,1 +1,91 @@
-(function(){CodeSync.plugins.ColorPicker=Backbone.View.extend({className:"codesync-color-picker",widget:!1,spectrumOptions:{showAlpha:!1,preferredFormat:"hex6",flat:!0,showInput:!0,chooseText:"Choose"},initialize:function(e){return this.options=e!=null?e:{},_.extend(this,this.options),this.$el.append("<input type='color' class='color-picker-widget' />"),this.widget=this.$(".color-picker-widget")},remove:function(){return this.widget.spectrum("destroy"),this.$el.remove()},hide:function(){return this.widget.spectrum("hide"),this.$el.hide(),this.off("color:change")},show:function(){return this.widget.spectrum("show"),this.widget||this.$el.addClass("anchored"),this.$el.show()},syncWithToken:function(e,t){var n,r,i,s,o=this;return n=this.editor.codeMirror,this.widget===!0&&(this.$el.removeClass("anchored"),n.addWidget(t,this.el)),this.show(),i=n.getLine(t.line),s=e.start,r=e.end,this.widget.spectrum("set",e.string),this.on("color:change",_.debounce(function(e,i){return n.replaceRange("#"+i,{line:t.line,ch:s},{line:t.line,ch:r})},1200))},render:function(){var e,t=this;return e=_.extend(this.spectrumOptions,{move:_.debounce(function(e){return t.trigger("color:change",e,e.toHex())},200)}),this.widget.spectrum(this.spectrumOptions),this}}),CodeSync.plugins.ColorPicker.setup=function(e){var t;return this.colorPicker=new CodeSync.plugins.ColorPicker({editor:e}),this.$el.append(e.colorPicker.render().el),this.colorPicker.hide(),t=e.codeMirror,t.on("cursorActivity",function(){var n,r,i,s;return n=t.getCursor(),r=t.getTokenAt(n),((i=r.string)!=null?i.match(/#[a-fA-F0-9]{3,6}/g):void 0)&&((s=r.string)!=null?s.length:void 0)>=6?e.colorPicker.syncWithToken(r,n):e.colorPicker.hide()})}}).call(this);
+(function() {
+
+  CodeSync.plugins.ColorPicker = Backbone.View.extend({
+    className: "codesync-color-picker",
+    widget: false,
+    spectrumOptions: {
+      showAlpha: false,
+      preferredFormat: "hex6",
+      flat: true,
+      showInput: true,
+      chooseText: "Choose"
+    },
+    initialize: function(options) {
+      this.options = options != null ? options : {};
+      _.extend(this, this.options);
+      this.$el.append("<input type='color' class='color-picker-widget' />");
+      return this.widget = this.$('.color-picker-widget');
+    },
+    remove: function() {
+      this.widget.spectrum("destroy");
+      return this.$el.remove();
+    },
+    hide: function() {
+      this.widget.spectrum("hide");
+      this.$el.hide();
+      return this.off("color:change");
+    },
+    show: function() {
+      this.widget.spectrum("show");
+      if (!this.widget) {
+        this.$el.addClass('anchored');
+      }
+      return this.$el.show();
+    },
+    syncWithToken: function(token, cursor) {
+      var cm, endch, line, startch,
+        _this = this;
+      cm = this.editor.codeMirror;
+      if (this.widget === true) {
+        this.$el.removeClass('anchored');
+        cm.addWidget(cursor, this.el);
+      }
+      this.show();
+      line = cm.getLine(cursor.line);
+      startch = token.start;
+      endch = token.end;
+      this.widget.spectrum("set", token.string);
+      return this.on("color:change", _.debounce(function(colorObject, hexValue) {
+        return cm.replaceRange("#" + hexValue, {
+          line: cursor.line,
+          ch: startch
+        }, {
+          line: cursor.line,
+          ch: endch
+        });
+      }, 1200));
+    },
+    render: function() {
+      var opts,
+        _this = this;
+      opts = _.extend(this.spectrumOptions, {
+        move: _.debounce(function(color) {
+          return _this.trigger("color:change", color, color.toHex());
+        }, 200)
+      });
+      this.widget.spectrum(this.spectrumOptions);
+      return this;
+    }
+  });
+
+  CodeSync.plugins.ColorPicker.setup = function(editor) {
+    var cm;
+    this.colorPicker = new CodeSync.plugins.ColorPicker({
+      editor: editor
+    });
+    this.$el.append(editor.colorPicker.render().el);
+    this.colorPicker.hide();
+    cm = editor.codeMirror;
+    return cm.on("cursorActivity", function() {
+      var cursor, token, _ref, _ref1;
+      cursor = cm.getCursor();
+      token = cm.getTokenAt(cursor);
+      if (((_ref = token.string) != null ? _ref.match(/#[a-fA-F0-9]{3,6}/g) : void 0) && ((_ref1 = token.string) != null ? _ref1.length : void 0) >= 6) {
+        return editor.colorPicker.syncWithToken(token, cursor);
+      } else {
+        return editor.colorPicker.hide();
+      }
+    });
+  };
+
+}).call(this);

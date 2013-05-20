@@ -35,6 +35,7 @@ $('body').append( layoutSelector.render().el ) unless $('#layout-selector').leng
 CodeSync.onScriptChange ||= (changeObject)->
   if changeObject.mode is "skim" and changeObject.name is "codesync"
     $(".canvas-container").html JST["codesync"]()
+    window.coffeeScriptEditor.currentDocument.trigger "change:contents"
 
 _.delay ()->
     window.skimEditor.currentDocument.trigger "change:contents"

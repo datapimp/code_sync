@@ -5,7 +5,8 @@ CodeSync.onScriptChange ||= (changeObject)->
   if changeObject.mode is "skim" and changeObject.name is "codesync"
     $(".canvas-container").html JST["codesync"]()
 
-CodeSync.enableTour()
+(CodeSync.tour ||= {}).step = 0
+CodeSync.enableTour(restart: true)
 """
 
 window.skimDefault = """

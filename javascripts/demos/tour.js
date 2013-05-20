@@ -1,1 +1,104 @@
-(function(){var e,t;CodeSync.tour={step:0},e=function(e,t,n){var r;return r=document.createElement(e),t&&Backbone.$(r).attr(t),n!==null&&Backbone.$(r).html(n),r},t=function(t,n){var r,i,s,o;n==null&&(n={}),s="position: absolute;";for(i in n){o=n[i];if(o==null)continue;(""+o).match(/px/)||(o=""+o+"px"),s+=""+i+":"+o+";"}return r=e("div",{"class":"bubble",style:s},t),$(".next",r).on("click",function(){return $("body .bubble").addClass("animated bounceOutRight"),CodeSync.startTour({next:!0})}),$("body").append(r),$(r)},CodeSync.enableTour=function(){return $(".tour-button").off("click"),$(".tour-button").on("click",function(){return $(this).addClass("animated fadeOut"),CodeSync.startTour({restart:!0})})},CodeSync.startTour=function(e){var n,r,i,s,o,u,a,f,l,c,h,p;e==null&&(e={}),$(".codesync-tour-content").length===0&&$("body").append(JST["demos/tour"]()),e.restart===!0&&(CodeSync.tour.step=0),e.next===!0&&(CodeSync.tour.step=CodeSync.tour.step+1),u=CodeSync.tour.step,h=$(".codesync-tour-content .content[data-tour-step="+u+"]");if(h.length>0)return r=h[0].outerHTML,a=h.data("position")||"below",p=a==="below"?"bounceInDown":"bounceInUp",l=h.data("target"),$(l).length>0?(s=$(l).position(),a==="below"?(c=s.top+$(l).height()+25,o=s.left+80):(n="120px",f="15px")):(c="600px",o="600px"),i=t(r,{top:c,left:o,bottom:n,right:f}),i.addClass("animated "+p)}}).call(this);
+(function() {
+  var make, showBubble;
+
+  CodeSync.tour = {
+    step: 0
+  };
+
+  make = function(tagName, attributes, content) {
+    var el;
+    el = document.createElement(tagName);
+    if (attributes) {
+      Backbone.$(el).attr(attributes);
+    }
+    if (content !== null) {
+      Backbone.$(el).html(content);
+    }
+    return el;
+  };
+
+  showBubble = function(content, position) {
+    var bubble, k, positionStyle, v;
+    if (position == null) {
+      position = {};
+    }
+    positionStyle = "position: absolute;";
+    for (k in position) {
+      v = position[k];
+      if (!(v != null)) {
+        continue;
+      }
+      if (!("" + v).match(/px/)) {
+        v = "" + v + "px";
+      }
+      positionStyle += "" + k + ":" + v + ";";
+    }
+    bubble = make("div", {
+      "class": "bubble",
+      style: positionStyle
+    }, content);
+    $(".next", bubble).on("click", function() {
+      $('body .bubble').addClass('animated bounceOutRight');
+      return CodeSync.startTour({
+        next: true
+      });
+    });
+    $('body').append(bubble);
+    return $(bubble);
+  };
+
+  CodeSync.enableTour = function() {
+    $('.tour-button').off("click");
+    return $('.tour-button').on("click", function() {
+      $(this).addClass("animated fadeOut");
+      return CodeSync.startTour({
+        restart: true
+      });
+    });
+  };
+
+  CodeSync.startTour = function(options) {
+    var bottom, bubbleContent, bubbleElement, currentPos, left, nextStep, orientation, right, target, top, tourData, transition;
+    if (options == null) {
+      options = {};
+    }
+    if ($('.codesync-tour-content').length === 0) {
+      $('body').append(JST["demos/tour"]());
+    }
+    if (options.restart === true) {
+      CodeSync.tour.step = 0;
+    }
+    if (options.next === true) {
+      CodeSync.tour.step = CodeSync.tour.step + 1;
+    }
+    nextStep = CodeSync.tour.step;
+    tourData = $(".codesync-tour-content .content[data-tour-step=" + nextStep + "]");
+    if (tourData.length > 0) {
+      bubbleContent = tourData[0].outerHTML;
+      orientation = tourData.data('position') || "below";
+      transition = orientation === "below" ? "bounceInDown" : "bounceInUp";
+      target = tourData.data('target');
+      if ($(target).length > 0) {
+        currentPos = $(target).position();
+        if (orientation === "below") {
+          top = currentPos.top + $(target).height() + 25;
+          left = currentPos.left + 80;
+        } else {
+          bottom = "120px";
+          right = "15px";
+        }
+      } else {
+        top = "600px";
+        left = "600px";
+      }
+      bubbleElement = showBubble(bubbleContent, {
+        top: top,
+        left: left,
+        bottom: bottom,
+        right: right
+      });
+      return bubbleElement.addClass("animated " + transition);
+    }
+  };
+
+}).call(this);

@@ -1,1 +1,54 @@
-(function(){CodeSync.plugins.ModeSelector=Backbone.View.extend({className:"mode-selector",events:{"change select":"onSelect"},initialize:function(e){var t=this;return e==null&&(e={}),this.editor=e.editor,this.modes=this.editor.modes,this.modes.on("reset",this.render,this),this.editor.on("change:mode",function(e,n){return t.setValue(n)}),Backbone.View.prototype.initialize.apply(this,arguments)},onSelect:function(){var e,t;return t=this.$("select").val(),e=this.modes.get(t),this.editor.setMode(e)},setValue:function(e){return this.$("select").val(e)},render:function(){var e,t,n,r,i;t="",i=this.modes.models;for(n=0,r=i.length;n<r;n++)e=i[n],t+="<option value='"+e.id+"'>"+e.get("name")+"</option>";return this.$el.html("<select>"+t+"</select>"),this}}),CodeSync.plugins.ModeSelector.setup=function(e){var t;return t=this.views.modeSelector=new CodeSync.plugins.ModeSelector({editor:e}),e.$(".codesync-asset-editor").append(t.render().el),e.on("document:loaded",function(e){return t.setValue(e.get("mode"))})}}).call(this);
+(function() {
+
+  CodeSync.plugins.ModeSelector = Backbone.View.extend({
+    className: "mode-selector",
+    events: {
+      "change select": "onSelect"
+    },
+    initialize: function(options) {
+      var _this = this;
+      if (options == null) {
+        options = {};
+      }
+      this.editor = options.editor;
+      this.modes = this.editor.modes;
+      this.modes.on("reset", this.render, this);
+      this.editor.on("change:mode", function(modeModel, modeId) {
+        return _this.setValue(modeId);
+      });
+      return Backbone.View.prototype.initialize.apply(this, arguments);
+    },
+    onSelect: function() {
+      var mode, selected;
+      selected = this.$('select').val();
+      mode = this.modes.get(selected);
+      return this.editor.setMode(mode);
+    },
+    setValue: function(val) {
+      return this.$('select').val(val);
+    },
+    render: function() {
+      var mode, options, _i, _len, _ref;
+      options = "";
+      _ref = this.modes.models;
+      for (_i = 0, _len = _ref.length; _i < _len; _i++) {
+        mode = _ref[_i];
+        options += "<option value='" + mode.id + "'>" + (mode.get('name')) + "</option>";
+      }
+      this.$el.html("<select>" + options + "</select>");
+      return this;
+    }
+  });
+
+  CodeSync.plugins.ModeSelector.setup = function(editor) {
+    var v;
+    v = this.views.modeSelector = new CodeSync.plugins.ModeSelector({
+      editor: editor
+    });
+    editor.$('.codesync-asset-editor').append(v.render().el);
+    return editor.on("document:loaded", function(doc) {
+      return v.setValue(doc.get('mode'));
+    });
+  };
+
+}).call(this);

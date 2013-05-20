@@ -1,1 +1,526 @@
-CodeMirror.defineMode("markdown",function(e,t){function L(e,t,n){return t.f=t.inline=n,n(e,t)}function A(e,t,n){return t.f=t.block=n,n(e,t)}function O(e){return e.linkTitle=!1,e.em=!1,e.strong=!1,e.quote=0,!n&&e.f==_&&(e.f=B,e.block=M),e.thisLineHasContent=!1,null}function M(e,n){var r=n.list!==!1;n.list!==!1&&n.indentationDiff>=0?(n.indentationDiff<4&&(n.indentation-=n.indentationDiff),n.list=null):n.list!==!1&&n.indentation>0?(n.list=null,n.listDepth=Math.floor(n.indentation/4)):n.list!==!1&&(n.list=!1,n.listDepth=0);if(n.indentationDiff>=4)return n.indentation-=4,e.skipToEnd(),a;if(e.eatSpace())return null;if(e.peek()==="#"||n.prevLineHasContent&&e.match(C))n.header=!0;else if(e.eat(">")){n.indentation++,n.quote=1,e.eatSpace();while(e.eat(">"))e.eatSpace(),n.quote++}else{if(e.peek()==="[")return L(e,n,F);if(e.match(S,!0))return d;if((!n.prevLineHasContent||r)&&(e.match(x,!0)||e.match(T,!0)))n.indentation+=4,n.list=!0,n.listDepth++,t.taskLists&&e.match(N,!1)&&(n.taskList=!0);else if(t.fencedCodeBlocks&&e.match(/^```([\w+#]*)/,!0))return n.localMode=s(RegExp.$1),n.localMode&&(n.localState=n.localMode.startState()),A(e,n,D),a}return L(e,n,n.inline)}function _(e,t){var i=r.token(e,t.htmlState);return n&&i==="tag"&&t.htmlState.type!=="openTag"&&!t.htmlState.context&&(t.f=B,t.block=M),t.md_inside&&e.current().indexOf(">")!=-1&&(t.f=B,t.block=M,t.htmlState.context=undefined),i}function D(e,t){return e.sol()&&e.match(/^```/,!0)?(t.localMode=t.localState=null,t.f=B,t.block=M,a):t.localMode?t.localMode.token(e,t.localState):(e.skipToEnd(),a)}function P(e){var t=[];if(e.taskOpen)return"meta";if(e.taskClosed)return"property";e.strong&&t.push(E),e.em&&t.push(w),e.linkText&&t.push(y),e.code&&t.push(a),e.header&&t.push(u),e.quote&&t.push(e.quote%2?f:l);if(e.list!==!1){var n=(e.listDepth-1)%3;n?n===1?t.push(h):t.push(p):t.push(c)}return t.length?t.join(" "):null}function H(e,t){return e.match(k,!0)?P(t):undefined}function B(e,n){var r=n.text(e,n);if(typeof r!="undefined")return r;if(n.list)return n.list=null,P(n);if(n.taskList){var i=e.match(N,!0)[1]!=="x";return i?n.taskOpen=!0:n.taskClosed=!0,n.taskList=!1,P(n)}n.taskOpen=!1,n.taskClosed=!1;var s=e.next();if(s==="\\")return e.next(),P(n);if(n.linkTitle){n.linkTitle=!1;var u=s;s==="("&&(u=")"),u=(u+"").replace(/([.?*+^$[\]\\(){}|-])/g,"\\$1");var a="^\\s*(?:[^"+u+"\\\\]+|\\\\\\\\|\\\\.)"+u;if(e.match(new RegExp(a),!0))return b}if(s==="`"){var f=P(n),l=e.pos;e.eatWhile("`");var c=1+e.pos-l;return n.code?c===o?(n.code=!1,f):P(n):(o=c,n.code=!0,P(n))}if(n.code)return P(n);if(s==="!"&&e.match(/\[[^\]]*\] ?(?:\(|\[)/,!1))return e.match(/\[[^\]]*\]/),n.inline=n.f=j,v;if(s==="["&&e.match(/.*\](\(| ?\[)/,!1))return n.linkText=!0,P(n);if(s==="]"&&n.linkText){var h=P(n);return n.linkText=!1,n.inline=n.f=j,h}if(s==="<"&&e.match(/^(https?|ftps?):\/\/(?:[^\\>]|\\.)+>/,!0))return L(e,n,U(m,">"));if(s==="<"&&e.match(/^[^> \\]+@(?:[^\\>]|\\.)+>/,!0))return L(e,n,U(g,">"));if(s==="<"&&e.match(/^\w/,!1)){if(e.string.indexOf(">")!=-1){var p=e.string.substring(1,e.string.indexOf(">"));/markdown\s*=\s*('|"){0,1}1('|"){0,1}/.test(p)&&(n.md_inside=!0)}return e.backUp(1),A(e,n,_)}if(s==="<"&&e.match(/^\/\w*?>/))return n.md_inside=!1,"tag";var d=!1;if(!t.underscoresBreakWords&&s==="_"&&e.peek()!=="_"&&e.match(/(\w)/,!1)){var y=e.pos-2;if(y>=0){var w=e.string.charAt(y);w!=="_"&&w.match(/(\w)/,!1)&&(d=!0)}}var f=P(n);if(s==="*"||s==="_"&&!d){if(n.strong===s&&e.eat(s))return n.strong=!1,f;if(!n.strong&&e.eat(s))return n.strong=s,P(n);if(n.em===s)return n.em=!1,f;if(!n.em)return n.em=s,P(n)}else if(s===" ")if(e.eat("*")||e.eat("_")){if(e.peek()===" ")return P(n);e.backUp(1)}return P(n)}function j(e,t){if(e.eatSpace())return null;var n=e.next();return n==="("||n==="["?L(e,t,U(b,n==="("?")":"]")):"error"}function F(e,t){return e.match(/^[^\]]*\]:/,!0)?(t.f=I,y):L(e,t,B)}function I(e,t){return e.eatSpace()?null:(e.match(/^[^\s]+/,!0),e.peek()===undefined?t.linkTitle=!0:e.match(/^(?:\s+(?:"(?:[^"\\]|\\\\|\\.)+"|'(?:[^'\\]|\\\\|\\.)+'|\((?:[^)\\]|\\\\|\\.)+\)))?/,!0),t.f=t.inline=B,b)}function R(e){return q[e]||(e=(e+"").replace(/([.?*+^$[\]\\(){}|-])/g,"\\$1"),q[e]=new RegExp("^(?:[^\\\\]|\\\\.)*?("+e+")")),q[e]}function U(e,t,n){return n=n||B,function(r,i){return r.match(R(t)),i.inline=i.f=n,e}}var n=CodeMirror.modes.hasOwnProperty("xml"),r=CodeMirror.getMode(e,n?{name:"xml",htmlMode:!0}:"text/plain"),i={html:"htmlmixed",js:"javascript",json:"application/json",c:"text/x-csrc","c++":"text/x-c++src",java:"text/x-java",csharp:"text/x-csharp","c#":"text/x-csharp",scala:"text/x-scala"},s=function(){var t,n={},r={},s,o=[];for(var u in CodeMirror.modes)CodeMirror.modes.propertyIsEnumerable(u)&&o.push(u);for(t=0;t<o.length;t++)n[o[t]]=o[t];var a=[];for(var u in CodeMirror.mimeModes)CodeMirror.mimeModes.propertyIsEnumerable(u)&&a.push({mime:u,mode:CodeMirror.mimeModes[u]});for(t=0;t<a.length;t++)s=a[t].mime,r[s]=a[t].mime;for(var f in i)if(i[f]in n||i[f]in r)n[f]=i[f];return function(t){return n[t]?CodeMirror.getMode(e,n[t]):null}}();t.underscoresBreakWords===undefined&&(t.underscoresBreakWords=!0),t.fencedCodeBlocks===undefined&&(t.fencedCodeBlocks=!1),t.taskLists===undefined&&(t.taskLists=!1);var o=0,u="header",a="comment",f="atom",l="number",c="variable-2",h="variable-3",p="keyword",d="hr",v="tag",m="link",g="link",y="link",b="string",w="em",E="strong",S=/^([*\-=_])(?:\s*\1){2,}\s*$/,x=/^[*\-+]\s+/,T=/^[0-9]+\.\s+/,N=/^\[(x| )\](?=\s)/,C=/^(?:\={1,}|-{1,})$/,k=/^[^!\[\]*_\\<>` "'(]+/,q=[];return{startState:function(){return{f:M,prevLineHasContent:!1,thisLineHasContent:!1,block:M,htmlState:CodeMirror.startState(r),indentation:0,inline:B,text:H,linkText:!1,linkTitle:!1,em:!1,strong:!1,header:!1,taskList:!1,list:!1,listDepth:0,quote:0}},copyState:function(e){return{f:e.f,prevLineHasContent:e.prevLineHasContent,thisLineHasContent:e.thisLineHasContent,block:e.block,htmlState:CodeMirror.copyState(r,e.htmlState),indentation:e.indentation,localMode:e.localMode,localState:e.localMode?CodeMirror.copyState(e.localMode,e.localState):null,inline:e.inline,text:e.text,linkTitle:e.linkTitle,em:e.em,strong:e.strong,header:e.header,taskList:e.taskList,list:e.list,listDepth:e.listDepth,quote:e.quote,md_inside:e.md_inside}},token:function(e,t){if(e.sol()){if(e.match(/^\s*$/,!0))return t.prevLineHasContent=!1,O(t);t.prevLineHasContent=t.thisLineHasContent,t.thisLineHasContent=!0,t.header=!1,t.taskList=!1,t.code=!1,t.f=t.block;var n=e.match(/^\s*/,!0)[0].replace(/\t/g,"    ").length,r=Math.floor((n-t.indentation)/4)*4;r>4&&(r=4);var i=t.indentation+r;t.indentationDiff=i-t.indentation,t.indentation=i;if(n>0)return null}return t.f(e,t)},blankLine:O,getType:P}},"xml"),CodeMirror.defineMIME("text/x-markdown","markdown");
+CodeMirror.defineMode("markdown", function(cmCfg, modeCfg) {
+
+  var htmlFound = CodeMirror.modes.hasOwnProperty("xml");
+  var htmlMode = CodeMirror.getMode(cmCfg, htmlFound ? {name: "xml", htmlMode: true} : "text/plain");
+  var aliases = {
+    html: "htmlmixed",
+    js: "javascript",
+    json: "application/json",
+    c: "text/x-csrc",
+    "c++": "text/x-c++src",
+    java: "text/x-java",
+    csharp: "text/x-csharp",
+    "c#": "text/x-csharp",
+    scala: "text/x-scala"
+  };
+
+  var getMode = (function () {
+    var i, modes = {}, mimes = {}, mime;
+
+    var list = [];
+    for (var m in CodeMirror.modes)
+      if (CodeMirror.modes.propertyIsEnumerable(m)) list.push(m);
+    for (i = 0; i < list.length; i++) {
+      modes[list[i]] = list[i];
+    }
+    var mimesList = [];
+    for (var m in CodeMirror.mimeModes)
+      if (CodeMirror.mimeModes.propertyIsEnumerable(m))
+        mimesList.push({mime: m, mode: CodeMirror.mimeModes[m]});
+    for (i = 0; i < mimesList.length; i++) {
+      mime = mimesList[i].mime;
+      mimes[mime] = mimesList[i].mime;
+    }
+
+    for (var a in aliases) {
+      if (aliases[a] in modes || aliases[a] in mimes)
+        modes[a] = aliases[a];
+    }
+
+    return function (lang) {
+      return modes[lang] ? CodeMirror.getMode(cmCfg, modes[lang]) : null;
+    };
+  }());
+
+  // Should underscores in words open/close em/strong?
+  if (modeCfg.underscoresBreakWords === undefined)
+    modeCfg.underscoresBreakWords = true;
+
+  // Turn on fenced code blocks? ("```" to start/end)
+  if (modeCfg.fencedCodeBlocks === undefined) modeCfg.fencedCodeBlocks = false;
+
+  // Turn on task lists? ("- [ ] " and "- [x] ")
+  if (modeCfg.taskLists === undefined) modeCfg.taskLists = false;
+
+  var codeDepth = 0;
+
+  var header   = 'header'
+  ,   code     = 'comment'
+  ,   quote1   = 'atom'
+  ,   quote2   = 'number'
+  ,   list1    = 'variable-2'
+  ,   list2    = 'variable-3'
+  ,   list3    = 'keyword'
+  ,   hr       = 'hr'
+  ,   image    = 'tag'
+  ,   linkinline = 'link'
+  ,   linkemail = 'link'
+  ,   linktext = 'link'
+  ,   linkhref = 'string'
+  ,   em       = 'em'
+  ,   strong   = 'strong';
+
+  var hrRE = /^([*\-=_])(?:\s*\1){2,}\s*$/
+  ,   ulRE = /^[*\-+]\s+/
+  ,   olRE = /^[0-9]+\.\s+/
+  ,   taskListRE = /^\[(x| )\](?=\s)/ // Must follow ulRE or olRE
+  ,   headerRE = /^(?:\={1,}|-{1,})$/
+  ,   textRE = /^[^!\[\]*_\\<>` "'(]+/;
+
+  function switchInline(stream, state, f) {
+    state.f = state.inline = f;
+    return f(stream, state);
+  }
+
+  function switchBlock(stream, state, f) {
+    state.f = state.block = f;
+    return f(stream, state);
+  }
+
+
+  // Blocks
+
+  function blankLine(state) {
+    // Reset linkTitle state
+    state.linkTitle = false;
+    // Reset EM state
+    state.em = false;
+    // Reset STRONG state
+    state.strong = false;
+    // Reset state.quote
+    state.quote = 0;
+    if (!htmlFound && state.f == htmlBlock) {
+      state.f = inlineNormal;
+      state.block = blockNormal;
+    }
+    // Mark this line as blank
+    state.thisLineHasContent = false;
+    return null;
+  }
+
+  function blockNormal(stream, state) {
+
+    var prevLineIsList = (state.list !== false);
+    if (state.list !== false && state.indentationDiff >= 0) { // Continued list
+      if (state.indentationDiff < 4) { // Only adjust indentation if *not* a code block
+        state.indentation -= state.indentationDiff;
+      }
+      state.list = null;
+    } else if (state.list !== false && state.indentation > 0) {
+      state.list = null;
+      state.listDepth = Math.floor(state.indentation / 4);
+    } else if (state.list !== false) { // No longer a list
+      state.list = false;
+      state.listDepth = 0;
+    }
+
+    if (state.indentationDiff >= 4) {
+      state.indentation -= 4;
+      stream.skipToEnd();
+      return code;
+    } else if (stream.eatSpace()) {
+      return null;
+    } else if (stream.peek() === '#' || (state.prevLineHasContent && stream.match(headerRE)) ) {
+      state.header = true;
+    } else if (stream.eat('>')) {
+      state.indentation++;
+      state.quote = 1;
+      stream.eatSpace();
+      while (stream.eat('>')) {
+        stream.eatSpace();
+        state.quote++;
+      }
+    } else if (stream.peek() === '[') {
+      return switchInline(stream, state, footnoteLink);
+    } else if (stream.match(hrRE, true)) {
+      return hr;
+    } else if ((!state.prevLineHasContent || prevLineIsList) && (stream.match(ulRE, true) || stream.match(olRE, true))) {
+      state.indentation += 4;
+      state.list = true;
+      state.listDepth++;
+      if (modeCfg.taskLists && stream.match(taskListRE, false)) {
+        state.taskList = true;
+      }
+    } else if (modeCfg.fencedCodeBlocks && stream.match(/^```([\w+#]*)/, true)) {
+      // try switching mode
+      state.localMode = getMode(RegExp.$1);
+      if (state.localMode) state.localState = state.localMode.startState();
+      switchBlock(stream, state, local);
+      return code;
+    }
+
+    return switchInline(stream, state, state.inline);
+  }
+
+  function htmlBlock(stream, state) {
+    var style = htmlMode.token(stream, state.htmlState);
+    if (htmlFound && style === 'tag' && state.htmlState.type !== 'openTag' && !state.htmlState.context) {
+      state.f = inlineNormal;
+      state.block = blockNormal;
+    }
+    if (state.md_inside && stream.current().indexOf(">")!=-1) {
+      state.f = inlineNormal;
+      state.block = blockNormal;
+      state.htmlState.context = undefined;
+    }
+    return style;
+  }
+
+  function local(stream, state) {
+    if (stream.sol() && stream.match(/^```/, true)) {
+      state.localMode = state.localState = null;
+      state.f = inlineNormal;
+      state.block = blockNormal;
+      return code;
+    } else if (state.localMode) {
+      return state.localMode.token(stream, state.localState);
+    } else {
+      stream.skipToEnd();
+      return code;
+    }
+  }
+
+  // Inline
+  function getType(state) {
+    var styles = [];
+
+    if (state.taskOpen) { return "meta"; }
+    if (state.taskClosed) { return "property"; }
+
+    if (state.strong) { styles.push(strong); }
+    if (state.em) { styles.push(em); }
+
+    if (state.linkText) { styles.push(linktext); }
+
+    if (state.code) { styles.push(code); }
+
+    if (state.header) { styles.push(header); }
+    if (state.quote) { styles.push(state.quote % 2 ? quote1 : quote2); }
+    if (state.list !== false) {
+      var listMod = (state.listDepth - 1) % 3;
+      if (!listMod) {
+        styles.push(list1);
+      } else if (listMod === 1) {
+        styles.push(list2);
+      } else {
+        styles.push(list3);
+      }
+    }
+
+    return styles.length ? styles.join(' ') : null;
+  }
+
+  function handleText(stream, state) {
+    if (stream.match(textRE, true)) {
+      return getType(state);
+    }
+    return undefined;
+  }
+
+  function inlineNormal(stream, state) {
+    var style = state.text(stream, state);
+    if (typeof style !== 'undefined')
+      return style;
+
+    if (state.list) { // List marker (*, +, -, 1., etc)
+      state.list = null;
+      return getType(state);
+    }
+
+    if (state.taskList) {
+      var taskOpen = stream.match(taskListRE, true)[1] !== "x";
+      if (taskOpen) state.taskOpen = true;
+      else state.taskClosed = true;
+      state.taskList = false;
+      return getType(state);
+    }
+
+    state.taskOpen = false;
+    state.taskClosed = false;
+
+    var ch = stream.next();
+
+    if (ch === '\\') {
+      stream.next();
+      return getType(state);
+    }
+
+    // Matches link titles present on next line
+    if (state.linkTitle) {
+      state.linkTitle = false;
+      var matchCh = ch;
+      if (ch === '(') {
+        matchCh = ')';
+      }
+      matchCh = (matchCh+'').replace(/([.?*+^$[\]\\(){}|-])/g, "\\$1");
+      var regex = '^\\s*(?:[^' + matchCh + '\\\\]+|\\\\\\\\|\\\\.)' + matchCh;
+      if (stream.match(new RegExp(regex), true)) {
+        return linkhref;
+      }
+    }
+
+    // If this block is changed, it may need to be updated in GFM mode
+    if (ch === '`') {
+      var t = getType(state);
+      var before = stream.pos;
+      stream.eatWhile('`');
+      var difference = 1 + stream.pos - before;
+      if (!state.code) {
+        codeDepth = difference;
+        state.code = true;
+        return getType(state);
+      } else {
+        if (difference === codeDepth) { // Must be exact
+          state.code = false;
+          return t;
+        }
+        return getType(state);
+      }
+    } else if (state.code) {
+      return getType(state);
+    }
+
+    if (ch === '!' && stream.match(/\[[^\]]*\] ?(?:\(|\[)/, false)) {
+      stream.match(/\[[^\]]*\]/);
+      state.inline = state.f = linkHref;
+      return image;
+    }
+
+    if (ch === '[' && stream.match(/.*\](\(| ?\[)/, false)) {
+      state.linkText = true;
+      return getType(state);
+    }
+
+    if (ch === ']' && state.linkText) {
+      var type = getType(state);
+      state.linkText = false;
+      state.inline = state.f = linkHref;
+      return type;
+    }
+
+    if (ch === '<' && stream.match(/^(https?|ftps?):\/\/(?:[^\\>]|\\.)+>/, true)) {
+      return switchInline(stream, state, inlineElement(linkinline, '>'));
+    }
+
+    if (ch === '<' && stream.match(/^[^> \\]+@(?:[^\\>]|\\.)+>/, true)) {
+      return switchInline(stream, state, inlineElement(linkemail, '>'));
+    }
+
+    if (ch === '<' && stream.match(/^\w/, false)) {
+      if (stream.string.indexOf(">")!=-1) {
+        var atts = stream.string.substring(1,stream.string.indexOf(">"));
+        if (/markdown\s*=\s*('|"){0,1}1('|"){0,1}/.test(atts)) {
+          state.md_inside = true;
+        }
+      }
+      stream.backUp(1);
+      return switchBlock(stream, state, htmlBlock);
+    }
+
+    if (ch === '<' && stream.match(/^\/\w*?>/)) {
+      state.md_inside = false;
+      return "tag";
+    }
+
+    var ignoreUnderscore = false;
+    if (!modeCfg.underscoresBreakWords) {
+      if (ch === '_' && stream.peek() !== '_' && stream.match(/(\w)/, false)) {
+        var prevPos = stream.pos - 2;
+        if (prevPos >= 0) {
+          var prevCh = stream.string.charAt(prevPos);
+          if (prevCh !== '_' && prevCh.match(/(\w)/, false)) {
+            ignoreUnderscore = true;
+          }
+        }
+      }
+    }
+    var t = getType(state);
+    if (ch === '*' || (ch === '_' && !ignoreUnderscore)) {
+      if (state.strong === ch && stream.eat(ch)) { // Remove STRONG
+        state.strong = false;
+        return t;
+      } else if (!state.strong && stream.eat(ch)) { // Add STRONG
+        state.strong = ch;
+        return getType(state);
+      } else if (state.em === ch) { // Remove EM
+        state.em = false;
+        return t;
+      } else if (!state.em) { // Add EM
+        state.em = ch;
+        return getType(state);
+      }
+    } else if (ch === ' ') {
+      if (stream.eat('*') || stream.eat('_')) { // Probably surrounded by spaces
+        if (stream.peek() === ' ') { // Surrounded by spaces, ignore
+          return getType(state);
+        } else { // Not surrounded by spaces, back up pointer
+          stream.backUp(1);
+        }
+      }
+    }
+
+    return getType(state);
+  }
+
+  function linkHref(stream, state) {
+    // Check if space, and return NULL if so (to avoid marking the space)
+    if(stream.eatSpace()){
+      return null;
+    }
+    var ch = stream.next();
+    if (ch === '(' || ch === '[') {
+      return switchInline(stream, state, inlineElement(linkhref, ch === '(' ? ')' : ']'));
+    }
+    return 'error';
+  }
+
+  function footnoteLink(stream, state) {
+    if (stream.match(/^[^\]]*\]:/, true)) {
+      state.f = footnoteUrl;
+      return linktext;
+    }
+    return switchInline(stream, state, inlineNormal);
+  }
+
+  function footnoteUrl(stream, state) {
+    // Check if space, and return NULL if so (to avoid marking the space)
+    if(stream.eatSpace()){
+      return null;
+    }
+    // Match URL
+    stream.match(/^[^\s]+/, true);
+    // Check for link title
+    if (stream.peek() === undefined) { // End of line, set flag to check next line
+      state.linkTitle = true;
+    } else { // More content on line, check if link title
+      stream.match(/^(?:\s+(?:"(?:[^"\\]|\\\\|\\.)+"|'(?:[^'\\]|\\\\|\\.)+'|\((?:[^)\\]|\\\\|\\.)+\)))?/, true);
+    }
+    state.f = state.inline = inlineNormal;
+    return linkhref;
+  }
+
+  var savedInlineRE = [];
+  function inlineRE(endChar) {
+    if (!savedInlineRE[endChar]) {
+      // Escape endChar for RegExp (taken from http://stackoverflow.com/a/494122/526741)
+      endChar = (endChar+'').replace(/([.?*+^$[\]\\(){}|-])/g, "\\$1");
+      // Match any non-endChar, escaped character, as well as the closing
+      // endChar.
+      savedInlineRE[endChar] = new RegExp('^(?:[^\\\\]|\\\\.)*?(' + endChar + ')');
+    }
+    return savedInlineRE[endChar];
+  }
+
+  function inlineElement(type, endChar, next) {
+    next = next || inlineNormal;
+    return function(stream, state) {
+      stream.match(inlineRE(endChar));
+      state.inline = state.f = next;
+      return type;
+    };
+  }
+
+  return {
+    startState: function() {
+      return {
+        f: blockNormal,
+
+        prevLineHasContent: false,
+        thisLineHasContent: false,
+
+        block: blockNormal,
+        htmlState: CodeMirror.startState(htmlMode),
+        indentation: 0,
+
+        inline: inlineNormal,
+        text: handleText,
+
+        linkText: false,
+        linkTitle: false,
+        em: false,
+        strong: false,
+        header: false,
+        taskList: false,
+        list: false,
+        listDepth: 0,
+        quote: 0
+      };
+    },
+
+    copyState: function(s) {
+      return {
+        f: s.f,
+
+        prevLineHasContent: s.prevLineHasContent,
+        thisLineHasContent: s.thisLineHasContent,
+
+        block: s.block,
+        htmlState: CodeMirror.copyState(htmlMode, s.htmlState),
+        indentation: s.indentation,
+
+        localMode: s.localMode,
+        localState: s.localMode ? CodeMirror.copyState(s.localMode, s.localState) : null,
+
+        inline: s.inline,
+        text: s.text,
+        linkTitle: s.linkTitle,
+        em: s.em,
+        strong: s.strong,
+        header: s.header,
+        taskList: s.taskList,
+        list: s.list,
+        listDepth: s.listDepth,
+        quote: s.quote,
+        md_inside: s.md_inside
+      };
+    },
+
+    token: function(stream, state) {
+      if (stream.sol()) {
+        if (stream.match(/^\s*$/, true)) {
+          state.prevLineHasContent = false;
+          return blankLine(state);
+        } else {
+          state.prevLineHasContent = state.thisLineHasContent;
+          state.thisLineHasContent = true;
+        }
+
+        // Reset state.header
+        state.header = false;
+
+        // Reset state.taskList
+        state.taskList = false;
+
+        // Reset state.code
+        state.code = false;
+
+        state.f = state.block;
+        var indentation = stream.match(/^\s*/, true)[0].replace(/\t/g, '    ').length;
+        var difference = Math.floor((indentation - state.indentation) / 4) * 4;
+        if (difference > 4) difference = 4;
+        var adjustedIndentation = state.indentation + difference;
+        state.indentationDiff = adjustedIndentation - state.indentation;
+        state.indentation = adjustedIndentation;
+        if (indentation > 0) return null;
+      }
+      return state.f(stream, state);
+    },
+
+    blankLine: blankLine,
+
+    getType: getType
+  };
+
+}, "xml");
+
+CodeMirror.defineMIME("text/x-markdown", "markdown");
