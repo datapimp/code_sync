@@ -167,6 +167,7 @@ CodeSync.AssetEditor = Backbone.View.extend
       @$el.removeClass("#{ available }-positioned")
 
     @$el.addClass("#{ @position }-positioned")
+    @$el.removeAttr('style')
 
     @show() if show is true
 
@@ -284,11 +285,9 @@ CodeSync.AssetEditor = Backbone.View.extend
     if @position is "top"
       settings =
         top: '0px'
-        bottom: ''
 
     if @position is "bottom"
       settings =
-        top: ''
         bottom: '0px'
         height: '400px'
 
@@ -305,7 +304,6 @@ CodeSync.AssetEditor = Backbone.View.extend
 
     if @position is "bottom"
       settings =
-        top: 'auto'
         bottom: '0px'
         height: "#{ @hintHeight() - 8 }px"
 
@@ -343,6 +341,8 @@ CodeSync.AssetEditor = Backbone.View.extend
     , @effectDuration
 
     if withEffect isnt false
+      @$el.removeAttr('style').css('top','').css('bottom','')
+      console.log "Vis Settings", @visibleStyleSettings()
       @$el.animate @visibleStyleSettings(), duration: @effectDuration, complete: completeFn
       _.delay(completeFn, @effectDuration)
     else
