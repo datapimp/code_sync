@@ -1,3 +1,9 @@
+- if build?
+  javascript:
+    CodeSync.set("assetCompilationEndpoint", "http://infinite-beyond-8679.herokuapp.com/code-sync/source")
+    CodeSync.set("serverInfoEndpoint", "http://infinite-beyond-8679.herokuapp.com/code-sync/info")
+    CodeSync.set("disableAssetSave", true)
+
 javascript:
   window.coffeescriptDefault = "CodeSync.onScriptChange ||= (changeObject)->\n"
   coffeescriptDefault = coffeescriptDefault + '  if changeObject.mode is "skim" and changeObject.name is "codesync"'
