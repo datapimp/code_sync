@@ -195,7 +195,7 @@
   CodeSync.onScriptChange || (CodeSync.onScriptChange = function(changeObject) {
     if (changeObject.mode === "skim" && changeObject.name === "codesync") {
       $(".canvas-container").html(JST["codesync"]());
-      return window.coffeeScriptEditor.currentDocument.trigger("change:contents");
+      return window.coffeescriptEditor.currentDocument.trigger("change:contents");
     }
   });
 
