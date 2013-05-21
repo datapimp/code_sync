@@ -1,0 +1,20 @@
+#sheet
+  #editor-panel.back
+
+  #canvas-panel.front
+    .handle.vertical-handle
+    .handle.horizontal-handle
+
+    #canvas-inner
+
+
+javascript:
+  window.codeSyncClient = new CodeSync.Client()
+
+javascript:
+- content_for(:head) do
+  == stylesheet_link_tag 'vendor/animate', 'canvas'
+
+== javascript_include_tag 'canvas'
+
+

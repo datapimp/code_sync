@@ -1,4 +1,8 @@
 CodeSync.Modes = Backbone.Collection.extend
+  model: Backbone.Model.extend
+    isTemplate: ()->
+      @get("template") is true
+
   initialize: (models=[], options={})->
     models = for key, value of modes
       attributes =
@@ -7,6 +11,7 @@ CodeSync.Modes = Backbone.Collection.extend
         codeMirrorMode: value.codeMirrorMode || key
         extension: value.extension
         extensionRegex: new RegExp("#{ value.extension }")
+        template: (value.template is true || key is "skim" || value.extension?.match(/jst/))
         defaultContent: value.defaultContent
 
     Backbone.Collection::initialize.apply(@, arguments)
@@ -30,6 +35,7 @@ CodeSync.Modes = Backbone.Collection.extend
 
   defaultMode: ()->
     @get(CodeSync.get("defaultFileType")) || @first()
+
 
 CodeSync.Modes.getMode = (id)->
   CodeSync.Modes.get().get(id)

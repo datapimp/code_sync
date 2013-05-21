@@ -57,11 +57,14 @@ CodeSync.plugins.DocumentManager = Backbone.View.extend
     container = @$('.document-tabs-container').empty()
     tmpl = JST["code_sync/editor/templates/document_manager_tab"]
 
-    @openDocuments.each (doc,index)->
-      container.append tmpl(doc: doc, index: index)
+    # Render each document into a tab
+    @openDocuments.each (doc,index)-> container.append tmpl(doc: doc, index: index)
 
-    container.append tmpl(display:"New",cls:"new-document")
-    container.append tmpl(display:"Open",cls:"open-document")
+    if @allowNew is true
+      container.append tmpl(display:"New",cls:"new-document")
+
+    if @allowOpen is true
+      container.append tmpl(display:"Open",cls:"open-document")
 
   onAssetSelection: (path)->
     @openDocuments.findOrCreateForPath path, (doc)=>

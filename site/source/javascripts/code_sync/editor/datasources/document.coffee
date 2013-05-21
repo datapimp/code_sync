@@ -1,3 +1,8 @@
+# Triggers
+#
+# status:
+#   - success
+
 CodeSync.Document = Backbone.Model.extend
   callbackDelay: 150
 
@@ -6,6 +11,8 @@ CodeSync.Document = Backbone.Model.extend
       @attributes.contents ||= localStorage.getItem(localKey)
 
     Backbone.Model::initialize.apply(@, arguments)
+
+    _.bindAll @, "onContentChange"
 
     @on "change:contents", @onContentChange
 
@@ -22,6 +29,10 @@ CodeSync.Document = Backbone.Model.extend
   saveToDisk: ()->
     if @isSaveable()
       @sendToServer(true, "saveToDisk")
+
+  saveToLocalStorage: (path)->
+    if path?
+      localStorage.setItem(path, @get("contents"))
 
   loadSourceFromDisk: (callback)->
     $.ajax
@@ -59,8 +70,9 @@ CodeSync.Document = Backbone.Model.extend
     "#{ @get("contents") || @toMode()?.get("defaultContent") || " " }"
 
   onContentChange: ()->
-    if localKey = @get("localStorageKey")
-      localStorage.setItem(localKey, @get("contents"))
+    localKey = @get("localStorageKey")
+    localKey = if localKey? && _.isFunction(localKey) then localKey.call(@) else localKey
+    localStorage.setItem(localKey, @get("contents"))
 
     @sendToServer(false, "onContentChange")
 
@@ -82,7 +94,7 @@ CodeSync.Document = Backbone.Model.extend
         CodeSync.log("Document Process Response", response)
 
         if response.success is true
-          @trigger "status", type: "success", message: @successMessage(reason)
+          @trigger "status", type: "success", message: @successMessage(reason), compiled: response.compiled
 
         if response.success is true and response.compiled?
           @set("compiled", response.compiled)

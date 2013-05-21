@@ -1,0 +1,12 @@
+.element-sync-panel
+  .row
+    .span9
+      input name="css-selector" placeholder="Enter a CSS selector to sync with"
+    .span3
+      select name="action"
+        option value="html" Replace
+        option value="before" Before
+        option value="before" After
+  .row
+    .element-sync-status
+

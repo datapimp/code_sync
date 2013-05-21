@@ -234,32 +234,39 @@ CodeSync.AssetEditor = Backbone.View.extend
       @currentDocument.off "status", @showStatusMessage
       @currentDocument.off "change:compiled", @applyDocumentContentToPage
       @currentDocument.off "change:mode", @applyDocumentContentToPage, @
+      @previousDocument = @currentDocument
     else
       @currentDocument = doc
       @trigger "initial:document:load"
 
     @currentDocument = doc
 
-    @trigger "document:loaded", doc
+    @trigger "document:loaded", doc, @previousDocument
 
     @codeMirror.swapDoc @currentDocument.toCodeMirrorDocument()
 
-    @currentDocument.on "status", @showStatusMessage, @
+    if @enableStatusMessages
+      @currentDocument.on "status", @showStatusMessage, @
+
     @currentDocument.on "change:compiled", @applyDocumentContentToPage, @
-    @currentDocument.on "change:mode", @applyDocumentContentToPage, @
+    @currentDocument.on "change:mode", @syncEditorModeWithDocument, @
 
     @setCodeMirrorOptions @currentDocument.toCodeMirrorOptions()
 
-  applyDocumentContentToPage: ()->
+  syncEditorModeWithDocument: ()->
     if @currentDocument? && (@currentDocument.toMode() isnt @mode)
       @setMode @currentDocument.toMode()
 
+  applyDocumentContentToPage: ()->
     @currentDocument?.loadInPage complete: ()=>
       if @currentDocument.type() is "script" or @currentDocument.type() is "template"
         CodeSync.onScriptChange?.call(window, @currentDocument.attributes)
 
       if @currentDocument.type() is "stylesheet"
         CodeSync.onStylesheetChange?.call(window, @currentDocument.attributes)
+
+      @trigger "code:sync", @currentDocument
+      @trigger "code:sync:#{ @currentDocument.type() }", @currentDocument, JST[@currentDocument.get('name')]
 
   removeStatusMessages: ()->
     @$('.status-message').remove()
@@ -309,7 +316,6 @@ CodeSync.AssetEditor = Backbone.View.extend
 
     settings
 
-
   hide: (withEffect=true)->
     @animating = true
 
@@ -357,8 +363,6 @@ CodeSync.AssetEditor = Backbone.View.extend
       @hide(true)
     else
       @show(true)
-
-
 
 # Private Helpers
 CodeSync.commands =
