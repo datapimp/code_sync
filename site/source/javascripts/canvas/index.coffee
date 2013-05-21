@@ -1,3 +1,6 @@
+#= require_tree .
+#= require_self
+
 CodeSync.Canvas = Backbone.View.extend
   events:
     "click .horizontal-handle" : "enableHorizontalDragging"
@@ -47,5 +50,9 @@ CodeSync.Canvas = Backbone.View.extend
         containment:[0,0]
 
 $ ->
+
   window.codeSyncCanvas = new CodeSync.Canvas()
+
+  CodeSync.canvasEditors()
+
   codeSyncCanvas.makeDraggable("horizontal")
