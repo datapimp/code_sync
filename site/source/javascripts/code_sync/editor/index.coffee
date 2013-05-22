@@ -5,7 +5,19 @@
 #= require_self
 
 CodeSync.AssetEditor = Backbone.View.extend
+  name: "code_sync"
   className: "codesync-editor"
+
+  # Valid options are top, bottom, static
+  position: "top"
+
+  # Controls whether or not a toolbar element
+  # should be displayed.  Certain plugins will
+  # render their buttons etc in the toolbar
+  enableToolbar: true
+
+  # Valid options are: true, "all", "success", "error"
+  enableStatusMessages: true
 
   autoRender: true
   autoAppend: true
@@ -13,25 +25,18 @@ CodeSync.AssetEditor = Backbone.View.extend
 
   renderVisible: true
 
-  position: "top"
 
   effect: "slide"
-
   effectDuration: 400
 
   editorChangeThrottle: 800
 
   visible: false
-
   showVisibleTab: true
-
   hideable: true
 
   startMode: "scss"
-
   theme: "ambiance"
-
-  name: "code_sync"
 
   keyBindings: ""
 
@@ -43,6 +48,8 @@ CodeSync.AssetEditor = Backbone.View.extend
     "DocumentManager"
     "ModeSelector"
     "PreferencesPanel"
+    "ElementSync"
+    "KeymapSelector"
   ]
 
   pluginOptions: {}
@@ -209,6 +216,8 @@ CodeSync.AssetEditor = Backbone.View.extend
       @codeMirror.setOption(option,value)
 
   setupToolbar: ()->
+    @$('.toolbar-wrapper').hide() unless @enableToolbar
+
     if @hideable is true
       @$('.toolbar-wrapper').append "<div class='button hide-button'>Hide</div>"
 
@@ -245,7 +254,7 @@ CodeSync.AssetEditor = Backbone.View.extend
 
     @codeMirror.swapDoc @currentDocument.toCodeMirrorDocument()
 
-    if @enableStatusMessages
+    if @enableStatusMessages isnt false
       @currentDocument.on "status", @showStatusMessage, @
 
     @currentDocument.on "change:compiled", @applyDocumentContentToPage, @
@@ -273,6 +282,16 @@ CodeSync.AssetEditor = Backbone.View.extend
 
   showStatusMessage:(options={})->
     @removeStatusMessages()
+
+    allowedTypes = switch @enableStatusMessages
+      when false
+        []
+      when true, "all"
+        ["success","error","notice"]
+      else
+        [@enableStatusMessages]
+
+    return unless _(allowedTypes).indexOf(options.type) >= 0
 
     if options.message?.length > 0
       @$el.prepend "<div class='status-message #{ options.type }'>#{ options.message }</div>"

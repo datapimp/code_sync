@@ -7,7 +7,7 @@ $white: rgba(225,225,225,0.5);
     top: 35px;
     right: 15px;
     padding: 4px 8px;
-    width: 450px;
+    width: 400px;
     background: none;
     input {
       width: 95%;
@@ -39,9 +39,22 @@ $white: rgba(225,225,225,0.5);
       margin: 0px;
       padding:0px;
     }
+
     .element-sync-status {
       color: opacify($white,0.8);
-      font-size: 12px;
+      font-size: 14px;
+      float: left;
+      width: 50%;
+      line-height: 20px;
+      padding-top: 10px;
+    }
+
+    .done-button {
+      margin-top: 8px;
+      float: left;
+      font-size: 14px;
+      line-height: 20px;
+      width: 50%;
     }
   }
 }
@@ -49,5 +62,11 @@ $white: rgba(225,225,225,0.5);
 .codesync-editor[data-theme='xq-light'] {
   .codesync-element-sync {
 
+  }
+}
+
+.codesync-editor.bottom-positioned, .codesync-editor.static-positioned {
+  .codesync-element-sync {
+    top: 75px;
   }
 }

@@ -11,6 +11,9 @@ CodeSync.plugins.ElementSync = Backbone.View.extend
     "change select": (e)->
       @action = @$(e.target).val()
 
+    "click .done-button" : ()->
+      @clear()
+
   initialize: (@options={})->
     _.extend(@,@options)
 
@@ -23,13 +26,19 @@ CodeSync.plugins.ElementSync = Backbone.View.extend
 
     @editor.on "code:sync:template", @syncWithElement, @
 
-    @editor.on "change:mode", (mode)=> @toggleButton(mode.isTemplate())
+    @editor.on "change:mode", (mode)=>
+      if mode.isTemplate()
+        @toggleButton(true)
+      else
+        @hide()
+        @toggleButton(false)
 
     @visible = false
     @$el.hide()
+    @toggleButton(false)
 
   syncWithElement: (document, templateFn)->
-    @$elementSync?[@action || "html"]?(templateFn())
+    @selector && @$elementSync?[@action || "html"]?(templateFn())
 
   getSelectorContents: ()->
     @$(@selector).html()
@@ -37,8 +46,14 @@ CodeSync.plugins.ElementSync = Backbone.View.extend
   getValue: ()->
     @$('input[name="css-selector"]').val()
 
+  clear: ()->
+    @$('input[name="css-selector"]').val('')
+    @$elementSync = undefined
+    @selector = ''
+    @$('.element-sync-status').html("")
+
   existsInDocument: ()->
-    @$elementSync.length > 0
+    @$elementSync?.length > 0
 
   status: ()->
     length = @$elementSync?.length
@@ -49,8 +64,10 @@ CodeSync.plugins.ElementSync = Backbone.View.extend
       "1 total element"
     else if length > 0
       "#{ length } total elements"
+    else
+      ""
 
-    @$('.element-sync-status').html(msg) if msg?
+    @$('.element-sync-status').html(msg)
 
   render: ()->
     @$el.html JST["code_sync/editor/templates/element_sync"]()
@@ -73,13 +90,13 @@ CodeSync.plugins.ElementSync = Backbone.View.extend
     if show
       @editor.$('.toggle-element-sync').show()
     else
-      @hide()
+      @editor.$('.toggle-element-sync').hide()
 
 
 CodeSync.plugins.ElementSync.setup = (editor)->
-  view = new CodeSync.plugins.ElementSync({editor})
-
   @$('.toolbar-wrapper').append "<div class='button toggle-element-sync'>Sync w/ Element</div>"
+
+  view = new CodeSync.plugins.ElementSync({editor})
 
   editor.views.elementSync = view
 

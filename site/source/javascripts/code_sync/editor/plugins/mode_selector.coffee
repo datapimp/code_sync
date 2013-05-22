@@ -1,5 +1,5 @@
 CodeSync.plugins.ModeSelector = Backbone.View.extend
-  className: "mode-selector"
+  className: "config-select mode-selector"
 
   events:
     "change select" : "onSelect"
@@ -31,17 +31,15 @@ CodeSync.plugins.ModeSelector = Backbone.View.extend
     for mode in @modes.models
       options += "<option value='#{ mode.id }'>#{ mode.get('name') }</option>"
 
-    @$el.html("<select>#{ options }</select>")
+    @$el.html("<label>Language:</label> <select>#{ options }</select>")
 
     @
 
 
 CodeSync.plugins.ModeSelector.setup = (editor)->
   v = @views.modeSelector = new CodeSync.plugins.ModeSelector({editor})
+  @$('.toolbar-wrapper').append v.render().el
 
-  editor.$('.codesync-asset-editor').append v.render().el
-
-  editor.on "document:loaded", (doc)->
-    v.setValue(doc.get('mode'))
+  editor.on "document:loaded", (doc)-> v.setValue(doc.get('mode'))
 
 

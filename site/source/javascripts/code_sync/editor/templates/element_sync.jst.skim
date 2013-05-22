@@ -8,5 +8,10 @@
         option value="before" Before
         option value="before" After
   .row
-    .element-sync-status
+    .span9
+      .element-sync-status
+      input.done-button type="button" value="Done"
+
+
+
 

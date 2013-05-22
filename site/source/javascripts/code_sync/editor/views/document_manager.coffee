@@ -1,4 +1,4 @@
-CodeSync.plugins.DocumentManager = Backbone.View.extend
+CodeSync.plugins.DocumentTabs = Backbone.View.extend
 
   views: {}
 
@@ -20,7 +20,6 @@ CodeSync.plugins.DocumentManager = Backbone.View.extend
     @$el.append "<div class='document-tabs-container' />"
 
     @openDocuments = new CodeSync.Documents()
-
     @openDocuments.on "add", @renderTabs, @
     @openDocuments.on "remove", @renderTabs, @
     @openDocuments.on "change:display", @renderTabs, @
@@ -160,7 +159,6 @@ CodeSync.plugins.DocumentManager = Backbone.View.extend
     @$el.append( @views.assetSelector.render().el )
 
     @
-
 
 CodeSync.plugins.DocumentManager.setup = (editor)->
   dm = @views.documentManager = new CodeSync.plugins.DocumentManager(editor: @)

@@ -23,11 +23,9 @@ CodeSync.Canvas = Backbone.View.extend
     @$el.animate('top':'0px')
 
   enableVerticalDragging: ()->
-    @cancelDraggable() if @direction is "horizontal"
     @makeDraggable("vertical")
 
   enableHorizontalDragging: ()->
-    @cancelDraggable() if @direction is "vertical"
     @makeDraggable("horizontal")
 
   cancelDraggable: ()->

@@ -1,5 +1,5 @@
 CodeSync.plugins.KeymapSelector = Backbone.View.extend
-  className: "keymap-selector"
+  className: "config-select keymap-selector"
 
   events:
     "change select" : "onSelect"
@@ -25,13 +25,12 @@ CodeSync.plugins.KeymapSelector = Backbone.View.extend
     for mode in ["default","vim"]
       options += "<option value='#{ mode }'>#{ mode }</option>"
 
-    @$el.html("<select>#{ options }</select>")
+    @$el.html("<label>Keymap</label> <select>#{ options }</select>")
 
     @
 
 
 CodeSync.plugins.KeymapSelector.setup = (editor)->
   v = @views.keymapSelector = new CodeSync.plugins.KeymapSelector({editor})
-
-  editor.$('.codesync-asset-editor').append v.render().el
+  @$('.toolbar-wrapper').append( v.render().el )
 
