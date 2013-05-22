@@ -339,6 +339,7 @@ CodeSync.AssetEditor = Backbone.View.extend
     @animating = true
 
     view.trigger("editor:hidden") for viewName, view of @views
+    @$el.removeAttr('data-visible') if @hideable
 
     completeFn = _.debounce ()=>
       @visible = false
@@ -359,6 +360,7 @@ CodeSync.AssetEditor = Backbone.View.extend
     @animating = true
 
     view.trigger("editor:visible") for viewName, view of @views
+    @$el.attr('data-visible',true) if @hideable
 
     completeFn = _.debounce ()=>
       @visible = true
@@ -367,7 +369,6 @@ CodeSync.AssetEditor = Backbone.View.extend
 
     if withEffect isnt false
       @$el.removeAttr('style').css('top','').css('bottom','')
-      console.log "Vis Settings", @visibleStyleSettings()
       @$el.animate @visibleStyleSettings(), duration: @effectDuration, complete: completeFn
       _.delay(completeFn, @effectDuration)
     else

@@ -69,6 +69,12 @@
 
 }
 
+.codesync-editor.top-positioned[data-visible] {
+  .codesync-asset-editor {
+    box-shadow: 0px 4px 6px rgba(0,0,0,0.8);
+  }
+}
+
 .codesync-editor.top-positioned, .codesync-editor.bottom-positioned {
   position: fixed;
   z-index: 30000;
