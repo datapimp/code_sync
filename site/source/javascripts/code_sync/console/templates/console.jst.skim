@@ -1,0 +1,10 @@
+form accept-charset="UTF-8" action="#{ @consoleEndpoint }" method="POST"
+  input name="utf8" type="hidden" value="✓"
+
+  .results_wrapper
+    .results
+
+  .input
+    span.prompt >>>
+    span.input_box
+      input#code name="code" type="text"
