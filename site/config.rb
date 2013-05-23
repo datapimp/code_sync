@@ -15,12 +15,12 @@ activate :directory_indexes
 
 configure :build do
   activate :minify_css
-  #activate :minify_javascript
+  activate :minify_javascript
   activate :relative_assets
 end
 
 after_build do
-  `cp build/javascripts/code_sync.js ../vendor/assets/javascripts`
-  `cp build/javascripts/code_sync_basic.js ../vendor/assets/javascripts`
+  `cp build/javascripts/code_sync.min.js ../vendor/assets/javascripts`
+  `cp build/javascripts/code_sync_basic.min.js ../vendor/assets/javascripts`
   `cp build/stylesheets/code_sync.css ../vendor/assets/stylesheets`
 end
