@@ -11,6 +11,9 @@ CodeSync.plugins.ElementSync = Backbone.View.extend
     "change select": (e)->
       @action = @$(e.target).val()
 
+    "click .hide-panel-button" : ()->
+      @hide()
+
     "click .done-button" : ()->
       @clear()
 
@@ -37,7 +40,7 @@ CodeSync.plugins.ElementSync = Backbone.View.extend
     @$el.hide()
     @toggleButton(false)
 
-  syncWithElement: (document, templateFn)->
+  syncWithElement: (doc, templateFn)->
     @selector && @$elementSync?[@action || "html"]?(templateFn())
 
   getSelectorContents: ()->

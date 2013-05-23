@@ -1,133 +1,32 @@
-CodeSync.plugins.DocumentManager = Backbone.View.extend
-  views: {}
-
-  events:
-    "click .document-tab.selectable" :  "onDocumentTabSelection"
-    "click .document-tab.closable .close-anchor" : "closeTab"
-    "click .document-tab.new-document" : "createDocument"
-    "click .document-tab.save-document" : "saveDocument"
-    "click .document-tab.open-document": "toggleAssetSelector"
-
-    "dblclick .document-tab.editable" : "onDoubleClickTab"
-
-    "blur .document-tab.editable .contents" : "onEditableTabBlur"
-    "keydown .document-tab.editable .contents" : "onEditableTabKeyPress"
-
-  initialize: (@options={})->
-    _.extend(@, options)
-
-    @editor = options.editor
-
-    @$el.append "<div class='document-tabs-container' />"
+CodeSync.DocumentManager = Backbone.Model.extend
+  initialize: (@attributes={})->
+    @editor = @attributes.editor
+    delete @attributes.editor
 
     @openDocuments = new CodeSync.Documents()
 
-    @openDocuments.on "add", @renderTabs, @
-    @openDocuments.on "remove", @renderTabs, @
-    @openDocuments.on "change:display", @renderTabs, @
+    for trigger in ["add","remove","change:display","change:sticky"]
+      @openDocuments.on(trigger, @notify, @)
 
-    @projectAssets = new CodeSync.ProjectAssets()
+    Backbone.Model::initialize.apply(@,arguments)
 
-    @state = new Backbone.Model
-      currentDocument: undefined
+  # In multiple setups with multiple editors
+  # the DocumentManager can act as a singleton
+  # and route documents to multiple editors
+  getEditor: ()->
+    @editor || _(CodeSync.AssetEditor.instances).values()[0]
 
-    @state.on "change:currentDocument", @highlightActiveDocumentTab, @
+  detect: (iterator)->
+    @openDocuments.each(iterator)
 
-    @on "editor:hidden", ()=>
-      @$('.document-tab.hideable').hide()
+  each: (iterator)->
+    @openDocuments.each(iterator)
 
-    @on "editor:visible", ()=>
-      @$('.document-tab.hideable').show()
-      @toggleSaveButton()
-
-    @views.assetSelector = new CodeSync.AssetSelector
-      collection: @projectAssets
-      documents: @openDocuments
-      editor: @editor
-
-    @views.assetSelector.on "asset:selected", @onAssetSelection, @
-
-  documentInTab: (tabElement)->
-    tabElement = tabElement.parents('.document-tab').eq(0) unless tabElement.is('.document-tab')
-
-    if cid = tabElement.data('document-cid')
-      doc = @openDocuments.detect (model)->
-        model.cid == cid
-
-  renderTabs: ()->
-    container = @$('.document-tabs-container').empty()
-    tmpl = JST["code_sync/editor/templates/document_manager_tab"]
-
-    @openDocuments.each (doc,index)=>
-      unless @skipTabForDefault is true and index is 0
-        container.append tmpl(doc: doc, index: index, closable: !!(index > 0))
-
-
-    unless @allowNew is false
-      container.append tmpl(display:"New",cls:"new-document")
-
-    unless @allowOpen is false
-      container.append tmpl(display:"Open",cls:"open-document")
-
-  onAssetSelection: (path)->
-    @openDocuments.findOrCreateForPath path, (doc)=>
-      @openDocument(doc)
-
-  onEditableTabKeyPress: (e)->
-    target = @$(e.target).closest('.document-tab')
-    contents = target.children('.contents')
-
-    if e.keyCode is 13 or e.keyCode is 27
-      e.preventDefault()
-
-      contents.attr('contenteditable', false)
-
-      if doc = @documentInTab(target)
-        if e.keyCode is 13
-          doc.set('name', contents.html() )
-
-        if e.keyCode is 27 and original = target.attr('data-original-value')
-          contents.html(original)
-
-      @editor.codeMirror.focus()
-
-  onEditableTabBlur: (e)->
-    target = @$(e.target).closest('.document-tab')
-    contents = target.children('.contents')
-
-    console.log "On Editable Tab Blur", @documentInTab(target)?.cid
-    if doc = @documentInTab(target)
-      doc.set('name', contents.html() )
-      contents.attr('contenteditable', false)
-
-  onDoubleClickTab: (e)->
-    target = @$(e.target).closest('.document-tab')
-    contents = target.children('.contents')
-
-    target.attr('data-original-value', contents.html())
-    contents.attr('contenteditable',true)
-
-  onDocumentTabSelection: (e)->
-    @trigger "tab:click"
-    target = @$(e.target).closest('.document-tab')
-    doc = @documentInTab(target)
-
-    @setCurrentDocument(doc)
-
-  closeTab: (e)->
-    target = @$(e.target)
-    doc = @documentInTab(target)
-
-    index = @openDocuments.indexOf(doc)
-    @openDocuments.remove(doc)
-
-    @setCurrentDocument( @openDocuments.at(index - 1) || @openDocuments.at(0) )
-
-  getCurrentDocument: ()->
-    @currentDocument
+  notify: ()->
+    @trigger "document:change"
 
   openDocument: (doc, editor)->
-    editor ||= @editor
+    editor ||= @getEditor()
 
     @openDocuments.add(doc)
     @setCurrentDocument(doc, editor)
@@ -136,57 +35,21 @@ CodeSync.plugins.DocumentManager = Backbone.View.extend
     editor ||= @editor
     editor.loadDocument(@currentDocument)
 
-  toggleSaveButton: ()->
-    if @currentDocument?.get("path")?.length > 0
-      @$('.save-document').show()
-    else
-      @$('.save-document').hide()
-
   saveDocument: ()->
     if CodeSync.get("disableAssetSave")
-      @editor.showStatusMessage(type: "error", message: "Saving is disabled in this demo.")
+      @getEditor().showError("Saving is disabled.")
     else
       @currentDocument.saveToDisk()
 
-  createDocument: ()->
-    @openDocuments.add
+  createDocument: (editor)->
+    editor      ||= @getEditor()
+    mode        = editor.mode?.id || CodeSync.get("defaultFileType")
+    extension   = CodeSync.Modes.guessExtensionFor(mode)
+
+    doc = new CodeSync.Document
       name: "untitled"
       display: "Untitled"
-      mode: CodeSync.get("defaultFileType")
-      extension: CodeSync.Modes.guessExtensionFor(CodeSync.get("defaultFileType"))
+      mode: mode
+      extension: extension
 
-    doc = @openDocuments.last()
-
-    @openDocument(doc)
-
-  toggleAssetSelector: ()->
-    @views.assetSelector.toggle()
-
-  render: ()->
-    @$el.append( @views.assetSelector.render().el )
-
-    @
-
-
-CodeSync.plugins.DocumentManager.setup = (editor, options={})->
-  options.editor = editor
-  dm = @views.documentManager = new CodeSync.plugins.DocumentManager(options)
-
-  _.extend editor.codeMirrorKeyBindings,
-    "Ctrl-T": ()->
-      dm.toggleAssetSelector()
-
-    "Ctrl-S": ()->
-      dm.getCurrentDocument().save()
-
-    "Ctrl-N": ()->
-      dm.createDocument()
-
-  @$el.append(dm.render().el)
-
-  dm.on "tab:click", ()=>
-    @show() if @visible is false
-
-  CodeSync.AssetEditor::loadDefaultDocument = ()->
-    defaultDocument = editor.getDefaultDocument()
-    dm.openDocument(defaultDocument)
+    @openDocument(doc,editor)

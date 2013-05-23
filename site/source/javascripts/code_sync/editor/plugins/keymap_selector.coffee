@@ -19,6 +19,12 @@ CodeSync.plugins.KeymapSelector = Backbone.View.extend
   setValue: (val)->
     @$('select').val(val)
 
+  hideLabel: ()->
+    @$('label').hide()
+
+  showLabel: ()->
+    @$('label').show()
+
   render: ()->
     options = ""
 
@@ -26,6 +32,8 @@ CodeSync.plugins.KeymapSelector = Backbone.View.extend
       options += "<option value='#{ mode }'>#{ mode }</option>"
 
     @$el.html("<label>Keymap</label> <select>#{ options }</select>")
+
+    @hideLabel() unless @visibleLabel
 
     @
 

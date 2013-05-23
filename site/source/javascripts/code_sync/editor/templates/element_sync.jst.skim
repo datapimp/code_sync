@@ -11,6 +11,8 @@
     .span9
       .element-sync-status
       input.done-button type="button" value="Done"
+      input.hide-panel-button type="button" value="Hide"
+
 
 
 

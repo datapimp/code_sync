@@ -36,7 +36,6 @@ CodeSync.plugins.DocumentTabs = Backbone.View.extend
 
     @on "editor:visible", ()=>
       @$('.document-tab.hideable').show()
-      @toggleSaveButton()
 
     @views.assetSelector = new CodeSync.AssetSelector
       collection: @projectAssets
@@ -129,12 +128,6 @@ CodeSync.plugins.DocumentTabs = Backbone.View.extend
   setCurrentDocument: (@currentDocument)->
     @editor.loadDocument(@currentDocument)
 
-  toggleSaveButton: ()->
-    if @currentDocument?.get("path")?.length > 0
-      @$('.save-document').show()
-    else
-      @$('.save-document').hide()
-
   saveDocument: ()->
     if CodeSync.get("disableAssetSave")
       @editor.showStatusMessage(type: "error", message: "Saving is disabled in this demo.")
@@ -160,8 +153,8 @@ CodeSync.plugins.DocumentTabs = Backbone.View.extend
 
     @
 
-CodeSync.plugins.DocumentManager.setup = (editor)->
-  dm = @views.documentManager = new CodeSync.plugins.DocumentManager(editor: @)
+CodeSync.plugins.DocumentTabs.setup = (editor)->
+  dm = @views.DocumentTabs = new CodeSync.plugins.DocumentTabs(editor: @)
 
   _.extend editor.codeMirrorKeyBindings,
     "Ctrl-T": ()->

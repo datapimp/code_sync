@@ -13,7 +13,7 @@
       height: 28px;
       margin-right: 2px;
 
-      max-width: 100px;
+      max-width: 200px;
       overflow: hidden;
 
       .close-anchor {
@@ -23,6 +23,7 @@
 
     &.closable {
       min-width: 60px;
+
       .contents {
         float: left;
         clear: left;

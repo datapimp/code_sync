@@ -49,12 +49,12 @@ $white: rgba(225,225,225,0.5);
       padding-top: 10px;
     }
 
-    .done-button {
+    .done-button, .hide-button {
       margin-top: 8px;
       float: left;
       font-size: 14px;
       line-height: 20px;
-      width: 50%;
+      width: 25%;
     }
   }
 }

@@ -25,6 +25,12 @@ CodeSync.plugins.ModeSelector = Backbone.View.extend
   setValue: (val)->
     @$('select').val(val)
 
+  hideLabel: ()->
+    @$('label').hide()
+
+  showLabel: ()->
+    @$('label').show()
+
   render: ()->
     options = ""
 
@@ -32,6 +38,8 @@ CodeSync.plugins.ModeSelector = Backbone.View.extend
       options += "<option value='#{ mode.id }'>#{ mode.get('name') }</option>"
 
     @$el.html("<label>Language:</label> <select>#{ options }</select>")
+
+    @hideLabel() unless @visibleLabel
 
     @
 

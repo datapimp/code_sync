@@ -44,7 +44,7 @@ CodeSync.AssetEditor = Backbone.View.extend
     "click .hide-button" : "hide"
 
   plugins:[
-    "DocumentManager"
+    "DocumentTabs"
     "ModeSelector"
     "PreferencesPanel"
     "ElementSync"
@@ -53,30 +53,36 @@ CodeSync.AssetEditor = Backbone.View.extend
 
   pluginOptions: {}
 
+  views: {}
+
   initialize: (@options={})->
     _.extend(@, @options)
 
+    Backbone.View::initialize.apply(@, arguments)
+
+    console.log "Creatin Instance", @name, @cid, @
+
+    CodeSync.AssetEditor.instances[@name || @cid] = @
+
     _.bindAll(@, "editorChangeHandler")
 
-    @views = {}
+    @modes            = CodeSync.Modes.get()
+    @documentManager  = new CodeSync.DocumentManager(editor: @)
 
-    @modes = CodeSync.Modes.get()
+    @startMode        = @modes.get(@startMode) || CodeSync.Modes.defaultMode()
 
-    @startMode = @modes.get(@startMode) || CodeSync.Modes.defaultMode()
-
-    @setPosition(@position, false)
 
     @on "editor:change", _.debounce(@editorChangeHandler, @editorChangeThrottle), @
 
-    @on "codemirror:setup", ()=>
-      @loadDefaultDocument()
+    @on "codemirror:setup", ()=> @loadDefaultDocument()
 
     @$el.html JST["code_sync/editor/templates/asset_editor"]()
 
-    if @name?
-      @$el.attr 'data-codesync', @name
+    @$el.attr('data-codesync', @name) if @name?
 
     @loadPlugins()
+
+    @setPosition(@position, false)
 
     @render() unless @autoRender is false
 
@@ -149,9 +155,6 @@ CodeSync.AssetEditor = Backbone.View.extend
     "Ctrl+Command+3": ()->
       CodeSync.get("commandThree")?.call(@)
 
-    "Ctrl+J": ()->
-      @toggle()
-
   getCodeMirrorOptions: ()->
     passthrough = {}
 
@@ -195,13 +198,14 @@ CodeSync.AssetEditor = Backbone.View.extend
     @codeMirror.setOption 'theme', @theme = theme
 
   setMode: (newMode)->
-    @$el.attr("data-codesync-mode", @mode)
 
     if @mode? and (newMode isnt @mode)
       @trigger "change:mode", newMode, newMode.id
       @onModeChange?.call(@,newMode,@mode)
 
     @mode = newMode
+
+    @$el.attr("data-codesync-mode", @mode.id)
 
     if @mode?.get?
       @codeMirror.setOption 'mode', @mode.get("codeMirrorMode")
@@ -235,31 +239,28 @@ CodeSync.AssetEditor = Backbone.View.extend
   # This is broken apart into separate methods
   # so that plugins can tap in
   loadDefaultDocument: ()->
-    @loadDocument @getDefaultDocument()
+    @documentManager.openDocument(@getDefaultDocument(), @)
 
   loadDocument: (doc)->
-    if @currentDocument?
-      @currentDocument.off "status", @showStatusMessage
-      @currentDocument.off "change:compiled", @applyDocumentContentToPage
-      @currentDocument.off "change:mode", @applyDocumentContentToPage, @
-      @previousDocument = @currentDocument
+    if current = @currentDocument
+      current.off "status", @showStatusMessage
+      current.off "change:compiled", @applyDocumentContentToPage
+      current.off "change:mode", @applyDocumentContentToPage, @
+
+      @previousDocument = current
     else
-      @currentDocument = doc
-      @trigger "initial:document:load"
+      @trigger "initial:document:load", @currentDocument = doc
 
-    @currentDocument = doc
+    doc.on "status", @showStatusMessage, @
+    doc.on "change:compiled", @applyDocumentContentToPage, @
+    doc.on "change:mode", @syncEditorModeWithDocument, @
 
+    @codeMirror.swapDoc doc.toCodeMirrorDocument()
     @trigger "document:loaded", doc, @previousDocument
 
-    @codeMirror.swapDoc @currentDocument.toCodeMirrorDocument()
+    @setCodeMirrorOptions doc.toCodeMirrorOptions()
 
-    if @enableStatusMessages isnt false
-      @currentDocument.on "status", @showStatusMessage, @
-
-    @currentDocument.on "change:compiled", @applyDocumentContentToPage, @
-    @currentDocument.on "change:mode", @syncEditorModeWithDocument, @
-
-    @setCodeMirrorOptions @currentDocument.toCodeMirrorOptions()
+    @currentDocument = doc
 
   syncEditorModeWithDocument: ()->
     if @currentDocument? && (@currentDocument.toMode() isnt @mode)
@@ -274,10 +275,13 @@ CodeSync.AssetEditor = Backbone.View.extend
         CodeSync.onStylesheetChange?.call(window, @currentDocument.attributes)
 
       @trigger "code:sync", @currentDocument
-      @trigger "code:sync:#{ @currentDocument.type() }", @currentDocument, JST[@currentDocument.get('name')]
+      @trigger "code:sync:#{ @currentDocument.type() }", @currentDocument, JST?[@currentDocument.nameWithoutExtension()]
 
   removeStatusMessages: ()->
     @$('.status-message').remove()
+
+  showError: (message)->
+    @showStatusMessage type:"error", message: message
 
   showStatusMessage:(options={})->
     @removeStatusMessages()
@@ -335,6 +339,8 @@ CodeSync.AssetEditor = Backbone.View.extend
     settings
 
   hide: (withEffect=true)->
+    console.trace()
+
     @animating = true
 
     view.trigger("editor:hidden") for viewName, view of @views
@@ -382,6 +388,8 @@ CodeSync.AssetEditor = Backbone.View.extend
       @hide(true)
     else
       @show(true)
+
+CodeSync.AssetEditor.instances = {}
 
 # Private Helpers
 CodeSync.commands =
