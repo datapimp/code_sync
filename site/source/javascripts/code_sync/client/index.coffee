@@ -30,15 +30,15 @@ class CodeSync.Client
 
       @clientLoaded = true
 
+  subscribeWith: (cb)->
+    @socket?.subscribe "/code-sync/outbound", cb
+
   setupSocket: ()->
     return unless Faye?
 
     @socket = new Faye.Client(CodeSync.get("socketEndpoint"))
 
-    @socket.subscribe "/code-sync/outbound", (notification)=>
-
-      console.log "notification", notification
-
+    @subscribeWith (notification)=>
       if @logLevel > 0
         console.log "Received notification on outbound channel", notification
 

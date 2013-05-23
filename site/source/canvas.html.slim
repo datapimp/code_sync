@@ -1,19 +1,21 @@
-#sheet
-  #editor-panel.back
-  #canvas-panel.front
+#canvas-application.layer-controller
+  #underneath.bottom.layer
+    #front-end-editors-wrapper
+      #panel-1.panel
+      #panel-2.panel
+      #panel-3.panel
+    #backend-console-wrapper
+
+  #canvas.top.layer
     .handle.vertical-handle
     .handle.horizontal-handle
 
     #canvas-inner
 
-
 javascript:
   window.codeSyncClient = new CodeSync.Client()
 
-javascript:
 - content_for(:head) do
   == stylesheet_link_tag 'vendor/animate', 'canvas'
 
 == javascript_include_tag 'canvas'
-
-

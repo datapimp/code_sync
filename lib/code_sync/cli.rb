@@ -46,7 +46,7 @@ module CodeSync
       method_option :root, :default => Dir.pwd(), :required => false
 
       def start
-        CodeSync::Manager.start(options)
+        CodeSync::Manager.start(root: options[:root])
       end
 
       def method_missing(meth, *args)

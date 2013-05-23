@@ -62,12 +62,16 @@ module CodeSync
     def process_changes_to assets=[]
 
       results = Array(assets).map do |path|
+
         asset = env.find_asset(path)
 
         asset && notification = {
+          asset_path: path,
+          digest_path:asset.digest_path,
           name:asset.logical_path,
-          path:asset.digest_path,
-          source: (asset.to_s rescue nil)
+          source: (asset.to_s rescue nil),
+          path: path,
+          content: IO.read(path)
         }
       end
 

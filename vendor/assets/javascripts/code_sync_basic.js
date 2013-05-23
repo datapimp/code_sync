@@ -93,15 +93,19 @@
       });
     }
 
+    Client.prototype.subscribeWith = function(cb) {
+      var _ref;
+      return (_ref = this.socket) != null ? _ref.subscribe("/code-sync/outbound", cb) : void 0;
+    };
+
     Client.prototype.setupSocket = function() {
       var _this = this;
       if (typeof Faye === "undefined" || Faye === null) {
         return;
       }
       this.socket = new Faye.Client(CodeSync.get("socketEndpoint"));
-      return this.socket.subscribe("/code-sync/outbound", function(notification) {
+      return this.subscribeWith(function(notification) {
         var _ref, _ref1, _ref2;
-        console.log("notification", notification);
         if (_this.logLevel > 0) {
           console.log("Received notification on outbound channel", notification);
         }
@@ -353,7 +357,7 @@
       return Skim.withContext.call({}, context, function() {
         var _buf;
         _buf = [];
-        _buf.push("<div class=\"codesync-asset-editor\"><div class=\"toolbar-wrapper\"></div><div class=\"mode-selector-wrapper\"></div></div>");
+        _buf.push("<div class=\"toolbar-wrapper\"></div><div class=\"codesync-asset-editor\"></div>");
         return _buf.join('');
       });
     };
@@ -435,6 +439,22 @@
   
   }).call(this);;
 }).call(this);
+(function() { this.JST || (this.JST = {}); this.JST["code_sync/editor/templates/element_sync"] = (function() {
+  
+    return function(context) {
+      if (context == null) {
+        context = {};
+      }
+      return Skim.withContext.call({}, context, function() {
+        var _buf;
+        _buf = [];
+        _buf.push("<div class=\"element-sync-panel\"><div class=\"row\"><div class=\"span9\"><input name=\"css-selector\" placeholder=\"Enter a CSS selector to sync with\" /></div><div class=\"span3\"><select name=\"action\"><option value=\"html\">Replace</option><option value=\"before\">Before</option><option value=\"before\">After</option></select></div></div><div class=\"row\"><div class=\"span9\"><div class=\"element-sync-status\"></div><input class=\"done-button\" type=\"button\" value=\"Done\" /></div></div></div>");
+        return _buf.join('');
+      });
+    };
+  
+  }).call(this);;
+}).call(this);
 (function() { this.JST || (this.JST = {}); this.JST["code_sync/editor/templates/preferences_panel"] = (function() {
   
     return function(context) {
@@ -483,6 +503,7 @@
         (_base = this.attributes).contents || (_base.contents = localStorage.getItem(localKey));
       }
       Backbone.Model.prototype.initialize.apply(this, arguments);
+      _.bindAll(this, "onContentChange");
       this.on("change:contents", this.onContentChange);
       this.on("change:name", function() {
         _this.set("mode", _this.determineMode());
@@ -500,6 +521,11 @@
     saveToDisk: function() {
       if (this.isSaveable()) {
         return this.sendToServer(true, "saveToDisk");
+      }
+    },
+    saveToLocalStorage: function(path) {
+      if (path != null) {
+        return localStorage.setItem(path, this.get("contents"));
       }
     },
     loadSourceFromDisk: function(callback) {
@@ -554,9 +580,9 @@
     },
     onContentChange: function() {
       var localKey;
-      if (localKey = this.get("localStorageKey")) {
-        localStorage.setItem(localKey, this.get("contents"));
-      }
+      localKey = this.get("localStorageKey");
+      localKey = (localKey != null) && _.isFunction(localKey) ? localKey.call(this) : localKey;
+      localStorage.setItem(localKey, this.get("contents"));
       return this.sendToServer(false, "onContentChange");
     },
     sendToServer: function(allowSaveToDisk, reason) {
@@ -586,7 +612,8 @@
           if (response.success === true) {
             _this.trigger("status", {
               type: "success",
-              message: _this.successMessage(reason)
+              message: _this.successMessage(reason),
+              compiled: response.compiled
             });
           }
           if (response.success === true && (response.compiled != null)) {
@@ -688,8 +715,24 @@
 
   CodeSync.Documents = Backbone.Collection.extend({
     model: CodeSync.Document,
+    initialize: function(models, options) {
+      var client;
+      Backbone.Collection.prototype.initialize.apply(this, arguments);
+      if (client = CodeSync.Client.get() && ((client != null ? client.socket : void 0) != null)) {
+        return client.subscribeWith(function(notification) {
+          return console.log("Documents", notification);
+        });
+      }
+    },
     nextId: function() {
       return this.models.length + 1;
+    },
+    findByPath: function(path) {
+      var documentModel;
+      return documentModel = this.detect(function(documentModel) {
+        var _ref;
+        return (_ref = documentModel.get('path')) != null ? _ref.match(path) : void 0;
+      });
     },
     findOrCreateForPath: function(path, callback) {
       var display, documentModel, extension, id, name,
@@ -697,11 +740,7 @@
       if (path == null) {
         path = "";
       }
-      documentModel = this.detect(function(documentModel) {
-        var _ref;
-        return (_ref = documentModel.get('path')) != null ? _ref.match(path) : void 0;
-      });
-      if (documentModel != null) {
+      if (documentModel = this.findByPath(path)) {
         return typeof callback === "function" ? callback(documentModel) : void 0;
       } else {
         name = CodeSync.Document.getFileNameFrom(path);
@@ -762,6 +801,11 @@
   var modes;
 
   CodeSync.Modes = Backbone.Collection.extend({
+    model: Backbone.Model.extend({
+      isTemplate: function() {
+        return this.get("template") === true;
+      }
+    }),
     initialize: function(models, options) {
       var attributes, key, value;
       if (models == null) {
@@ -771,7 +815,7 @@
         options = {};
       }
       models = (function() {
-        var _results;
+        var _ref, _results;
         _results = [];
         for (key in modes) {
           value = modes[key];
@@ -781,6 +825,7 @@
             codeMirrorMode: value.codeMirrorMode || key,
             extension: value.extension,
             extensionRegex: new RegExp("" + value.extension),
+            template: value.template === true || key === "skim" || ((_ref = value.extension) != null ? _ref.match(/jst/) : void 0),
             defaultContent: value.defaultContent
           });
         }
@@ -1373,8 +1418,119 @@
 }).call(this);
 (function() {
 
+  CodeSync.plugins.ElementSync = Backbone.View.extend({
+    className: "codesync-element-sync toggleable-input",
+    action: "html",
+    events: {
+      "keyup input": function() {
+        return this.bindToSelector();
+      },
+      "change select": function(e) {
+        return this.action = this.$(e.target).val();
+      },
+      "click .done-button": function() {
+        return this.clear();
+      }
+    },
+    initialize: function(options) {
+      var _this = this;
+      this.options = options != null ? options : {};
+      _.extend(this, this.options);
+      this.bindToSelector = _.debounce(function() {
+        _this.selector = _this.getValue();
+        _this.$elementSync = $(_this.selector);
+        return _this.status();
+      }, 500);
+      this.editor.on("code:sync:template", this.syncWithElement, this);
+      this.editor.on("change:mode", function(mode) {
+        if (mode.isTemplate()) {
+          return _this.toggleButton(true);
+        } else {
+          _this.hide();
+          return _this.toggleButton(false);
+        }
+      });
+      this.visible = false;
+      this.$el.hide();
+      return this.toggleButton(false);
+    },
+    syncWithElement: function(document, templateFn) {
+      var _name, _ref;
+      return this.selector && ((_ref = this.$elementSync) != null ? typeof _ref[_name = this.action || "html"] === "function" ? _ref[_name](templateFn()) : void 0 : void 0);
+    },
+    getSelectorContents: function() {
+      return this.$(this.selector).html();
+    },
+    getValue: function() {
+      return this.$('input[name="css-selector"]').val();
+    },
+    clear: function() {
+      this.$('input[name="css-selector"]').val('');
+      this.$elementSync = void 0;
+      this.selector = '';
+      return this.$('.element-sync-status').html("");
+    },
+    existsInDocument: function() {
+      var _ref;
+      return ((_ref = this.$elementSync) != null ? _ref.length : void 0) > 0;
+    },
+    status: function() {
+      var length, msg, _ref;
+      length = (_ref = this.$elementSync) != null ? _ref.length : void 0;
+      msg = length === 0 && this.getValue().length > 0 ? "CSS Selector not found" : length === 1 ? "1 total element" : length > 0 ? "" + length + " total elements" : "";
+      return this.$('.element-sync-status').html(msg);
+    },
+    render: function() {
+      this.$el.html(JST["code_sync/editor/templates/element_sync"]());
+      this.status();
+      return this;
+    },
+    show: function() {
+      this.visible = true;
+      return this.$el.show();
+    },
+    hide: function() {
+      this.visible = false;
+      return this.$el.hide();
+    },
+    toggle: function() {
+      if (this.visible) {
+        return this.hide();
+      } else {
+        return this.show();
+      }
+    },
+    toggleButton: function(show) {
+      if (show == null) {
+        show = true;
+      }
+      if (show) {
+        return this.editor.$('.toggle-element-sync').show();
+      } else {
+        return this.editor.$('.toggle-element-sync').hide();
+      }
+    }
+  });
+
+  CodeSync.plugins.ElementSync.setup = function(editor) {
+    var view,
+      _this = this;
+    this.$('.toolbar-wrapper').append("<div class='button toggle-element-sync'>Sync w/ Element</div>");
+    view = new CodeSync.plugins.ElementSync({
+      editor: editor
+    });
+    editor.views.elementSync = view;
+    this.events["click .toggle-element-sync"] = function() {
+      return view.toggle();
+    };
+    return this.$el.append(view.render().el);
+  };
+
+}).call(this);
+(function() {
+
   CodeSync.plugins.KeymapSelector = Backbone.View.extend({
-    className: "keymap-selector",
+    className: "config-select keymap-selector",
     events: {
       "change select": "onSelect"
     },
@@ -1405,7 +1561,7 @@
         mode = _ref[_i];
         options += "<option value='" + mode + "'>" + mode + "</option>";
       }
-      this.$el.html("<select>" + options + "</select>");
+      this.$el.html("<label>Keymap</label> <select>" + options + "</select>");
       return this;
     }
   });
@@ -1415,14 +1571,14 @@
     v = this.views.keymapSelector = new CodeSync.plugins.KeymapSelector({
       editor: editor
     });
-    return editor.$('.codesync-asset-editor').append(v.render().el);
+    return this.$('.toolbar-wrapper').append(v.render().el);
   };
 
 }).call(this);
 (function() {
 
   CodeSync.plugins.ModeSelector = Backbone.View.extend({
-    className: "mode-selector",
+    className: "config-select mode-selector",
     events: {
       "change select": "onSelect"
     },
@@ -1456,7 +1612,7 @@
         mode = _ref[_i];
         options += "<option value='" + mode.id + "'>" + (mode.get('name')) + "</option>";
       }
-      this.$el.html("<select>" + options + "</select>");
+      this.$el.html("<label>Language:</label> <select>" + options + "</select>");
       return this;
     }
   });
@@ -1466,7 +1622,7 @@
     v = this.views.modeSelector = new CodeSync.plugins.ModeSelector({
       editor: editor
     });
-    editor.$('.codesync-asset-editor').append(v.render().el);
+    this.$('.toolbar-wrapper').append(v.render().el);
     return editor.on("document:loaded", function(doc) {
       return v.setValue(doc.get('mode'));
     });
@@ -1605,12 +1761,15 @@
 (function() {
 
   CodeSync.AssetEditor = Backbone.View.extend({
+    name: "code_sync",
     className: "codesync-editor",
+    position: "top",
+    enableToolbar: true,
+    enableStatusMessages: true,
     autoRender: true,
     autoAppend: true,
     appendTo: "body",
     renderVisible: true,
-    position: "top",
     effect: "slide",
     effectDuration: 400,
     editorChangeThrottle: 800,
@@ -1619,13 +1778,12 @@
     hideable: true,
     startMode: "scss",
     theme: "ambiance",
-    name: "code_sync",
     keyBindings: "",
     events: {
       "click .status-message": "removeStatusMessages",
       "click .hide-button": "hide"
     },
-    plugins: ["DocumentManager", "ModeSelector", "PreferencesPanel"],
+    plugins: ["DocumentManager", "ModeSelector", "PreferencesPanel", "ElementSync", "KeymapSelector"],
     pluginOptions: {},
     initialize: function(options) {
       var _this = this;
@@ -1823,6 +1981,9 @@
       return _results;
     },
     setupToolbar: function() {
+      if (!this.enableToolbar) {
+        this.$('.toolbar-wrapper').hide();
+      }
       if (this.hideable === true) {
         return this.$('.toolbar-wrapper').append("<div class='button hide-button'>Hide</div>");
       }
@@ -1847,24 +2008,29 @@
         this.currentDocument.off("status", this.showStatusMessage);
         this.currentDocument.off("change:compiled", this.applyDocumentContentToPage);
         this.currentDocument.off("change:mode", this.applyDocumentContentToPage, this);
+        this.previousDocument = this.currentDocument;
       } else {
         this.currentDocument = doc;
         this.trigger("initial:document:load");
       }
       this.currentDocument = doc;
-      this.trigger("document:loaded", doc);
+      this.trigger("document:loaded", doc, this.previousDocument);
       this.codeMirror.swapDoc(this.currentDocument.toCodeMirrorDocument());
-      this.currentDocument.on("status", this.showStatusMessage, this);
+      if (this.enableStatusMessages !== false) {
+        this.currentDocument.on("status", this.showStatusMessage, this);
+      }
       this.currentDocument.on("change:compiled", this.applyDocumentContentToPage, this);
-      this.currentDocument.on("change:mode", this.applyDocumentContentToPage, this);
+      this.currentDocument.on("change:mode", this.syncEditorModeWithDocument, this);
       return this.setCodeMirrorOptions(this.currentDocument.toCodeMirrorOptions());
+    },
+    syncEditorModeWithDocument: function() {
+      if ((this.currentDocument != null) && (this.currentDocument.toMode() !== this.mode)) {
+        return this.setMode(this.currentDocument.toMode());
+      }
     },
     applyDocumentContentToPage: function() {
       var _ref,
         _this = this;
-      if ((this.currentDocument != null) && (this.currentDocument.toMode() !== this.mode)) {
-        this.setMode(this.currentDocument.toMode());
-      }
       return (_ref = this.currentDocument) != null ? _ref.loadInPage({
         complete: function() {
           var _ref1, _ref2;
@@ -1874,8 +2040,12 @@
             }
           }
           if (_this.currentDocument.type() === "stylesheet") {
-            return (_ref2 = CodeSync.onStylesheetChange) != null ? _ref2.call(window, _this.currentDocument.attributes) : void 0;
+            if ((_ref2 = CodeSync.onStylesheetChange) != null) {
+              _ref2.call(window, _this.currentDocument.attributes);
+            }
           }
+          _this.trigger("code:sync", _this.currentDocument);
+          return _this.trigger("code:sync:" + (_this.currentDocument.type()), _this.currentDocument, JST[_this.currentDocument.get('name')]);
         }
       }) : void 0;
     },
@@ -1883,12 +2053,26 @@
       return this.$('.status-message').remove();
     },
     showStatusMessage: function(options) {
-      var _ref,
+      var allowedTypes, _ref,
         _this = this;
       if (options == null) {
         options = {};
       }
       this.removeStatusMessages();
+      allowedTypes = (function() {
+        switch (this.enableStatusMessages) {
+          case false:
+            return [];
+          case true:
+          case "all":
+            return ["success", "error", "notice"];
+          default:
+            return [this.enableStatusMessages];
+        }
+      }).call(this);
+      if (!(_(allowedTypes).indexOf(options.type) >= 0)) {
+        return;
+      }
       if (((_ref = options.message) != null ? _ref.length : void 0) > 0) {
         this.$el.prepend("<div class='status-message " + options.type + "'>" + options.message + "</div>");
       }
@@ -1958,6 +2142,9 @@
         view = _ref[viewName];
         view.trigger("editor:hidden");
       }
+      if (this.hideable) {
+        this.$el.removeAttr('data-visible');
+      }
       completeFn = _.debounce(function() {
         _this.visible = false;
         return _this.animating = false;
@@ -1986,13 +2173,15 @@
         view = _ref[viewName];
         view.trigger("editor:visible");
       }
+      if (this.hideable) {
+        this.$el.attr('data-visible', true);
+      }
       completeFn = _.debounce(function() {
         _this.visible = true;
         return _this.animating = false;
       }, this.effectDuration);
       if (withEffect !== false) {
         this.$el.removeAttr('style').css('top', '').css('bottom', '');
-        console.log("Vis Settings", this.visibleStyleSettings());
         this.$el.animate(this.visibleStyleSettings(), {
           duration: this.effectDuration,
           complete: completeFn

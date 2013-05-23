@@ -6,6 +6,7 @@ require 'pry'
 
 require "code_sync/temp_asset"
 require "code_sync/sprockets_adapter"
+require "code_sync/pry_console"
 
 module CodeSync
   class Server
@@ -13,7 +14,8 @@ module CodeSync
                   :faye,
                   :root,
                   :options,
-                  :forbid_saving
+                  :forbid_saving,
+                  :rack
 
 
     def initialize options={}
@@ -29,17 +31,28 @@ module CodeSync
       faye.add_extension(FayeMonitor.new)
     end
 
+    def call(env)
+      [200, {"Access-Control-Allow-Origin"=>"*","Content-Type" => "application/json"}, [{code_sync:true}.to_json]]
+    end
+
     def allow_saving?
       forbid_saving == true
     end
 
-    def start port=9295
-      app = Rack::URLMap.new  "/assets" => assets.env,
-                              "/" => faye,
-                              "/info" => ServerInfo.new(sprockets:assets, options: options, root: root, allow_saving: allow_saving?),
-                              "/source" => SourceProvider.new(sprockets:assets, allow_saving: allow_saving?)
+    def urlmap
+      Rack::URLMap.new   "/assets" =>   assets.env,
+                         "/" =>         faye,
+                         "/info" =>     ServerInfo.new(self, sprockets:assets, options: options, root: root, allow_saving: allow_saving?),
+                         "/source" =>   SourceProvider.new(self, sprockets:assets, allow_saving: allow_saving?)
+    end
 
-      Rack::Server.start(app:app,:Port=>port,:server=>'thin')
+    def start port=9295
+      @port = port
+      Rack::Server.start(app:urlmap,:Port=>port,:server=>'thin',:pid => File.join("/tmp/codesync-server.pid") )
+    end
+
+    def stop
+
     end
 
     class FayeMonitor
@@ -54,7 +67,7 @@ module CodeSync
     class SourceProvider
       attr_accessor :sprockets, :root, :options
 
-      def initialize options={}
+      def initialize app, options={}
         @options = options
         @sprockets = options[:sprockets]
         @root = options[:root] || Dir.pwd()
@@ -180,7 +193,7 @@ module CodeSync
     class ServerInfo
       attr_accessor :faye, :sprockets, :options
 
-      def initialize options={}
+      def initialize app, options={}
         @sprockets  = options[:sprockets]
         @faye       = options[:faye]
         @options    = options.dup

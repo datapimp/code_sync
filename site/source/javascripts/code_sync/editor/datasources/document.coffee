@@ -167,14 +167,22 @@ CodeSync.Document.getExtensionFor = (string="")->
 CodeSync.Documents = Backbone.Collection.extend
   model: CodeSync.Document
 
+  initialize: (models,options)->
+    Backbone.Collection::initialize.apply(@, arguments)
+
+    if client = CodeSync.Client.get() && client?.socket?
+      client.subscribeWith (notification)->
+        console.log "Documents", notification
+
   nextId: ()->
     @models.length + 1
 
-  findOrCreateForPath: (path="", callback)->
+  findByPath: (path)->
     documentModel = @detect (documentModel)->
       documentModel.get('path')?.match(path)
 
-    if documentModel?
+  findOrCreateForPath: (path="", callback)->
+    if documentModel = @findByPath(path)
       callback?(documentModel)
     else
       name = CodeSync.Document.getFileNameFrom(path)

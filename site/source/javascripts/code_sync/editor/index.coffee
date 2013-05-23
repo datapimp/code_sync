@@ -25,7 +25,6 @@ CodeSync.AssetEditor = Backbone.View.extend
 
   renderVisible: true
 
-
   effect: "slide"
   effectDuration: 400
 

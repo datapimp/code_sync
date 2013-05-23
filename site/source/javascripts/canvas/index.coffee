@@ -2,55 +2,14 @@
 #= require_self
 
 CodeSync.Canvas = Backbone.View.extend
-  events:
-    "click .horizontal-handle" : "enableHorizontalDragging"
-    "click .vertical-handle" : "enableVerticalDragging"
-    "dblclick .horizontal-handle" : "snapBackLeft"
-    "dblclick .vertical-handle" : "snapBackUp"
+  className: "codesync-canvas"
 
-  initialize: ()->
-    Backbone.View::initialize.apply(@, arguments)
-    @render()
+CodeSync.Canvas.startApplication = ()->
+  $('body').attr('data-canvas-application',true)
 
-  render: ()->
-    @setElement $('#canvas-panel')
-    @
-
-  snapBackLeft: ()->
-    @$el.animate('left':'0px')
-
-  snapBackUp: ()->
-    @$el.animate('top':'0px')
-
-  enableVerticalDragging: ()->
-    @makeDraggable("vertical")
-
-  enableHorizontalDragging: ()->
-    @makeDraggable("horizontal")
-
-  cancelDraggable: ()->
-    @direction = undefined
-    @$el.draggable('destroy')
-
-  makeDraggable: (@direction="horizontal")->
-    @$el.attr('data-draggable-direction', @direction)
-
-    if @direction is "horizontal"
-      @$el.draggable
-        axis: "x"
-        handle: ".horizontal-handle"
-        containment:[0,0]
-
-    if @direction is "vertical"
-      @$el.draggable
-        axis: "y"
-        handle: ".vertical-handle"
-        containment:[0,0]
-
-$ ->
-
-  window.codeSyncCanvas = new CodeSync.Canvas()
+  codeSyncCanvas = new CodeSync.LayerController(applyTo:"#canvas")
 
   CodeSync.canvasEditors()
 
-  codeSyncCanvas.makeDraggable("horizontal")
+  CodeSync.PryConsole.renderSingleton("#backend-console-wrapper")
+

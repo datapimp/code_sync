@@ -9,6 +9,7 @@ gem "thin"
 gem "faye"
 gem "thor"
 gem "listen"
+gem "rack-webconsole-pry"
 
 group :development, :test do
   gem 'rspec'

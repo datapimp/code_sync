@@ -11,18 +11,25 @@ module CodeSync
   class Manager
 
     def self.start options={}
-      manager = new(options)
+      begin
+        manager = new(options)
 
-      cleanup_stale_processes
+        cleanup_stale_processes
 
-      if options[:forked]
-        pid = fork do
-          manager.start
+        if options[:forked]
+          pid = fork do
+            manager.start
+          end
+
+          Process.detach(pid)
+        else
+          manager.start(options)
         end
-
-        Process.detach(pid)
-      else
-        manager.start(options)
+      rescue
+        puts "Error Manager. #{ $! }"
+      ensure
+        puts "Clesning up finally"
+        cleanup_stale_processes
       end
     end
 
@@ -38,10 +45,9 @@ module CodeSync
       end
     end
 
-    attr_accessor :sprockets, :server, :client_manager, :options, :processes, :pids
+    attr_accessor :sprockets, :server, :client_manager, :options, :processes, :process_map
 
     def start options={}
-
       if already_running?
         puts "== Codesync is already running"
         return
@@ -49,25 +55,34 @@ module CodeSync
 
       $0 = "codesync process: manager"
 
-      @pids = processes.map do |config|
-        fork do
-          name, block = config
-
-          $0 = "codesync process: #{ name }"
-          block.call
-        end
-      end
+      build_process_map
 
       trap("SIGINT") do
         exit_gracefully # :)
       end
 
-      Process.waitall
 
       puts "== All CodeSync processes exited cleanly."
     end
 
     protected
+      def build_process_map
+        @process_map = processes.inject({}) do |memo,config|
+          name = config.first
+
+          memo[name] = pid = fork do
+            name, block = config
+
+            $0 = "codesync process: #{ name }"
+            block.call
+          end
+
+          memo
+        end
+
+        Process.waitall
+      end
+
       def already_running?
         test = `ps aux |grep "c[o]desync process: manager"`
 
@@ -75,23 +90,28 @@ module CodeSync
       end
 
       def exit_gracefully
-        @pids.each {|p| Process.kill(9,p) }
+        puts "EXIT"
+
+        yield if block_given?
+
+        puts "Didn't make it past yield"
+        puts "#{ process_map.inspect }"
+
+        process_map.each do |process_name,pid|
+          puts "Killing #{ process_name } #{pid}"
+
+          Process.kill(9,pid)
+        end
       end
 
       def initialize options={}
-        @options = options.dup
+        @options = options.freeze
 
-        # we want to match the sprockets environment that would be
-        # available to this rails, or middleman project.  this means
-        # re-using the asset pipeline gems it has available, and having
-        # the same source paths
-        create_sprockets_environment()
 
-        create_pubsub_server()
-
-        #expose_via_rack(sprockets, pubsub)
+        create_server()
 
         unless options[:disable_watcher]
+          puts "Listening for changes on the filesystem"
           listen_for_changes_on_the_filesystem do |changed_assets|
             changed_assets.each do |asset|
               notify_clients_of_change_to(asset)
@@ -103,18 +123,19 @@ module CodeSync
           listen_for_changes_from_clients do |changed_assets|
           end
         end
+
+        unless options[:disable_internal_watch]
+          listen_for_changes_to_code_sync()
+        end
       end
 
-      def create_pubsub_server
+      def create_server
+        @sprockets = SprocketsAdapter.new(root: root, sprockets: options[:sprockets])
         @server = CodeSync::Server.new(assets: sprockets, root: root, forbid_saving: !!(options[:forbid_saving]) )
 
         manage_child_process("server") do
           server.start()
         end
-      end
-
-      def create_sprockets_environment
-        @sprockets = SprocketsAdapter.new(root: root, sprockets: options[:sprockets])
       end
 
       def notify_clients_of_change_to asset
@@ -143,6 +164,12 @@ module CodeSync
         end
       end
 
+      def listen_for_changes_to_code_sync &handler
+        manage_child_process("internal") do
+          internal.start
+        end
+      end
+
       def listen_for_changes_on_the_filesystem &handler
         manage_child_process("watcher") do
           watcher.change do |modified,added,removed|
@@ -168,6 +195,24 @@ module CodeSync
 
       def root
         base = options[:root] || options[:assets_directory] || Dir.pwd()
+      end
+
+      def internal
+        lib = File.dirname(__FILE__)
+        puts "Listening to #{ lib }"
+
+        @internal_watch = Listen.to( lib )
+          .filter(/.rb/)
+          .latency(1)
+          .change do
+            restart_everything!
+          end
+
+        @internal_watch
+      end
+
+      def restart_everything!
+
       end
 
       def watcher
