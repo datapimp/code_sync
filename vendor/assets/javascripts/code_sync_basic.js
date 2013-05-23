@@ -387,12 +387,9 @@
         context = {};
       }
       return Skim.withContext.call({}, context, function() {
-        var classes, closable, displayValue, _buf, _ref, _ref1, _ref2, _temple_coffeescript_attributeremover1, _temple_coffeescript_attributeremover2;
+        var classes, displayValue, _buf, _ref, _ref1, _ref2, _temple_coffeescript_attributeremover1, _temple_coffeescript_attributeremover2;
         _buf = [];
         displayValue = this.display || this.doc.get("display") || this.doc.get("name");
-        if ((this.doc != null) && this.doc.isSticky()) {
-          closable = true;
-        }
         classes = ["document-tab"];
         if (this.cls != null) {
           classes.push(this.cls);
@@ -400,7 +397,7 @@
         if (this.doc != null) {
           classes.push("selectable");
         }
-        if (!((_ref = this.doc) != null ? _ref.isSticky() : void 0)) {
+        if (this.closable && !((_ref = this.doc) != null ? _ref.isSticky() : void 0)) {
           classes.push("closable");
         }
         if (this.index !== 0) {
@@ -426,13 +423,9 @@
           _buf.push(_temple_coffeescript_attributeremover2);
           _buf.push("\"");
         }
-        _buf.push("><div class=\"contents\">");
+        _buf.push("><span class=\"contents\">");
         _buf.push(this.escape(displayValue));
-        _buf.push("</div>");
-        if (closable) {
-          _buf.push("<div class=\"close-anchor\"><X></X></div>");
-        }
-        _buf.push("</div>");
+        _buf.push("</span><small class=\"close-anchor\">x</small></div>");
         return _buf.join('');
       });
     };
@@ -448,7 +441,7 @@
       return Skim.withContext.call({}, context, function() {
         var _buf;
         _buf = [];
-        _buf.push("<div class=\"element-sync-panel\"><div class=\"row\"><div class=\"span9\"><input name=\"css-selector\" placeholder=\"Enter a CSS selector to sync with\" /></div><div class=\"span3\"><select name=\"action\"><option value=\"html\">Replace</option><option value=\"before\">Before</option><option value=\"before\">After</option></select></div></div><div class=\"row\"><div class=\"span9\"><div class=\"element-sync-status\"></div><input class=\"done-button\" type=\"button\" value=\"Done\" /></div></div></div>");
+        _buf.push("<div class=\"element-sync-panel\"><div class=\"row\"><div class=\"span9\"><input name=\"css-selector\" placeholder=\"Enter a CSS selector to sync with\" /></div><div class=\"span3\"><select name=\"action\"><option value=\"html\">Replace</option><option value=\"before\">Before</option><option value=\"before\">After</option></select></div></div><div class=\"row\"><div class=\"span9\"><div class=\"element-sync-status\"></div><input class=\"done-button\" type=\"button\" value=\"Done\" /><input class=\"hide-panel-button\" type=\"button\" value=\"Hide\" /></div></div></div>");
         return _buf.join('');
       });
     };
@@ -1197,47 +1190,110 @@
 }).call(this);
 (function() {
 
-  CodeSync.plugins.DocumentManager = Backbone.View.extend({
-    className: "codesync-document-manager",
-    views: {},
-    events: {
-      "click .document-tab.selectable": "onDocumentTabSelection",
-      "click .document-tab.closable .close-anchor": "closeTab",
-      "click .document-tab.new-document": "createDocument",
-      "click .document-tab.save-document": "saveDocument",
-      "click .document-tab.open-document": "toggleAssetSelector",
-      "dblclick .document-tab.editable": "onDoubleClickTab",
-      "blur .document-tab.editable .contents": "onEditableTabBlur",
-      "keydown .document-tab.editable .contents": "onEditableTabKeyPress"
+  CodeSync.DocumentManager = Backbone.Model.extend({
+    initialize: function(attributes) {
+      var trigger, _i, _len, _ref;
+      this.attributes = attributes != null ? attributes : {};
+      this.editor = this.attributes.editor;
+      delete this.attributes.editor;
+      this.openDocuments = new CodeSync.Documents();
+      _ref = ["add", "remove", "change:display", "change:sticky"];
+      for (_i = 0, _len = _ref.length; _i < _len; _i++) {
+        trigger = _ref[_i];
+        this.openDocuments.on(trigger, this.notify, this);
+      }
+      return Backbone.Model.prototype.initialize.apply(this, arguments);
     },
+    getEditor: function() {
+      return this.editor || _(CodeSync.AssetEditor.instances).values()[0];
+    },
+    detect: function(iterator) {
+      return this.openDocuments.each(iterator);
+    },
+    each: function(iterator) {
+      return this.openDocuments.each(iterator);
+    },
+    notify: function() {
+      return this.trigger("document:change");
+    },
+    openDocument: function(doc, editor) {
+      editor || (editor = this.getEditor());
+      this.openDocuments.add(doc);
+      return this.setCurrentDocument(doc, editor);
+    },
+    setCurrentDocument: function(currentDocument, editor) {
+      this.currentDocument = currentDocument;
+      editor || (editor = this.editor);
+      return editor.loadDocument(this.currentDocument);
+    },
+    saveDocument: function() {
+      if (CodeSync.get("disableAssetSave")) {
+        return this.getEditor().showError("Saving is disabled.");
+      } else {
+        return this.currentDocument.saveToDisk();
+      }
+    },
+    createDocument: function(editor) {
+      var doc, extension, mode, _ref;
+      editor || (editor = this.getEditor());
+      mode = ((_ref = editor.mode) != null ? _ref.id : void 0) || CodeSync.get("defaultFileType");
+      extension = CodeSync.Modes.guessExtensionFor(mode);
+      doc = new CodeSync.Document({
+        name: "untitled",
+        display: "Untitled",
+        mode: mode,
+        extension: extension
+      });
+      return this.openDocument(doc, editor);
+    }
+  });
+
+}).call(this);
+(function() {
+
+  CodeSync.plugins.DocumentTabs = Backbone.View.extend({
+    includeActionTabs: true,
+    allowNew: true,
+    allowOpen: true,
+    allowSave: CodeSync.get("allowSaving") === true,
+    events: {
+      "click .selectable": "onDocumentTabSelection",
+      "click .closable .close-anchor": "closeTab",
+      "click .new-document": "createDocument",
+      "click .save-document": "saveDocument",
+      "click .open-document": "toggleAssetSelector",
+      "dblclick .editable": "onDoubleClickTab",
+      "blur .editable .contents": "onEditableTabBlur",
+      "keydown .editable .contents": "onEditableTabKeyPress"
+    },
+    tabTemplate: JST["code_sync/editor/templates/document_manager_tab"],
+    views: {},
     initialize: function(options) {
       var _this = this;
       this.options = options != null ? options : {};
       _.extend(this, options);
       this.editor = options.editor;
-      this.$el.append("<div class='document-tabs-container' />");
-      this.openDocuments = new CodeSync.Documents();
-      this.openDocuments.on("add", this.renderTabs, this);
-      this.openDocuments.on("remove", this.renderTabs, this);
-      this.openDocuments.on("change:display", this.renderTabs, this);
+      this.manager = this.editor.documentManager;
+      this.docs = this.manager.openDocuments;
+      this.manager.on("document:change", this.renderTabs, this);
       this.projectAssets = new CodeSync.ProjectAssets();
-      this.state = new Backbone.Model({
-        currentDocument: void 0
-      });
-      this.state.on("change:currentDocument", this.highlightActiveDocumentTab, this);
       this.on("editor:hidden", function() {
         return _this.$('.document-tab.hideable').hide();
       });
       this.on("editor:visible", function() {
-        _this.$('.document-tab.hideable').show();
-        return _this.toggleSaveButton();
+        return _this.$('.document-tab.hideable').show();
       });
       this.views.assetSelector = new CodeSync.AssetSelector({
         collection: this.projectAssets,
-        documents: this.openDocuments,
+        documents: this.docs,
         editor: this.editor
       });
-      return this.views.assetSelector.on("asset:selected", this.onAssetSelection, this);
+      this.views.assetSelector.on("asset:selected", this.onAssetSelection, this);
+      return Backbone.View.prototype.initialize.apply(this, arguments);
+    },
+    tabsContainer: function() {
+      var el;
+      return el = this.$('.document-tabs-container');
     },
     documentInTab: function(tabElement) {
       var cid, doc;
@@ -1245,7 +1301,7 @@
         tabElement = tabElement.parents('.document-tab').eq(0);
       }
       if (cid = tabElement.data('document-cid')) {
-        return doc = this.openDocuments.detect(function(model) {
+        return doc = this.docs.detect(function(model) {
           return model.cid === cid;
         });
       }
@@ -1253,39 +1309,55 @@
     renderTabs: function() {
       var container, tmpl,
         _this = this;
-      container = this.$('.document-tabs-container').empty();
-      tmpl = JST["code_sync/editor/templates/document_manager_tab"];
-      this.openDocuments.each(function(doc, index) {
+      container = this.tabsContainer().empty();
+      tmpl = this.tabTemplate;
+      this.docs.each(function(doc, index) {
         if (!(_this.skipTabForDefault === true && index === 0)) {
           return container.append(tmpl({
             doc: doc,
-            index: index
+            index: index,
+            closable: !!(index > 0)
           }));
         }
       });
-      if (this.allowNew !== false) {
-        container.append(tmpl({
-          display: "New",
-          cls: "new-document"
-        }));
+      if (this.includeActionTabs) {
+        if (this.allowOpen) {
+          this.addOpenDocumentTab();
+        }
+        if (this.allowNew) {
+          return this.addNewDocumentTab();
+        }
       }
-      if (this.allowOpen !== false) {
-        return container.append(tmpl({
-          display: "Open",
-          cls: "open-document"
-        }));
-      }
+    },
+    addOpenDocumentTab: function() {
+      return this.tabsContainer().append(this.tabTemplate({
+        display: "Open",
+        cls: "open-document"
+      }));
+    },
+    addNewDocumentTab: function() {
+      return this.tabsContainer().append(this.tabTemplate({
+        display: "New",
+        cls: "new-document"
+      }));
+    },
+    addSaveDocumentTab: function() {
+      return this.tabsContainer().append(this.tabTemplate({
+        display: "Save",
+        cls: "save-document"
+      }));
     },
     onAssetSelection: function(path) {
       var _this = this;
-      return this.openDocuments.findOrCreateForPath(path, function(doc) {
-        return _this.openDocument(doc);
+      return this.docs.findOrCreateForPath(path, function(doc) {
+        return _this.manager.openDocument(doc, _this.editor);
       });
     },
     onEditableTabKeyPress: function(e) {
       var contents, doc, original, target;
       target = this.$(e.target).closest('.document-tab');
       contents = target.children('.contents');
+      console.log("On Editable Tab Keypress", e.keyCode, e.which);
       if (e.keyCode === 13 || e.keyCode === 27) {
         e.preventDefault();
         contents.attr('contenteditable', false);
@@ -1297,14 +1369,17 @@
             contents.html(original);
           }
         }
-        return this.editor.codeMirror.focus();
+        return this.restoreFocus();
       }
     },
+    restoreFocus: function() {
+      return this.editor.codeMirror.focus();
+    },
     onEditableTabBlur: function(e) {
-      var contents, doc, target, _ref;
+      var contents, doc, target;
+      console.log("On Editable Tab Blur");
       target = this.$(e.target).closest('.document-tab');
       contents = target.children('.contents');
-      console.log("On Editable Tab Blur", (_ref = this.documentInTab(target)) != null ? _ref.cid : void 0);
       if (doc = this.documentInTab(target)) {
         doc.set('name', contents.html());
         return contents.attr('contenteditable', false);
@@ -1312,6 +1387,7 @@
     },
     onDoubleClickTab: function(e) {
       var contents, target;
+      console.log("On Double Click Tab");
       target = this.$(e.target).closest('.document-tab');
       contents = target.children('.contents');
       target.attr('data-original-value', contents.html());
@@ -1322,97 +1398,43 @@
       this.trigger("tab:click");
       target = this.$(e.target).closest('.document-tab');
       doc = this.documentInTab(target);
-      return this.setCurrentDocument(doc);
+      return this.manager.setCurrentDocument(doc, this.editor);
     },
     closeTab: function(e) {
       var doc, index, target;
       target = this.$(e.target);
       doc = this.documentInTab(target);
-      index = this.openDocuments.indexOf(doc);
-      this.openDocuments.remove(doc);
-      return this.setCurrentDocument(this.openDocuments.at(index - 1) || this.openDocuments.at(0));
-    },
-    getCurrentDocument: function() {
-      return this.currentDocument;
-    },
-    openDocument: function(doc, editor) {
-      editor || (editor = this.editor);
-      this.openDocuments.add(doc);
-      return this.setCurrentDocument(doc, editor);
-    },
-    setCurrentDocument: function(currentDocument, editor) {
-      this.currentDocument = currentDocument;
-      editor || (editor = this.editor);
-      return editor.loadDocument(this.currentDocument);
-    },
-    toggleSaveButton: function() {
-      var _ref, _ref1;
-      if (((_ref = this.currentDocument) != null ? (_ref1 = _ref.get("path")) != null ? _ref1.length : void 0 : void 0) > 0) {
-        return this.$('.save-document').show();
-      } else {
-        return this.$('.save-document').hide();
-      }
-    },
-    saveDocument: function() {
-      if (CodeSync.get("disableAssetSave")) {
-        return this.editor.showStatusMessage({
-          type: "error",
-          message: "Saving is disabled in this demo."
-        });
-      } else {
-        return this.currentDocument.saveToDisk();
-      }
+      index = this.docs.indexOf(doc);
+      this.docs.remove(doc);
+      return this.manager.setCurrentDocument(this.docs.at(index - 1) || this.docs.at(0), this.editor);
     },
     createDocument: function() {
-      var doc;
-      this.openDocuments.add({
-        name: "untitled",
-        display: "Untitled",
-        mode: CodeSync.get("defaultFileType"),
-        extension: CodeSync.Modes.guessExtensionFor(CodeSync.get("defaultFileType"))
-      });
-      doc = this.openDocuments.last();
-      return this.openDocument(doc);
+      return this.manager.createDocument();
     },
     toggleAssetSelector: function() {
       return this.views.assetSelector.toggle();
     },
     render: function() {
+      this.$el.append("<div class='document-tabs-container' />");
       this.$el.append(this.views.assetSelector.render().el);
       return this;
     }
   });
 
-  CodeSync.plugins.DocumentManager.setup = function(editor, options) {
+  CodeSync.plugins.DocumentTabs.setup = function(editor, options) {
     var dm,
       _this = this;
     if (options == null) {
       options = {};
     }
     options.editor = editor;
-    dm = this.views.documentManager = new CodeSync.plugins.DocumentManager(options);
-    _.extend(editor.codeMirrorKeyBindings, {
-      "Ctrl-T": function() {
-        return dm.toggleAssetSelector();
-      },
-      "Ctrl-S": function() {
-        return dm.getCurrentDocument().save();
-      },
-      "Ctrl-N": function() {
-        return dm.createDocument();
-      }
-    });
+    dm = this.views.documentTabs = new CodeSync.plugins.DocumentTabs(options);
     this.$el.append(dm.render().el);
-    dm.on("tab:click", function() {
+    return dm.on("tab:click", function() {
       if (_this.visible === false) {
         return _this.show();
       }
     });
-    return CodeSync.AssetEditor.prototype.loadDefaultDocument = function() {
-      var defaultDocument;
-      defaultDocument = editor.getDefaultDocument();
-      return dm.openDocument(defaultDocument);
-    };
   };
 
 }).call(this);
@@ -1427,6 +1449,9 @@
       },
       "change select": function(e) {
         return this.action = this.$(e.target).val();
+      },
+      "click .hide-panel-button": function() {
+        return this.hide();
       },
       "click .done-button": function() {
         return this.clear();
@@ -1454,7 +1479,7 @@
       this.$el.hide();
       return this.toggleButton(false);
     },
-    syncWithElement: function(document, templateFn) {
+    syncWithElement: function(doc, templateFn) {
       var _name, _ref;
       return this.selector && ((_ref = this.$elementSync) != null ? typeof _ref[_name = this.action || "html"] === "function" ? _ref[_name](templateFn()) : void 0 : void 0);
     },
@@ -1553,6 +1578,12 @@
     setValue: function(val) {
       return this.$('select').val(val);
     },
+    hideLabel: function() {
+      return this.$('label').hide();
+    },
+    showLabel: function() {
+      return this.$('label').show();
+    },
     render: function() {
       var mode, options, _i, _len, _ref;
       options = "";
@@ -1562,6 +1593,9 @@
         options += "<option value='" + mode + "'>" + mode + "</option>";
       }
       this.$el.html("<label>Keymap</label> <select>" + options + "</select>");
+      if (!this.visibleLabel) {
+        this.hideLabel();
+      }
       return this;
     }
   });
@@ -1604,6 +1638,12 @@
     setValue: function(val) {
       return this.$('select').val(val);
     },
+    hideLabel: function() {
+      return this.$('label').hide();
+    },
+    showLabel: function() {
+      return this.$('label').show();
+    },
     render: function() {
       var mode, options, _i, _len, _ref;
       options = "";
@@ -1613,6 +1653,9 @@
         options += "<option value='" + mode.id + "'>" + (mode.get('name')) + "</option>";
       }
       this.$el.html("<label>Language:</label> <select>" + options + "</select>");
+      if (!this.visibleLabel) {
+        this.hideLabel();
+      }
       return this;
     }
   });
@@ -1783,17 +1826,22 @@
       "click .status-message": "removeStatusMessages",
       "click .hide-button": "hide"
     },
-    plugins: ["DocumentManager", "ModeSelector", "PreferencesPanel", "ElementSync", "KeymapSelector"],
+    plugins: ["DocumentTabs", "ModeSelector", "PreferencesPanel", "ElementSync", "KeymapSelector"],
     pluginOptions: {},
+    views: {},
     initialize: function(options) {
       var _this = this;
       this.options = options != null ? options : {};
       _.extend(this, this.options);
+      Backbone.View.prototype.initialize.apply(this, arguments);
+      console.log("Creatin Instance", this.name, this.cid, this);
+      CodeSync.AssetEditor.instances[this.name || this.cid] = this;
       _.bindAll(this, "editorChangeHandler");
-      this.views = {};
       this.modes = CodeSync.Modes.get();
+      this.documentManager = new CodeSync.DocumentManager({
+        editor: this
+      });
       this.startMode = this.modes.get(this.startMode) || CodeSync.Modes.defaultMode();
-      this.setPosition(this.position, false);
       this.on("editor:change", _.debounce(this.editorChangeHandler, this.editorChangeThrottle), this);
       this.on("codemirror:setup", function() {
         return _this.loadDefaultDocument();
@@ -1803,6 +1851,7 @@
         this.$el.attr('data-codesync', this.name);
       }
       this.loadPlugins();
+      this.setPosition(this.position, false);
       if (this.autoRender !== false) {
         return this.render();
       }
@@ -1886,9 +1935,6 @@
       "Ctrl+Command+3": function() {
         var _ref;
         return (_ref = CodeSync.get("commandThree")) != null ? _ref.call(this) : void 0;
-      },
-      "Ctrl+J": function() {
-        return this.toggle();
       }
     },
     getCodeMirrorOptions: function() {
@@ -1953,7 +1999,6 @@
     },
     setMode: function(newMode) {
       var _ref, _ref1;
-      this.$el.attr("data-codesync-mode", this.mode);
       if ((this.mode != null) && (newMode !== this.mode)) {
         this.trigger("change:mode", newMode, newMode.id);
         if ((_ref = this.onModeChange) != null) {
@@ -1961,6 +2006,7 @@
         }
       }
       this.mode = newMode;
+      this.$el.attr("data-codesync-mode", this.mode.id);
       if (((_ref1 = this.mode) != null ? _ref1.get : void 0) != null) {
         this.codeMirror.setOption('mode', this.mode.get("codeMirrorMode"));
         this.currentDocument.set('mode', this.mode.id);
@@ -2001,27 +2047,25 @@
       return defaultDocument = new CodeSync.Document(options);
     },
     loadDefaultDocument: function() {
-      return this.loadDocument(this.getDefaultDocument());
+      return this.documentManager.openDocument(this.getDefaultDocument(), this);
     },
     loadDocument: function(doc) {
-      if (this.currentDocument != null) {
-        this.currentDocument.off("status", this.showStatusMessage);
-        this.currentDocument.off("change:compiled", this.applyDocumentContentToPage);
-        this.currentDocument.off("change:mode", this.applyDocumentContentToPage, this);
-        this.previousDocument = this.currentDocument;
+      var current;
+      if (current = this.currentDocument) {
+        current.off("status", this.showStatusMessage);
+        current.off("change:compiled", this.applyDocumentContentToPage);
+        current.off("change:mode", this.applyDocumentContentToPage, this);
+        this.previousDocument = current;
       } else {
-        this.currentDocument = doc;
-        this.trigger("initial:document:load");
+        this.trigger("initial:document:load", this.currentDocument = doc);
       }
-      this.currentDocument = doc;
+      doc.on("status", this.showStatusMessage, this);
+      doc.on("change:compiled", this.applyDocumentContentToPage, this);
+      doc.on("change:mode", this.syncEditorModeWithDocument, this);
+      this.codeMirror.swapDoc(doc.toCodeMirrorDocument());
       this.trigger("document:loaded", doc, this.previousDocument);
-      this.codeMirror.swapDoc(this.currentDocument.toCodeMirrorDocument());
-      if (this.enableStatusMessages !== false) {
-        this.currentDocument.on("status", this.showStatusMessage, this);
-      }
-      this.currentDocument.on("change:compiled", this.applyDocumentContentToPage, this);
-      this.currentDocument.on("change:mode", this.syncEditorModeWithDocument, this);
-      return this.setCodeMirrorOptions(this.currentDocument.toCodeMirrorOptions());
+      this.setCodeMirrorOptions(doc.toCodeMirrorOptions());
+      return this.currentDocument = doc;
     },
     syncEditorModeWithDocument: function() {
       if ((this.currentDocument != null) && (this.currentDocument.toMode() !== this.mode)) {
@@ -2045,12 +2089,18 @@
             }
           }
           _this.trigger("code:sync", _this.currentDocument);
-          return _this.trigger("code:sync:" + (_this.currentDocument.type()), _this.currentDocument, JST[_this.currentDocument.get('name')]);
+          return _this.trigger("code:sync:" + (_this.currentDocument.type()), _this.currentDocument, typeof JST !== "undefined" && JST !== null ? JST[_this.currentDocument.nameWithoutExtension()] : void 0);
         }
       }) : void 0;
     },
     removeStatusMessages: function() {
       return this.$('.status-message').remove();
+    },
+    showError: function(message) {
+      return this.showStatusMessage({
+        type: "error",
+        message: message
+      });
     },
     showStatusMessage: function(options) {
       var allowedTypes, _ref,
@@ -2136,6 +2186,7 @@
       if (withEffect == null) {
         withEffect = true;
       }
+      console.trace();
       this.animating = true;
       _ref = this.views;
       for (viewName in _ref) {
@@ -2203,6 +2254,8 @@
       }
     }
   });
+
+  CodeSync.AssetEditor.instances = {};
 
   CodeSync.commands = {
     commandOne: function() {},
