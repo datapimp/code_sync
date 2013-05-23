@@ -13,6 +13,30 @@
       height: 28px;
       margin-right: 2px;
 
+      max-width: 100px;
+      overflow: hidden;
+
+      .close-anchor {
+        display: none;
+      }
+
+
+    &.closable {
+      min-width: 60px;
+      .contents {
+        float: left;
+        clear: left;
+        width: 80%;
+      }
+      .close-anchor {
+        display: block;
+        float: right;
+        width: 10%;
+        clear: right;
+      }
+    }
+
+
       &.new-document {
         margin-right: 0px;
       }
@@ -26,4 +50,11 @@
       }
     }
   }
+}
+
+.document-tabs-container {
+  .document-tab {
+  }
+
+
 }

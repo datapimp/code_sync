@@ -1,10 +1,8 @@
 CodeSync.plugins.DocumentManager = Backbone.View.extend
-  className: "codesync-document-manager"
-
   views: {}
 
   events:
-    "click .document-tab.selectable" : "onDocumentTabSelection"
+    "click .document-tab.selectable" :  "onDocumentTabSelection"
     "click .document-tab.closable .close-anchor" : "closeTab"
     "click .document-tab.new-document" : "createDocument"
     "click .document-tab.save-document" : "saveDocument"
@@ -62,7 +60,8 @@ CodeSync.plugins.DocumentManager = Backbone.View.extend
 
     @openDocuments.each (doc,index)=>
       unless @skipTabForDefault is true and index is 0
-        container.append tmpl(doc: doc, index: index)
+        container.append tmpl(doc: doc, index: index, closable: !!(index > 0))
+
 
     unless @allowNew is false
       container.append tmpl(display:"New",cls:"new-document")
