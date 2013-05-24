@@ -13,10 +13,11 @@ class CodeSync.Client
   logLevel: 0
 
   constructor: (options={})->
-
     @logLevel = options.logLevel || 0
 
     CodeSync.Client._clients.push(@)
+
+    @channel = options.channel || getClientChannel()
 
     CodeSync.util.loadScript "#{ CodeSync.get("socketEndpoint") }/client.js", ()=>
       return if @clientLoaded is true
@@ -31,74 +32,22 @@ class CodeSync.Client
       @clientLoaded = true
 
   subscribeWith: (cb)->
-    @socket?.subscribe "/code-sync/outbound", cb
+    @socket?.subscribe @channel, cb
 
   setupSocket: ()->
     return unless Faye?
 
     @socket = new Faye.Client(CodeSync.get("socketEndpoint"))
 
-    @subscribeWith (notification)=>
-      if @logLevel > 0
-        console.log "Received notification on outbound channel", notification
+# Allows for hijacking a page which includes the code sync client
+# and overriding the notification channel.  this allows for sandboxd
+# iframes to still interact with the codesync editor components
+# in certain apps
+getClientChannel = (channel)->
+  query = window.location.search.substring(1)
+  vars  = query.split('&')
 
-      @onNotification?.call?(@, notification)
+  for item in vars when item.match(/code_sync_channel/)
+    [param,channel] = item.split('=') unless channel?
 
-      if notification.name?.match(/\.js$/)
-        @onJavascriptNotification.call(@,notification)
-
-      if notification.name?.match(/\.css$/)
-        @onStylesheetNotification.call(@, notification)
-
-  javascriptCallbacks: []
-
-  stylesheetCallbacks: []
-
-  removeJavascriptCallbacks: ()->
-    @javascriptCallbacks = []
-
-  removeStylesheetCallbacks: ()->
-    @stylesheetCalbacks = []
-
-  afterJavascriptChange: (callback, clearExisting=false)->
-    @javascriptCallbacks ||= []
-    @javascriptCallbacks = [] if clearExisting is true
-    @javascriptCallbacks.push(callback)
-
-  afterStylesheetChange: (callback, clearExisting=false)->
-    @stylesheetCallbacks ||= []
-    @stylesheetCallbacks = [] if clearExisting is true
-    @stylesheetCallbacks.push(callback)
-
-  onJavascriptNotification: (notification)->
-    client = @
-
-    CodeSync.processing = true
-
-    if notification.source
-      sourceEval.call(window, notification.source)
-
-      for callback in client.javascriptCallbacks when callback.call?
-        callback.call(client, notification)
-
-      CodeSync.processing = false
-
-      return
-
-    if notification.path
-      console.log "notification", notification.path
-      CodeSync.util.loadScript "#{ CodeSync.get("sprocketsEndpoint") }/#{ notification.path }", ()->
-        for callback in client.javascriptCallbacks when callback.call?
-          callback.call(@, notification)
-
-  onStylesheetNotification: (notification)->
-    client = @
-
-    if notification.path && notification.name
-      CodeSync.util.loadStylesheet "#{ CodeSync.get("sprocketsEndpoint") }/#{ notification.path }", tracker: notification.name, ()->
-        for callback in client.stylesheetCallbacks when callback.call?
-          callback.call(@, notification)
-
-
-sourceEval = (source)->
-  eval(source)
+  if channel then decodeURIComponent("/code-sync/#{ channel }") else "/code-sync/outbound"

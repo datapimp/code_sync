@@ -5,14 +5,15 @@ CodeSync.plugins.ModeSelector = Backbone.View.extend
     "change select" : "onSelect"
 
   initialize: (options={})->
-    @editor = options.editor
+    _.extend(@, options)
+
+    throw "Must supply an @editor instance" unless @editor
 
     @modes = @editor.modes
 
     @modes.on "reset", @render, @
 
-    @editor.on "change:mode", (modeModel, modeId)=>
-      @setValue(modeId)
+    @editor.on "change:mode", (modeModel, modeId)=> @setValue(modeId)
 
     Backbone.View::initialize.apply(@, arguments)
 
@@ -31,10 +32,14 @@ CodeSync.plugins.ModeSelector = Backbone.View.extend
   showLabel: ()->
     @$('label').show()
 
+  attach: ()->
+    @render()
+    $(@attachTo || @$(".toolbar-wrapper")).html(@el)
+
   render: ()->
     options = ""
 
-    for mode in @modes.models
+    for mode in @modes.models when mode.isOfType(@showModes) is true
       options += "<option value='#{ mode.id }'>#{ mode.get('name') }</option>"
 
     @$el.html("<label>Language:</label> <select>#{ options }</select>")
@@ -44,10 +49,8 @@ CodeSync.plugins.ModeSelector = Backbone.View.extend
     @
 
 
-CodeSync.plugins.ModeSelector.setup = (editor)->
-  v = @views.modeSelector = new CodeSync.plugins.ModeSelector({editor})
-  @$('.toolbar-wrapper').append v.render().el
+CodeSync.plugins.ModeSelector.setup = (editor,options)->
+  options.editor = editor
 
-  editor.on "document:loaded", (doc)-> v.setValue(doc.get('mode'))
-
-
+  @views.modeSelector = new CodeSync.plugins.ModeSelector(options)
+  @views.modeSelector.attach()

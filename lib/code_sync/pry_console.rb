@@ -1,8 +1,6 @@
 require 'multi_json'
 require 'pry'
 
-puts "Defining Pry Session Server"
-
 # Thanks to the rack-webconsole-pry project
 # for showing me the way to handle this
 module CodeSync

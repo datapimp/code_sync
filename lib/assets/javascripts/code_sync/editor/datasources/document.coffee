@@ -4,7 +4,6 @@
 #   - success
 
 CodeSync.Document = Backbone.Model.extend
-  callbackDelay: 150
 
   initialize: (@attributes,options)->
     if localKey = @attributes.localStorageKey
@@ -25,6 +24,9 @@ CodeSync.Document = Backbone.Model.extend
 
   url: ()->
     CodeSync.get("assetCompilationEndpoint")
+
+  templateFunction: ()->
+    JST[@nameWithoutExtension()]
 
   saveToDisk: ()->
     if @isSaveable()
@@ -72,7 +74,7 @@ CodeSync.Document = Backbone.Model.extend
   onContentChange: ()->
     localKey = @get("localStorageKey")
     localKey = if localKey? && _.isFunction(localKey) then localKey.call(@) else localKey
-    localStorage.setItem(localKey, @get("contents"))
+    localStorage.setItem(localKey, @get("contents")) if localKey?
 
     @sendToServer(false, "onContentChange")
 
@@ -80,8 +82,6 @@ CodeSync.Document = Backbone.Model.extend
     allowSaveToDisk = false unless @isSaveable()
 
     data = if allowSaveToDisk is true then @toJSON() else _(@toJSON()).pick('name','extension','contents')
-
-    CodeSync.log("Sending Data To #{ CodeSync.get("assetCompilationEndpoint") }", data)
 
     $.ajax
       type: "POST"
@@ -103,14 +103,15 @@ CodeSync.Document = Backbone.Model.extend
           @set("error", response.error?.message)
           @trigger "status", type: "error", message: response.error?.message
 
-  loadInPage: (options={})->
-    if @type() is "stylesheet"
-      helpers.processStyleContent.call(@, @get('compiled'))
-    else if (@type() is "script" or @type() is "template")
-      helpers.processScriptContent.call(@, @get('compiled'))
 
-      if options.complete
-        _.delay(options.complete, (options.delay||@callbackDelay))
+  loadInPage: (options={})->
+    doc     = @
+    content = doc.get("compiled")
+    notification = type: doc.type(), content: doc.get("compiled")
+
+    CodeSync.processChangeNotification _.extend notification,
+      error: (message)->
+        doc.trigger "status", type: "error", sticky: "true", message: "JS Error: #{ message }"
 
   # Determines how we will handle the compiled assets when loading in the page
   type: ()->
@@ -195,18 +196,3 @@ CodeSync.Documents = Backbone.Collection.extend
       documentModel.loadSourceFromDisk ()=>
         callback?(documentModel)
 
-helpers =
-  processStyleContent: (content)->
-    $('head style[data-codesync-document]').remove()
-    $('head').append "<style type='text/css' data-codesync-document=true>#{ content }</style>"
-
-  processScriptContent: (code)->
-    doc = @
-    evalRunner = (code)->
-      try
-        eval(code)
-      catch e
-        doc.trigger "status", type: "error", message: "JS Error: #{ e.message }", sticky: true
-        throw(e)
-
-    evalRunner.call(window, code)

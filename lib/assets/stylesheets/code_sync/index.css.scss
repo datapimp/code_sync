@@ -30,11 +30,10 @@
     position: absolute;
     z-index: 9000;
     color: #fff;
-    top: 10px;
-    right: 10px;
 
     .config-select {
       float: right;
+      margin: 0px 4px;
       margin-top: -4px;
     }
 
@@ -87,6 +86,11 @@
   bottom: auto;
   top: 0px;
 
+  .toolbar-wrapper {
+    top: 10px;
+    right: 10px;
+  }
+
   .codesync-asset-editor {
     top: 0px;
     bottom: auto;
@@ -109,6 +113,11 @@
 
   .codesync-asset-editor {
     top: 26px;
+  }
+
+  .toolbar-wrapper {
+    top: 45px;
+    right: 10px;
   }
 
   .document-tabs-container {

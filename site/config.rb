@@ -20,7 +20,7 @@ configure :build do
 end
 
 after_build do
-  `cp build/javascripts/code_sync.min.js ../vendor/assets/javascripts`
-  `cp build/javascripts/code_sync_basic.min.js ../vendor/assets/javascripts`
+  `cp build/javascripts/code_sync.js ../vendor/assets/javascripts/code_sync.min.js`
+  `cp build/javascripts/code_sync_basic.js ../vendor/assets/javascripts/code_sync_basic.min.js`
   `cp build/stylesheets/code_sync.css ../vendor/assets/stylesheets`
 end

@@ -26,10 +26,7 @@ module CodeSync
           manager.start(options)
         end
       rescue
-        puts "Error Manager. #{ $! }"
-      ensure
-        puts "Clesning up finally"
-        cleanup_stale_processes
+
       end
     end
 

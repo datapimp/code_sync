@@ -8,6 +8,7 @@ CodeSync.canvasEditors = ()->
     startMode: "skim"
     keyBindings: "vim"
     position: "static"
+
     document:
       localStorageKey: "panel:1"
 
@@ -16,6 +17,10 @@ CodeSync.canvasEditors = ()->
       "KeymapSelector"
       "ElementSync"
     ]
+
+    pluginOptions:
+      ModeSelector:
+        showModes: "template"
 
   window.styleEditor = new CodeSync.AssetEditor
     hideable: false
@@ -31,6 +36,9 @@ CodeSync.canvasEditors = ()->
     ]
     document:
       localStorageKey: "panel:2"
+    pluginOptions:
+      ModeSelector:
+        showModes: "style"
 
   window.coffeescriptEditor = new CodeSync.AssetEditor
     hideable: false
@@ -46,3 +54,7 @@ CodeSync.canvasEditors = ()->
     ]
     document:
       localStorageKey: "panel:3"
+    pluginOptions:
+      ModeSelector:
+        showModes: "script"
+

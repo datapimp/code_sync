@@ -1,18 +1,29 @@
 CodeSync.Modes = Backbone.Collection.extend
   model: Backbone.Model.extend
+    isOfType: (type="any")->
+      @get(type) is true || type is "any" || type is "all"
+
     isTemplate: ()->
       @get("template") is true
 
+    isStylesheet: ()->
+      @get("style") is true
+
+    isScript: ()->
+      @get("script") is true
+
+    isBackend: ()->
+      @get("backend") is true
+
+
   initialize: (models=[], options={})->
     models = for key, value of modes
-      attributes =
+      attributes = _.extend value,
         id: key
         name: value.name || key
         codeMirrorMode: value.codeMirrorMode || key
-        extension: value.extension
         extensionRegex: new RegExp("#{ value.extension }")
         template: (value.template is true || key is "skim" || value.extension?.match(/jst/))
-        defaultContent: value.defaultContent
 
     Backbone.Collection::initialize.apply(@, arguments)
 
@@ -55,6 +66,8 @@ CodeSync.Modes.defaultMode = ()->
 modes =
   coffeescript:
     extension: ".coffee"
+    script: true
+
     codeMirrorOptions:
       indentUnit: 2
       smartIndent: true
@@ -80,7 +93,7 @@ modes =
     name: "Sass"
     extension: ".css.sass"
     defaultContent: "// You are currently in Sass mode."
-
+    style: true
     codeMirrorOptions:
       indentUnit: 2
       smartIndent: true
@@ -92,6 +105,7 @@ modes =
     extension: ".css.scss"
     name: "SCSS"
     defaultContent: "/* You are currently in SCSS mode. */"
+    style: true
 
   skim:
     extension: ".jst.skim"
@@ -107,11 +121,13 @@ modes =
     name: "CSS"
     extension: ".css"
     defaultContent: "/* You are currently in raw CSS mode. */"
+    style: true
 
   javascript:
     name: "Javascript"
     extension: ".js"
     defaultContent: "/* You are currently in raw JS mode. */"
+    script: true
 
 
 

@@ -5,16 +5,21 @@ CodeSync.plugins.KeymapSelector = Backbone.View.extend
     "change select" : "onSelect"
 
   initialize: (options={})->
-    @editor = options.editor
+    _.extend(@, options)
 
-    @editor.on "change:keymap",  (keyMap)=>
-      @setValue(keyMap)
+    throw "Must supply an @editor instance" unless @editor
+
+    @modes = @editor.modes
+
+    @modes.on "reset", @render, @
+
+    @editor.on "change:mode", (modeModel, modeId)=> @setValue(modeId)
 
     Backbone.View::initialize.apply(@, arguments)
 
   onSelect: ()->
     selected = @$('select').val()
-    @editor.setKeyMap(selected)
+    @editor.setKeymap(selected)
 
   setValue: (val)->
     @$('select').val(val)
@@ -25,20 +30,25 @@ CodeSync.plugins.KeymapSelector = Backbone.View.extend
   showLabel: ()->
     @$('label').show()
 
+  attach: ()->
+    @render()
+    $(@attachTo || @$(".toolbar-wrapper")).html(@el)
+
   render: ()->
     options = ""
 
-    for mode in ["default","vim"]
+    for mode in ["vim","default"]
       options += "<option value='#{ mode }'>#{ mode }</option>"
 
-    @$el.html("<label>Keymap</label> <select>#{ options }</select>")
+    @$el.html("<label>Mode:</label> <select>#{ options }</select>")
 
     @hideLabel() unless @visibleLabel
 
     @
 
 
-CodeSync.plugins.KeymapSelector.setup = (editor)->
-  v = @views.keymapSelector = new CodeSync.plugins.KeymapSelector({editor})
-  @$('.toolbar-wrapper').append( v.render().el )
+CodeSync.plugins.KeymapSelector.setup = (editor,options)->
+  options.editor = editor
 
+  @views.keymapSelector = new CodeSync.plugins.KeymapSelector(options)
+  @views.keymapSelector.attach()

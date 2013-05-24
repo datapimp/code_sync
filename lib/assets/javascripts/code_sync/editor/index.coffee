@@ -60,8 +60,6 @@ CodeSync.AssetEditor = Backbone.View.extend
 
     Backbone.View::initialize.apply(@, arguments)
 
-    console.log "Creatin Instance", @name, @cid, @
-
     CodeSync.AssetEditor.instances[@name || @cid] = @
 
     _.bindAll(@, "editorChangeHandler")
@@ -136,10 +134,9 @@ CodeSync.AssetEditor = Backbone.View.extend
       if @theme ||= localStorage.getItem("codesync:theme")
         @setTheme(@theme)
 
-    changeHandler = (changeObj)=>
-      @trigger "editor:change", @codeMirror.getValue(), changeObj
 
-    @codeMirror.on "change", _.debounce(changeHandler, @editorChangeThrottle)
+
+    @codeMirror.on "change", _.debounce(((changeObj)=> @trigger "editor:change", @codeMirror.getValue(), changeObj), @editorChangeThrottle)
 
     @trigger "codemirror:setup", @codeMirror
 
@@ -268,14 +265,7 @@ CodeSync.AssetEditor = Backbone.View.extend
 
   applyDocumentContentToPage: ()->
     @currentDocument?.loadInPage complete: ()=>
-      if @currentDocument.type() is "script" or @currentDocument.type() is "template"
-        CodeSync.onScriptChange?.call(window, @currentDocument.attributes)
-
-      if @currentDocument.type() is "stylesheet"
-        CodeSync.onStylesheetChange?.call(window, @currentDocument.attributes)
-
-      @trigger "code:sync", @currentDocument
-      @trigger "code:sync:#{ @currentDocument.type() }", @currentDocument, JST?[@currentDocument.nameWithoutExtension()]
+      @trigger "code:sync:#{ type }", @currentDocument
 
   removeStatusMessages: ()->
     @$('.status-message').remove()

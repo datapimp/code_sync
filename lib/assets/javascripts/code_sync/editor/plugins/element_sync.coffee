@@ -1,8 +1,13 @@
 CodeSync.plugins.ElementSync = Backbone.View.extend
+  buttonLabel: "Sync w/ element"
+
+  buttonClass: "toggle-element-sync"
 
   className : "codesync-element-sync toggleable-input"
 
   action: "html"
+
+  visible: true
 
   events:
     "keyup input" : ()->
@@ -20,12 +25,14 @@ CodeSync.plugins.ElementSync = Backbone.View.extend
   initialize: (@options={})->
     _.extend(@,@options)
 
+    @hide()
+    @toggleButton(@visible)
+
     @bindToSelector = _.debounce ()=>
       @selector        = @getValue()
       @$elementSync    = $(@selector)
       @status()
     , 500
-
 
     @editor.on "code:sync:template", @syncWithElement, @
 
@@ -36,12 +43,13 @@ CodeSync.plugins.ElementSync = Backbone.View.extend
         @hide()
         @toggleButton(false)
 
-    @visible = false
-    @$el.hide()
-    @toggleButton(false)
+    @editor.on "document:loaded", (doc)=>
+      if doc.toMode().isTemplate()
+        @toggleButton(true)
 
-  syncWithElement: (doc, templateFn)->
-    @selector && @$elementSync?[@action || "html"]?(templateFn())
+  syncWithElement: (doc)->
+    return unless @selector and doc.templateFunction()
+    @$elementSync?[@action || "html"](doc.templateFunction())
 
   getSelectorContents: ()->
     @$(@selector).html()
@@ -72,7 +80,11 @@ CodeSync.plugins.ElementSync = Backbone.View.extend
 
     @$('.element-sync-status').html(msg)
 
+  renderButton: ()->
+    $(@attachButtonTo).append("<div class='toggle-element-sync #{ @buttonClass }'>#{ @buttonLabel }</div>")
+
   render: ()->
+    @renderButton()
     @$el.html JST["code_sync/editor/templates/element_sync"]()
     @status()
 
@@ -96,10 +108,11 @@ CodeSync.plugins.ElementSync = Backbone.View.extend
       @editor.$('.toggle-element-sync').hide()
 
 
-CodeSync.plugins.ElementSync.setup = (editor)->
-  @$('.toolbar-wrapper').append "<div class='button toggle-element-sync'>Sync w/ Element</div>"
+CodeSync.plugins.ElementSync.setup = (editor, options)->
+  options.editor        = editor
+  options.attachButtonTo ||= @$('.toolbar-wrapper')
 
-  view = new CodeSync.plugins.ElementSync({editor})
+  view = new CodeSync.plugins.ElementSync(options)
 
   editor.views.elementSync = view
 
