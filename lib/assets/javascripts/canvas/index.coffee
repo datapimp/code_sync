@@ -27,7 +27,15 @@ CodeSync.Canvas = Backbone.View.extend
         original(a, b) unless a.type is "stylesheet"
         @getFrame().CodeSync.processChangeNotification(a,b)
 
+      @refreshEditors = ()=>
+        @editorPanel.each (editor,index)->
+          _.delay ()->
+            editor.currentDocument.trigger "change:contents"
+          , 400 * (index + 1)
+
     , 4000
+
+
 
 CodeSync.Canvas.startApplication = ()->
   window.App = new CodeSync.Canvas()

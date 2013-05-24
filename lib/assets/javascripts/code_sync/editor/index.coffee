@@ -29,7 +29,7 @@ CodeSync.AssetEditor = Backbone.View.extend
   effect: "slide"
   effectDuration: 400
 
-  editorChangeThrottle: 800
+  editorChangeThrottle: 400
 
   visible: false
   showVisibleTab: true
