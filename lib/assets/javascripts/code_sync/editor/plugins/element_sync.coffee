@@ -28,6 +28,7 @@ CodeSync.plugins.ElementSync = Backbone.View.extend
     @hide()
     @toggleButton(@visible)
 
+
     @bindToSelector = _.debounce ()=>
       @selector        = @getValue()
       @$elementSync    = (@searchScope || window).$(@selector)
@@ -59,6 +60,7 @@ CodeSync.plugins.ElementSync = Backbone.View.extend
 
   setValue: (@selector)->
     @$('input[name="css-selector"]').val(@selector)
+    @bindToSelector()
 
   clear: ()->
     @$('input[name="css-selector"]').val('')

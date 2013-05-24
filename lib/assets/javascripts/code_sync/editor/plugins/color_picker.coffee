@@ -65,19 +65,20 @@ CodeSync.plugins.ColorPicker = Backbone.View.extend
 
     @
 
-CodeSync.plugins.ColorPicker.setup = (editor)->
+CodeSync.plugins.ColorPicker.setup = (editor, options={})->
   @colorPicker = new CodeSync.plugins.ColorPicker(editor: editor)
 
   @$el.append( editor.colorPicker.render().el )
   @colorPicker.hide()
 
-  cm = editor.codeMirror
+  editor.on "codemirror:setup", ()->
+    cm = editor.codeMirror
 
-  cm.on "cursorActivity", ->
-    cursor = cm.getCursor()
-    token = cm.getTokenAt(cursor)
+    cm.on "cursorActivity", ->
+      cursor = cm.getCursor()
+      token = cm.getTokenAt(cursor)
 
-    if token.string?.match(/#[a-fA-F0-9]{3,6}/g) and token.string?.length >= 6
-      editor.colorPicker.syncWithToken(token, cursor)
-    else
-      editor.colorPicker.hide()
+      if token.string?.match(/#[a-fA-F0-9]{3,6}/g) and token.string?.length >= 6
+        editor.colorPicker.syncWithToken(token, cursor)
+      else
+        editor.colorPicker.hide()

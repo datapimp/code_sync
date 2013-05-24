@@ -19,6 +19,7 @@ CodeSync.EditorPanel = Backbone.View.extend
     plugins:[
       "ModeSelector"
       "KeymapSelector"
+      "ColorPicker"
     ]
     document:
       localStorageKey: "panel:2"

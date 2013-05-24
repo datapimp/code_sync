@@ -19,7 +19,9 @@ CodeSync.Canvas = Backbone.View.extend
       @editorPanel.each (editor)=>
         $('body').attr('data-canvas-application',true)
         @getFrame().$('body').attr('data-canvas-inner',true)
+
         editor.views.elementSync.searchScope = frame = @getFrame()
+        editor.views.elementSync.setValue 'body[data-canvas-inner]'
 
       CodeSync.processChangeNotification = (a, b)=>
         original(a, b) unless a.type is "stylesheet"
