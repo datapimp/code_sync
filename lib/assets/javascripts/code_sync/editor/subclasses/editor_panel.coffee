@@ -60,18 +60,21 @@ CodeSync.EditorPanel = Backbone.View.extend
     @renderEditors()
 
   each: (args...)->
-    _(@assetEditors).each(args...)
+    editors = _(@assetEditors).values()
+    _(editors).each(args...)
 
   renderEditors: ()->
-    @assetEditors = for config, index in @editors
+    @assetEditors ||= {}
+
+    for config, index in @editors
       id = config.name || config.cid
 
       @$('.editor-panel-wrapper').append JST[@template]()
-      config.appendTo = @$('.editor-panel-wrapper .editor-panel').eq(index)
+      config.appendTo = @$('.editor-panel .editor').eq(index)
 
       EditorClass = CodeSync[config.type] || CodeSync.AssetEditor
 
-      editor = new EditorClass(config)
+      @assetEditors[id] = new EditorClass(config)
 
     @trigger "editors:loaded"
 

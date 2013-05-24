@@ -6,9 +6,6 @@
 CodeSync.Document = Backbone.Model.extend
 
   initialize: (@attributes,options)->
-    if localKey = @attributes.localStorageKey
-      @attributes.contents ||= localStorage.getItem(localKey)
-
     Backbone.Model::initialize.apply(@, arguments)
 
     _.bindAll @, "onContentChange"
@@ -22,6 +19,11 @@ CodeSync.Document = Backbone.Model.extend
     @on "change:mode", ()=>
       @set('extension', @determineExtension(), silent: true)
 
+    if @localStorageKey()
+      @set("contents", localStorage.getItem(@localStorageKey()), silent: true)
+
+    @saveToLocalStorage = _.debounce(@saveToLocalStorage, 1000)
+
   url: ()->
     CodeSync.get("assetCompilationEndpoint")
 
@@ -32,9 +34,11 @@ CodeSync.Document = Backbone.Model.extend
     if @isSaveable()
       @sendToServer(true, "saveToDisk")
 
+  localStorageKey: ()->
+    "#{ @get('localStorageKey') }:#{ @get('name') }" if @get("localStorageKey")
+
   saveToLocalStorage: (path)->
     localKey = path || @get("path")
-    localKey = if localKey? && _.isFunction(localKey) then localKey.call(@) else localKey
     localStorage.setItem(localKey, @get("contents")) if localKey?
 
   loadSourceFromDisk: (callback)->
@@ -73,6 +77,9 @@ CodeSync.Document = Backbone.Model.extend
     "#{ @get("contents") || @toMode()?.get("defaultContent") || " " }"
 
   onContentChange: ()->
+    if key = @localStorageKey()
+      @saveToLocalStorage(key)
+
     @sendToServer(false, "onContentChange")
 
   sendToServer: (allowSaveToDisk=false, reason="")->

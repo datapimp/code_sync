@@ -74,9 +74,21 @@ body[data-canvas-application] {
     }
   }
 
+  &.ui-draggable[data-draggable-direction="vertical"] {
+    .handle.horizontal-handle {
+      background: rgba(30,30,30,0.5);
+    }
+  }
+
+  &.ui-draggable[data-draggable-direction="horizontal"] {
+    .handle.vertical-handle {
+      background: rgba(30,30,30,0.5);
+    }
+  }
+
   .handle {
     position: absolute;
-    background: #333;
+    background: rgba(30,30,30,0.9);
     margin: 0px;
     padding: 0px;
     cursor: pointer;
@@ -86,8 +98,8 @@ body[data-canvas-application] {
   .handle.vertical-handle {
     top: 0px;
     left: 50%;
-    height: 15px;
-    width: 45px;
+    height: 25px;
+    width: 65px;
     border-radius: 0px 0px 4px 4px;
     box-shadow: 0 0 6px $dark;
   }
@@ -95,8 +107,8 @@ body[data-canvas-application] {
   .handle.horizontal-handle {
     top: 50%;
     left: 0%;
-    height: 45px;
-    width: 15px;
+    height: 65px;
+    width: 25px;
     border-radius: 0px 4px 4px 0px;
     box-shadow: 0 0 6px $dark;
   }

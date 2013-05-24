@@ -9,34 +9,55 @@ CodeSync.Canvas = Backbone.View.extend
   getFrame: ()->
     $('.canvas-frame')[0].contentWindow
 
-  initialize: (options={})->
-    @codeSyncCanvas = new CodeSync.LayerController(applyTo:"#canvas")
-    @editorPanel = new CodeSync.EditorPanel()
+  refreshEditors: ()->
+    @editorPanel.each (editor,index)->
+      _.delay ()->
+        editor.currentDocument.trigger "change:contents"
+      , 400 * (index + 1)
 
-    @editorPanel.renderIn($("#editor"))
+  refreshStyleEditor: ()->
+    @getEditor("style_editor").currentDocument.trigger "change:contents"
 
-    _.delay ()=>
-      @editorPanel.each (editor)=>
-        $('body').attr('data-canvas-application',true)
-        @getFrame().$('body').attr('data-canvas-inner',true)
+  refreshScriptEditor: ()->
+    @getEditor("script_editor").currentDocument.trigger "change:contents"
 
-        editor.views.elementSync.searchScope = frame = @getFrame()
+  refreshTemplateEditor: ()->
+    @getEditor("template_editor").currentDocument.trigger "change:contents"
+
+  getEditor:(name)->
+    @editorPanel.assetEditors[name]
+
+  routeEditorOutputToCanvas: ()->
+    @editorPanel.each (editor)=>
+      $('body').attr('data-canvas-application',true)
+      @getFrame().$('body').attr('data-canvas-inner',true)
+
+      editor.views.elementSync?.searchScope = frame = @getFrame()
+
+      if @autoSyncWithBodyElement is true
         editor.views.elementSync.setValue 'body[data-canvas-inner]'
 
-      CodeSync.processChangeNotification = (a, b)=>
-        original(a, b) unless a.type is "stylesheet"
-        @getFrame().CodeSync.processChangeNotification(a,b)
+    CodeSync.processChangeNotification = (a, b)=>
+      original(a, b) unless a.type is "stylesheet"
+      @getFrame().CodeSync.processChangeNotification(a,b)
 
-      @refreshEditors = ()=>
-        @editorPanel.each (editor,index)->
-          _.delay ()->
-            editor.currentDocument.trigger "change:contents"
-          , 400 * (index + 1)
+  initialize: (@options={})->
+    _.extend(@, @options)
+    canvas = @
 
-    , 4000
+    @codeSyncCanvas = new CodeSync.LayerController(applyTo:"#canvas")
+    @editorPanel    = new CodeSync.EditorPanel()
 
+    @on "editors:routed", @refreshEditors, @
+
+    @editorPanel.on "editors:loaded", ()->
+      _.delay ()->
+        canvas.routeEditorOutputToCanvas()
+        canvas.trigger "editors:routed"
+      , 1000
+
+    @editorPanel.renderIn($("#editor"))
 
 
 CodeSync.Canvas.startApplication = ()->
   window.App = new CodeSync.Canvas()
-

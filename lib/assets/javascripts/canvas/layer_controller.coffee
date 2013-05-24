@@ -2,6 +2,8 @@ CodeSync.LayerController = Backbone.View.extend
   events:
     "dblclick .horizontal-handle" : "snapBackLeft"
     "dblclick .vertical-handle" : "snapBackUp"
+    "click .horizontal-handle": "enableHorizontalDragging"
+    "click .vertical-handle": "enableVerticalDragging"
 
   initialize: (@options={})->
     _.extend(@,@options)
@@ -9,6 +11,10 @@ CodeSync.LayerController = Backbone.View.extend
     Backbone.View::initialize.apply(@, arguments)
 
     @setElement $(@applyTo)
+
+    @enableVerticalDragging       = _.debounce(@enableVerticalDragging, 25)
+    @enableHorizontalDragging     = _.debounce(@enableHorizontalDragging, 25)
+
     @render()
 
   render: ()->
@@ -17,15 +23,17 @@ CodeSync.LayerController = Backbone.View.extend
 
   snapBackLeft: ()->
     @$el.animate('left':'0px')
+    @cancelDraggable()
 
   snapBackUp: ()->
     @$el.animate('top':'0px')
+    @cancelDraggable()
 
   enableVerticalDragging: ()->
-    @makeDraggable("vertical")
+    @makeDraggable("vertical") unless @direction is "vertical"
 
   enableHorizontalDragging: ()->
-    @makeDraggable("horizontal")
+    @makeDraggable("horizontal") unless @direction is "horizontal"
 
   cancelDraggable: ()->
     @direction = undefined
