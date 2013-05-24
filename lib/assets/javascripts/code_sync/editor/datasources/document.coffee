@@ -33,8 +33,9 @@ CodeSync.Document = Backbone.Model.extend
       @sendToServer(true, "saveToDisk")
 
   saveToLocalStorage: (path)->
-    if path?
-      localStorage.setItem(path, @get("contents"))
+    localKey = path || @get("path")
+    localKey = if localKey? && _.isFunction(localKey) then localKey.call(@) else localKey
+    localStorage.setItem(localKey, @get("contents")) if localKey?
 
   loadSourceFromDisk: (callback)->
     $.ajax
@@ -72,10 +73,6 @@ CodeSync.Document = Backbone.Model.extend
     "#{ @get("contents") || @toMode()?.get("defaultContent") || " " }"
 
   onContentChange: ()->
-    localKey = @get("localStorageKey")
-    localKey = if localKey? && _.isFunction(localKey) then localKey.call(@) else localKey
-    localStorage.setItem(localKey, @get("contents")) if localKey?
-
     @sendToServer(false, "onContentChange")
 
   sendToServer: (allowSaveToDisk=false, reason="")->
@@ -107,11 +104,19 @@ CodeSync.Document = Backbone.Model.extend
   loadInPage: (options={})->
     doc     = @
     content = doc.get("compiled")
-    notification = type: doc.type(), content: doc.get("compiled")
 
-    CodeSync.processChangeNotification _.extend notification,
+    notification =
+      type: doc.type()
+      content: doc.get("compiled")
+      complete: options.complete
+
+    payload = _.extend notification,
       error: (message)->
         doc.trigger "status", type: "error", sticky: "true", message: "JS Error: #{ message }"
+      success: ()->
+        doc.trigger "code:sync:#{ doc.get('type') }"
+
+    CodeSync.processChangeNotification(payload)
 
   # Determines how we will handle the compiled assets when loading in the page
   type: ()->

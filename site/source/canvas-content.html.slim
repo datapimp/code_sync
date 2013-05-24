@@ -1,0 +1,6 @@
+javascript:
+  window.codeSyncClient = new CodeSync.Client()
+
+  codeSyncClient.subscribeWith(function(){
+    console.log("canvas content codesync client", arguments)
+  });

@@ -2,10 +2,24 @@
 #= require ./config
 #= require_self
 #= require ./client
+
+#= require ./slide_drawer
 #= require ./editor
 
-CodeSync.processChangeNotification = (attributes={})->
+evalRunner = (code, onError) =>
+  try
+    eval(code)
+  catch e
+    onError?(e.message)
+    throw(e)
+
+CodeSync.processChangeNotification = (attributes={}, options={})->
   {type,content} = attributes
+
+  console.log "Process Change Notification", attributes, _(options.skip).indexOf(type) >= 0, options
+
+  if _(options.skip).indexOf(type) >= 0
+    return
 
   switch type
     when "stylesheet"
@@ -16,18 +30,10 @@ CodeSync.processChangeNotification = (attributes={})->
 
     when "template"
       hookFn = CodeSync.onTemplateChange
-
+      evalRunner(content, attributes.error)
     when "script"
-      evalRunner = (code)->
-        try
-          eval(code)
-        catch e
-          attributes.error?(e.message)
-          throw(e)
-
-      evalRunner.call(window, content)
+      evalRunner(content, attributes.error)
       hookFn = CodeSync.onScriptChange
-
 
   _.delay ()->
     hookFn?()

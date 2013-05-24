@@ -30,7 +30,7 @@ CodeSync.plugins.ElementSync = Backbone.View.extend
 
     @bindToSelector = _.debounce ()=>
       @selector        = @getValue()
-      @$elementSync    = $(@selector)
+      @$elementSync    = (@searchScope || window).$(@selector)
       @status()
     , 500
 
@@ -48,14 +48,17 @@ CodeSync.plugins.ElementSync = Backbone.View.extend
         @toggleButton(true)
 
   syncWithElement: (doc)->
-    return unless @selector and doc.templateFunction()
-    @$elementSync?[@action || "html"](doc.templateFunction())
+    return unless @selector and tmpl = doc.templateFunction()
+    @$elementSync?[@action || "html"](tmpl())
 
   getSelectorContents: ()->
-    @$(@selector).html()
+    @$elementSync.html()
 
   getValue: ()->
     @$('input[name="css-selector"]').val()
+
+  setValue: (@selector)->
+    @$('input[name="css-selector"]').val(@selector)
 
   clear: ()->
     @$('input[name="css-selector"]').val('')
@@ -87,7 +90,6 @@ CodeSync.plugins.ElementSync = Backbone.View.extend
     @renderButton()
     @$el.html JST["code_sync/editor/templates/element_sync"]()
     @status()
-
     @
 
   show: ()->
@@ -112,7 +114,15 @@ CodeSync.plugins.ElementSync.setup = (editor, options)->
   options.editor        = editor
   options.attachButtonTo ||= @$('.toolbar-wrapper')
 
+  if editor.elementSyncScope
+    options.searchScope = $(editor.elementSyncScope)
+
   view = new CodeSync.plugins.ElementSync(options)
+
+  $ ->
+    if editor.syncWithElement
+      view.setValue(editor.syncWithElement)
+      view.bindToSelector()
 
   editor.views.elementSync = view
 

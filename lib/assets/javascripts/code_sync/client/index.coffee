@@ -26,18 +26,21 @@ class CodeSync.Client
         try
           @setupSocket()
         catch e
-          console.log "Error setting up codesync client"
+          console.log "Error setting up codesync client: #{ e.message }"
       , 25
 
       @clientLoaded = true
 
   subscribeWith: (cb)->
+    console.log "Client Subscribing to #{ @channel }", window
     @socket?.subscribe @channel, cb
 
   setupSocket: ()->
     return unless Faye?
 
     @socket = new Faye.Client(CodeSync.get("socketEndpoint"))
+
+    @subscribeWith(CodeSync.processChangeNotification)
 
 # Allows for hijacking a page which includes the code sync client
 # and overriding the notification channel.  this allows for sandboxd

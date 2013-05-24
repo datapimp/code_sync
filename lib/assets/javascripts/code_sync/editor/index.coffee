@@ -3,6 +3,7 @@
 #= require_tree ./datasources
 #= require_tree ./plugins
 #= require_self
+#= require_tree ./subclasses
 
 CodeSync.AssetEditor = Backbone.View.extend
   name: "code_sync"
@@ -264,8 +265,9 @@ CodeSync.AssetEditor = Backbone.View.extend
       @setMode @currentDocument.toMode()
 
   applyDocumentContentToPage: ()->
+    doc = @currentDocument
     @currentDocument?.loadInPage complete: ()=>
-      @trigger "code:sync:#{ type }", @currentDocument
+      @trigger "code:sync:#{ doc.type() }", doc
 
   removeStatusMessages: ()->
     @$('.status-message').remove()

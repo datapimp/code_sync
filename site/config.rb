@@ -13,6 +13,8 @@ activate :syntax, :cssclass => "codehilite"
 
 activate :directory_indexes
 
+page "/canvas-content", :layout => "canvas-content"
+
 configure :build do
   activate :minify_css
   activate :minify_javascript

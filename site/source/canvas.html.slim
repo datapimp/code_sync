@@ -1,19 +1,21 @@
 #canvas-application.layer-controller
   #underneath.bottom.layer
-    #front-end-editors-wrapper
-      #panel-1.panel
-      #panel-2.panel
-      #panel-3.panel
-    #backend-console-wrapper
+    #editor.panel
+    #console.panel
 
   #canvas.top.layer
     .handle.vertical-handle
     .handle.horizontal-handle
 
     #canvas-inner
+      .drag-shim
+      iframe.canvas-frame seamless=true src="/canvas-content?code_sync_channel=canvas_content" frameborder="0" style="" height="150%" width="150%"
 
 javascript:
   window.codeSyncClient = new CodeSync.Client()
+  codeSyncClient.subscribeWith(function(){
+    console.log("canvas app codesync client", arguments)
+  });
 
 - content_for(:head) do
   == stylesheet_link_tag 'vendor/animate', 'entypo', 'canvas'

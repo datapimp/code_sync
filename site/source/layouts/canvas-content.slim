@@ -1,0 +1,18 @@
+doctype html
+html lang="en"
+  head
+    meta charset="utf-8"
+    meta name="viewport" content="width=device-width, initial-scale=1.0"
+    meta name="author" content="Jonathan Soeder aka Datapimp"
+    meta name="keywords" content="asset pipeline tools, coffeescript, sass, codemirror, datapimp, jonathan soeder, soederpop"
+    title CodeSync: Asset Pipeline Live Reload
+    == stylesheet_link_tag 'code_sync', 'marketing'
+    == yield_content(:head)
+
+  body
+    == javascript_include_tag 'code_sync', 'marketing'
+    == yield
+
+
+
+

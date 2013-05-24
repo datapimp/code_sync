@@ -42,12 +42,45 @@ body[data-canvas-application] {
 #canvas {
   background: #fff;
 
+  iframe, .drag-shim {
+    overflow:hidden;
+    overflow-x:hidden;
+    overflow-y:hidden;
+    height:150%;
+    width:150%;
+    position:absolute;
+    top:0px;
+    left:0px;
+    right:0px;
+    bottom:0px
+  }
+
+  iframe {
+    z-index: 3;
+  }
+
+  .drag-shim {
+    display: none;
+    z-index: 2;
+  }
+
+  &.ui-draggable-dragging {
+    iframe {
+      z-index: 2;
+    }
+    .drag-shim {
+      z-index: 3;
+      display: block;
+    }
+  }
+
   .handle {
     position: absolute;
     background: #333;
     margin: 0px;
     padding: 0px;
     cursor: pointer;
+    z-index: 10;
   }
 
   .handle.vertical-handle {
@@ -69,33 +102,3 @@ body[data-canvas-application] {
   }
 }
 
-#front-end-editors-wrapper {
-  width: 100%;
-  clear: both;
-  .panel {
-    width: 33.33333%;
-    float: left;
-    margin: 0px;
-    padding: 0px;
-  }
-
-  .codesync-editor {
-    position: relative;
-    .toolbar-wrapper {
-      position: absolute;
-      top: 0px;
-      height: 30px;
-      width: 100%;
-
-      .button,label,.config-select {
-        padding: 4px 0px;
-        margin-right: 5px;
-      }
-    }
-    .codesync-asset-editor {
-      position: absolute;
-      top: 30px;
-      width: 100%;
-    }
-  }
-}

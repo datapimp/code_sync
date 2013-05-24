@@ -1,0 +1,3 @@
+.editor-panel data-editor=#{ @name }
+  .toolbar
+  .editor
