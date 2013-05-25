@@ -16,10 +16,10 @@ evalRunner = (code, onError) =>
 CodeSync.processChangeNotification = (attributes={}, options={})->
   {type,content} = attributes
 
-  console.log "Process Change Notification", attributes, _(options.skip).indexOf(type) >= 0, options
-
   if _(options.skip).indexOf(type) >= 0
     return
+
+  return if CodeSync.beforeChange?(attributes,options) is false
 
   switch type
     when "stylesheet"
@@ -29,10 +29,12 @@ CodeSync.processChangeNotification = (attributes={}, options={})->
       hookFn = CodeSync.onStyleChange
 
     when "template"
-      hookFn = CodeSync.onTemplateChange
       evalRunner(content, attributes.error)
+
+      hookFn = CodeSync.onTemplateChange
     when "script"
       evalRunner(content, attributes.error)
+
       hookFn = CodeSync.onScriptChange
 
   _.delay ()->

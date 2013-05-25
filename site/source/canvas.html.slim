@@ -20,4 +20,8 @@ javascript:
 - content_for(:head) do
   == stylesheet_link_tag 'vendor/animate', 'entypo', 'canvas'
 
+- content_for(:javascript_dependencies) do
+  == javascript_include_tag 'vendor/jquery', 'vendor/jquery-ui-resize-drag.min'
+
+
 == javascript_include_tag 'canvas'

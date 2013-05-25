@@ -37,10 +37,11 @@ CodeSync.LayerController = Backbone.View.extend
 
   cancelDraggable: ()->
     @direction = undefined
-    @$el.draggable('destroy')
 
   makeDraggable: (@direction="horizontal")->
     @$el.attr('data-draggable-direction', @direction)
+
+    return unless @$el.draggable?
 
     if @direction is "horizontal"
       @$el.draggable

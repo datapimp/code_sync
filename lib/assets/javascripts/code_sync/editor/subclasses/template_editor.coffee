@@ -3,7 +3,7 @@ CodeSync.TemplateEditor = CodeSync.AssetEditor.extend
   autoRender: true
   renderVisible: true
   startMode: "skim"
-  keyBindings: CodeSync.get("defaultKeyBindings")
+  keyBindings: CodeSync.get("defaultKeyBindings") || "vim"
   position: "static"
 
   plugins:[

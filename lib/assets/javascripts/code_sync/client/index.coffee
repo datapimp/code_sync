@@ -32,7 +32,6 @@ class CodeSync.Client
       @clientLoaded = true
 
   subscribeWith: (cb)->
-    console.log "Client Subscribing to #{ @channel }", window
     @socket?.subscribe @channel, cb
 
   setupSocket: ()->

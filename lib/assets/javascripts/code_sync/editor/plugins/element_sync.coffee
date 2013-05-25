@@ -1,7 +1,7 @@
 CodeSync.plugins.ElementSync = Backbone.View.extend
-  buttonLabel: "Sync w/ element"
+  buttonLabel: ""
 
-  buttonClass: "toggle-element-sync"
+  buttonClass: "icon icon-loop"
 
   className : "codesync-element-sync toggleable-input"
 

@@ -10,6 +10,7 @@ html lang="en"
     == yield_content(:head)
 
   body
+    == yield_content(:javascript_dependencies)
     == javascript_include_tag 'code_sync', 'marketing'
     == yield
 
