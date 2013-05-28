@@ -1,0 +1,132 @@
+$white: rgba(230,230,230,0.9);
+
+.codesync-editor-panel {
+  .editor-panel-toolbar {
+    color: $white;
+    position: absolute;
+    top: 475px;
+    height: 30px;
+    .controls {
+      height: 30px;
+      line-height: 30px;
+      font-size: 16px;
+      ul {
+        display: block;
+        margin: 0px;
+        padding: 0px;
+        li {
+          display: inline;
+          margin: 0px;
+          padding: 0px;
+        }
+        li.label {
+          font-weight: bold;
+        }
+        li.active {
+          font-style: italic;
+        }
+      }
+    }
+  }
+}
+
+.codesync-editor-panel {
+  position: relative;
+  top: 0px;
+  left: 0px;
+  .editor-wrapper {
+    .editor {
+      position: absolute;
+      height: 500px;
+      width: 33.33333%;
+      height: 100%;
+      top: 0px;
+      .toolbar-wrapper {
+        width: 100%;
+        top: 0px;
+        height: 30px;
+        padding-left: 30px;
+        line-height: 30px;
+        font-size: 15px;
+      }
+      .codemirror-wrapper {
+        height: 470px;
+        bottom: 0px;
+        .CodeMirror {
+          height: 440px;
+          top: 30px;
+          bottom: 0px;
+          width: 100%;
+          position: absolute;
+        }
+      }
+    }
+
+    .editor[data-editor="0"] {
+      left: 0px;
+    }
+    .editor[data-editor="1"] {
+      left: 33.333333%;
+    }
+    .editor[data-editor="2"] {
+      left: 66.666666%;
+    }
+  }
+}
+
+.codesync-editor-panel {
+
+}
+
+.codesync-editor-panel[data-layout="1"] {
+  .editor-wrapper {
+    .editor[data-editor="0"]{
+      display: block;
+      width: 100%;
+    }
+    .editor[data-editor="1"]{
+      display: none;
+    }
+    .editor[data-editor="2"]{
+      display: none;
+    }
+  }
+}
+
+
+.codesync-editor-panel[data-layout="2"] {
+  .editor-wrapper {
+    .editor[data-editor="0"]{
+      display: block;
+      width: 50%;
+    }
+    .editor[data-editor="1"]{
+      display: block;
+      left: 50%;
+      width: 50%;
+    }
+    .editor[data-editor="2"]{
+      display: none;
+    }
+  }
+}
+
+.codesync-editor-panel[data-layout="3"] {
+  .editor-wrapper {
+    .editor[data-editor="0"]{
+      display: block;
+      width: 33.333333%;
+    }
+    .editor[data-editor="1"]{
+      display: block;
+      left: 33.333333%;
+      width: 33.333333%;
+    }
+    .editor[data-editor="2"]{
+      display: block;
+      width: 33.333333%;
+    }
+  }
+
+}
+

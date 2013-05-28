@@ -84,12 +84,12 @@ CodeSync.AssetEditor = Backbone.View.extend
     CodeSync.plugins[plugin]?.setup.call(@,@)
 
   loadPlugins: ()->
-    for plugin in @plugins when CodeSync.plugins[plugin]?
-      options = @pluginOptions[plugin] || {}
-      PluginClass = CodeSync.plugins[plugin]
-
-      options.PluginClass = PluginClass
-      PluginClass.setup.call(@,@,options)
+    editor = @
+    _(@plugins).each (plugin)=>
+      if PluginClass = CodeSync.plugins[plugin]
+        options = @pluginOptions[plugin] || {}
+        options.PluginClass = PluginClass
+        PluginClass.setup.call(editor,editor,options)
 
   render: ()->
     return @ if @rendered is true

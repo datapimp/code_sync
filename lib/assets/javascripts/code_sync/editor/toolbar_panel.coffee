@@ -31,6 +31,9 @@ CodeSync.ToolbarPanel = Backbone.View.extend
       @buttonElement.hide()
 
   toggle: ()->
+    # if the DOM element was removed
+    # that means another panel was displayed
+    # so we need to sync up w what our state should be
     if @$el.attr('data-removed') is true
       @visible = true
       @$el.removeAttr('data-removed')
@@ -52,7 +55,7 @@ CodeSync.ToolbarPanel = Backbone.View.extend
     @
 
   removeOtherToolbarPanels: ()->
-    $(@renderTo).find('.toolbar-panel').addClass('animated #{ @exitEffect }').attr('data-removed',true)
+    $(@renderTo).find('.toolbar-panel').addClass("animated #{ @exitEffect }").attr('data-removed',true)
 
   templateOptions: ->
     @options
@@ -64,8 +67,9 @@ CodeSync.ToolbarPanel = Backbone.View.extend
       @beforeRender?()
       @$el.addClass("toolbar-panel")
       @$el.html CodeSync.template(@panelTemplate, @templateOptions())
-      @rendered = !! $(@renderTo).append(@el)
+      $(@renderTo).append(@el)
       @afterRender?()
+      @rendered = true
       @checkAvailabilityInMode()
       return @
 
@@ -77,10 +81,15 @@ CodeSync.ToolbarPanel.setup = (editor,options={})->
 
   options.editor = editor
 
+  editor.views ||= {}
+
   panel = new PluginClass(options)
+
+  if panel.handle
+    editor.views[panel.handle] = panel
 
   panel.buttonElement = editor.addToolbarButton panel: panel.className, text: panel.buttonText, tooltip: panel.tooltip, icon: panel.buttonIcon
 
   panel.buttonElement.on "click", (e)=> panel.toggle()
 
-  panel.renderTo = editor.$el
+  panel.renderTo = editor.$('.codemirror-wrapper')

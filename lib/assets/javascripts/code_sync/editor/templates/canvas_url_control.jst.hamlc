@@ -1,0 +1,9 @@
+%ul
+  %li
+    B
+  %li
+    F
+  %li
+    R
+  %li.input-wrapper
+    %input{:type=>"text",:placeholder=>"Enter a URL to view in the Canvas"}

@@ -14,6 +14,17 @@ CodeSync.EditorPanel = Backbone.View.extend
     "click #target-selector li[data-option]" : "selectTarget"
     "click #layout-selector li[data-option]" : "selectLayout"
 
+
+  layout: "3"
+
+  target: "canvas"
+
+  toolbarClass: undefined
+
+  toolbarContainerSelector: ".editor-panel-toolbar"
+
+  editorContainerSelector: ".editor-wrapper .editor"
+
   editors:[
     type: "TemplateEditor"
     name: "template_editor"
@@ -58,16 +69,17 @@ CodeSync.EditorPanel = Backbone.View.extend
     el.siblings().removeClass('active')
     el.addClass('active')
 
-    @$el.attr('data-target', option)
+    @$el.attr('data-target', @target = option)
     @trigger "target:change", option
 
   selectLayout: (e)->
     el = @$(e.target).closest('li[data-option]')
     option = el.data('option')
+
     el.siblings().removeClass('active')
     el.addClass('active')
 
-    @$el.attr('data-layout', option)
+    @$el.attr('data-layout', @layout = option)
     @trigger "layout:change", option
 
   setCurrentEditor: (editor)->
@@ -83,29 +95,37 @@ CodeSync.EditorPanel = Backbone.View.extend
     $(containerElement).html(@render().el)
 
     @renderEditors()
-
-    panel = @
-    @each (editor)->
-      editor.codeMirror.on "focus", ()->
-        panel.setCurrentEditor(editor)
+    @setupEditorToolbar()
 
   each: (args...)->
     editors = _(@assetEditors).values()
     _(editors).each(args...)
 
+  setupEditorToolbar: ()->
+    if CodeSync.toolbars[@toolbarClass]?
+      @toolbar = new CodeSync.toolbars[@toolbarClass](@toolbarOptions || {})
+
   renderEditors: ()->
     @assetEditors ||= {}
 
-    for config, index in @editors
+    panel = @
+
+    _(@editors).each (config,index)=>
       id = config.name || config.cid
 
-      container = @$('.editor-wrapper .editor').eq(index)
+      container = @$(@editorContainerSelector).eq(index)
       container.attr('data-editor', index)
       config.appendTo = container
 
       EditorClass = CodeSync[config.type] || CodeSync.AssetEditor
 
       editor = @assetEditors[id] = new EditorClass(config)
+
+      editor.on "codemirror:setup", (cm)->
+        currentEditor = @
+        cm.on "focus", ()->
+          panel.setCurrentEditor(currentEditor)
+
       @currentEditor ||= editor
 
     @trigger "editors:loaded"

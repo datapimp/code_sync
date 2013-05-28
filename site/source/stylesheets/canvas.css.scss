@@ -9,36 +9,6 @@ body[data-canvas-application] {
   overflow: hidden;
 }
 
-.editor-panel-toolbar {
-  position: absolute;
-  color: $white;
-  top: 470px;
-  right: 0px;
-  #target-selector, #layout-selector {
-    margin: 0px;
-    margin-left: 5px;
-  }
-  #target-selector, #layout-selector {
-    color: $white;
-    position: relative;
-    display: block;
-    float: left;
-    border: 1px solid;
-    border-radius: 3px;
-    padding: 0px;
-    margin-top: 5px;
-    li {
-      margin: 0px;
-      padding: 0px 10px;
-      display: inline;
-      cursor: pointer;
-      &.active {
-        font-weight: bold;
-      }
-    }
-  }
-}
-
 .layer-controller {
   position: relative;
   width: 100%;

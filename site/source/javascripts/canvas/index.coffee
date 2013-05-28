@@ -37,11 +37,12 @@ CodeSync.Canvas = Backbone.View.extend
     CodeSync.processChangeNotification = original
 
   routeEditorOutputToCanvas: ()->
-    @editorPanel.each (editor)=>
-      $('body').attr('data-canvas-application',true)
-      @getFrame().$('body').attr('data-canvas-inner',true)
+    @getFrame().name = "CanvasInner"
+    @getFrame().$('body').attr('data-canvas-inner',true)
 
-      editor.views.elementSync?.searchScope = frame = @getFrame()
+    @editorPanel.each (editor)=>
+      console.log "Routing Element Sync Search Scope", @getFrame().name, editor
+      editor.views.elementSync.searchScope = frame = @getFrame()
 
       if @autoSyncWithBodyElement is true
         editor.views.elementSync.setValue 'body[data-canvas-inner]'
@@ -77,7 +78,7 @@ CodeSync.Canvas = Backbone.View.extend
 
     @editorPanel.on "editors:loaded", ()->
       _.delay ()->
-        canvas.routeEditorOutputToCanvas()
+        canvas.routeEditorOutput()
         canvas.trigger "editors:routed"
       , 1000
 
@@ -86,6 +87,10 @@ CodeSync.Canvas = Backbone.View.extend
     Backbone.View::initialize.apply(@, arguments)
 
 
-$ CodeSync.Canvas.startApplication ||= ()->
-  window.App = new CodeSync.Canvas()
-  $('#canvas').css('top','450px')
+CodeSync.Canvas.startApplication ||= ()->
+  window.name = "CanvasApp"
+  window.App ||= new CodeSync.Canvas()
+  $('body').attr('data-canvas-application',true)
+  $('#canvas').css('top','520px')
+
+$(CodeSync.Canvas.startApplication)

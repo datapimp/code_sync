@@ -10,8 +10,13 @@
   .row
     .span9
       .element-sync-status
-      input.done-button type="button" value="Done"
-      input.hide-panel-button type="button" value="Hide"
+      .btn-group
+        a.btn.done-button
+          i.icon.icon-loop
+        a.btn.hide-butotn
+          i.icon.icon-loop
+        a.btn.find-button
+          i.icon.icon-loop
 
 
 

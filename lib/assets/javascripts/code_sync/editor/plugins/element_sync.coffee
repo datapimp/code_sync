@@ -13,6 +13,8 @@ CodeSync.plugins.ElementSync = CodeSync.ToolbarPanel.extend
 
   availableInModes: "template"
 
+  handle: "elementSync"
+
   events:
     "keyup input" : ()->
       @bindToSelector()
@@ -38,6 +40,9 @@ CodeSync.plugins.ElementSync = CodeSync.ToolbarPanel.extend
     @editor.on "code:sync:template", @syncWithElement, @
 
     CodeSync.ToolbarPanel::initialize.apply(@, arguments)
+
+  render: ()->
+    CodeSync.ToolbarPanel::render.apply(@, arguments)
 
   syncWithElement: (doc)->
     return unless @selector and tmpl = doc.templateFunction()
