@@ -60,14 +60,24 @@ CodeSync.EditorPanel = Backbone.View.extend
     @$el.attr('data-layout', option)
     @trigger "layout:change", option
 
+  setCurrentEditor: (editor)->
+    @$el.attr('data-current-editor', editor.name || editor.cid)
+    @currentEditor = editor
+
   render: ()->
     @delegateEvents()
+    @$el.attr('data-layout',"3")
     @
 
   renderIn: (containerElement)->
     $(containerElement).html(@render().el)
 
     @renderEditors()
+
+    panel = @
+    @each (editor)->
+      editor.codeMirror.on "focus", ()->
+        panel.setCurrentEditor(editor)
 
   each: (args...)->
     editors = _(@assetEditors).values()
@@ -80,14 +90,13 @@ CodeSync.EditorPanel = Backbone.View.extend
       id = config.name || config.cid
 
       container = @$('.editor-wrapper .editor').eq(index)
-
       container.attr('data-editor', index)
-
       config.appendTo = container
 
       EditorClass = CodeSync[config.type] || CodeSync.AssetEditor
 
-      @assetEditors[id] = new EditorClass(config)
+      editor = @assetEditors[id] = new EditorClass(config)
+      @currentEditor ||= editor
 
     @trigger "editors:loaded"
 

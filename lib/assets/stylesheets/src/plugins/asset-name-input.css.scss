@@ -1,0 +1,12 @@
+.codesync-editor {
+  .asset-name-input {
+    input {
+      width: 100%;
+    }
+    position: absolute;
+    width: 420px;
+    bottom: 20px;
+    right: 240px;
+    z-index: 4000;
+  }
+}

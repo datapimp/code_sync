@@ -1,0 +1,8 @@
+- console.log(@)
+
+.toolbar-button.button
+  - if @icon
+    %i{:class=>"icon #{ @icon }"}
+
+  - if @text
+    %span #{ @text }

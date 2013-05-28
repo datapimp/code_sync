@@ -1,9 +1,3 @@
-#= require skim
-#= require_tree ./templates
-#= require_tree ./datasources
-#= require_tree ./plugins
-#= require_self
-#= require_tree ./subclasses
 
 CodeSync.AssetEditor = Backbone.View.extend
   name: "code_sync"

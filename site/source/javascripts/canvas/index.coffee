@@ -47,8 +47,6 @@ CodeSync.Canvas = Backbone.View.extend
         editor.views.elementSync.setValue 'body[data-canvas-inner]'
 
     CodeSync.processChangeNotification = (a, b)=>
-      console.log @target, a.type
-
       if @target is "app"
         original(a,b)
 

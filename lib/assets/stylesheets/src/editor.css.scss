@@ -1,0 +1,114 @@
+.codemirror-wrapper {
+  .CodeMirror {
+    height: 375px;
+  }
+}
+
+.codesync-editor.static-height {
+  width: 100%;
+  margin: 0px;
+  padding: 0px;
+  position: relative;
+  z-index: 0;
+
+  .status-message {
+    position: absolute;
+    top: 50%;
+    width: 50%;
+    margin: 0px auto;
+    z-index: 8000;
+    padding: 6px;
+    border-radius: 3px;
+    box-shadow: 0 0 3px #fff;
+    color: #fff;
+    &.error {
+      background-color: rgba(235,90,90,0.3);
+    }
+    &.success {
+      background-color: rgba(90,235,90,0.3);
+    }
+  }
+
+}
+
+.codesync-editor.static-height.top-positioned[data-visible] {
+}
+
+.codesync-editor.static-height.top-positioned, .codesync-editor.static-height.bottom-positioned {
+  position: fixed;
+  z-index: 30000;
+  width: 100%;
+  opacity: 0.9;
+}
+
+.codesync-editor.static-height.top-positioned {
+  bottom: auto;
+  top: 0px;
+
+  .toolbar-wrapper {
+    top: 10px;
+    right: 10px;
+  }
+
+  .codemirror-wrapper {
+    top: 0px;
+    bottom: auto;
+    position: static;
+  }
+
+  .document-tabs {
+    top: auto;
+    bottom: -8px;
+    position: static;
+
+    .document-tab {
+      border-radius: 0px 0px 4px 4px;
+    }
+  }
+}
+
+.codesync-editor.static-height.bottom-positioned {
+  border-radius: 4px 4px 0px 0px;
+  bottom: 0px;
+
+  .codemirror-wrapper {
+    position: absolute;
+    top: 34px;
+    bottom: auto;
+    width: 100%;
+  }
+
+  .toolbar-wrapper {
+    top: 45px;
+    right: 10px;
+  }
+
+  .document-tabs {
+    position: absolute;
+    top: 0px;
+    bottom: auto;
+    width: 100%;
+    .document-tab {
+      border-radius: 4px 4px 0px 0px;
+    }
+  }
+}
+
+// support for the light theme
+.codesync-editor[data-theme="xq-light"] {
+  .toolbar-wrapper {
+    .button {
+      background-color: #777;
+      color: #ffffff;
+    }
+  }
+  .document-tabs-container {
+    .document-tab {
+      background-color: #fff;
+      color: #777;
+    }
+  }
+  .status-message.error {
+    color: lighten(red,20);
+  }
+}

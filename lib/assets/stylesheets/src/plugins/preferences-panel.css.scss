@@ -1,0 +1,26 @@
+.codesync-editor {
+  .preferences-panel {
+    margin-bottom: 4px;
+    margin-right: 4px;
+    background: rgba(255,255,255,0.2);
+    padding: 8px;
+    box-shadow: 0 0 6px rgba(255,255,255,0.2);
+    border-radius: 3px;
+    position: absolute;
+    z-index: 4000;
+    bottom: 55px;
+    right: 10px;
+
+    label {
+      color: #fff;
+      text-decoration: underline;
+      display: block
+    }
+  }
+}
+
+.codesync-editor[data-theme='xq-light'] {
+  .preferences-panel {
+    background: rgba(30,30,30,0.9);
+  }
+}
