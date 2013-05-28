@@ -1,14 +1,11 @@
 CodeSync.ProjectAssets = Backbone.Collection.extend
-  url: ()->
-    CodeSync.get("serverInfoEndpoint")
+  model: CodeSync.Document
+
+  url: CodeSync.get("serverInfoEndpoint")
 
   parse: (response)->
-    models = for path in _.uniq(response.project_assets)
-      description = path.replace(response.root,'')
-      {path,description}
+    response.project_assets
 
-    models
-
-  initialize: ()->
-    @fetch()
-    Backbone.Collection::initialize.apply(@, arguments)
+  findDocumentByPath: (path)->
+    @detect (model)->
+      model.get('path') is path

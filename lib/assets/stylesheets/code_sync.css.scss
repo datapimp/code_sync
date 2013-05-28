@@ -1,4 +1,6 @@
 /*
- *= require_tree ./vendor
- *= require ./code_sync/index
+ *= require ./src/codemirror
+ *= require ./src/editor
+ *= require_tree ./src/plugins
+ *= require_self
 */

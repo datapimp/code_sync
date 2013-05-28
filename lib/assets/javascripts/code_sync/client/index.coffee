@@ -12,34 +12,80 @@ class CodeSync.Client
 
   logLevel: 0
 
+  enablePush: true
+
   constructor: (options={})->
     @logLevel = options.logLevel || 0
 
     CodeSync.Client._clients.push(@)
 
-    @channel = options.channel || getClientChannel()
+    if @enablePush is true
+      @channel = options.channel || getClientChannel()
 
-    CodeSync.util.loadScript "#{ CodeSync.get("socketEndpoint") }/client.js", ()=>
-      return if @clientLoaded is true
+      @providerLib = "#{ CodeSync.get("socketEndpoint") }/client.js"
 
-      setTimeout ()=>
-        try
-          @setupSocket()
-        catch e
-          console.log "Error setting up codesync client: #{ e.message }"
-      , 25
+      CodeSync.util.loadScript @providerLib, ()=>
+        return if @clientLoaded is true || !@providerAvailable()
 
-      @clientLoaded = true
+        setTimeout ()=>
+          try
+            @setupSocket()
+          catch e
+            console.log "Error setting up codesync client: #{ e.message }"
+        , 25
+
+        @clientLoaded = true
+
+    @getSprocketsInfo()
+
+  getSprocketsInfo: ()->
+    $.ajax
+      type: "GET"
+      url: CodeSync.get("serverInfoEndpoint")
+      success: (response)=>
+        if CodeSync.ProjectAssets?
+          @projectAssets = new CodeSync.ProjectAssets(response.project_assets)
+
+  buildStylesheetMap: ()->
+    @stylesheetMap = {}
+
+    for styleElement in $('link[rel="stylesheet"]')
+      if href = $(styleElement).attr('href')
+        @stylesheetMap[href] = styleElement
+
+  buildScriptMap: ()->
+    @scriptMap = {}
+
+    for scriptElement in $('script[type="text/javascript"]')
+      if src = $(scriptElement).attr('src')
+        @scriptMap[src] = scriptElement
+
+    @scriptMap
+
+  providerAvailable: ()->
+    Faye?
 
   subscribeWith: (cb)->
-    @socket?.subscribe @channel, cb
+    @socket?.subscribe(@channel, cb)
 
   setupSocket: ()->
-    return unless Faye?
+    if @socket = new Faye?.Client(CodeSync.get("socketEndpoint"))
+      @subscribeWith ()=>
+        @defaultNotificationHandler.apply(@, arguments)
 
-    @socket = new Faye.Client(CodeSync.get("socketEndpoint"))
+  notificationHandlerOptions: {}
 
-    @subscribeWith(CodeSync.processChangeNotification)
+  defaultNotificationHandler: (notification)->
+    console.log notification.path
+    console.log @projectAssets.pluck 'path'
+
+    if doc = @projectAssets?.findDocumentByPath(notification.path)
+      console.log "Found Project Asset", doc
+      if notification.contents
+        doc.set("contents", notification.contents, silent: false)
+        doc.trigger "contents:synced"
+
+    CodeSync.processChangeNotification(notification, @notificationHandlerOptions)
 
 # Allows for hijacking a page which includes the code sync client
 # and overriding the notification channel.  this allows for sandboxd

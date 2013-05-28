@@ -3,6 +3,8 @@ require "code_sync/processors/jst_processor"
 module CodeSync
   module Processors
     Map = {
+      ".hamlc" => CodeSync::Processors::JstProcessor,
+      ".jst.hamlc" => CodeSync::Processors::JstProcessor,
       ".jst.skim" => CodeSync::Processors::JstProcessor
     }
   end

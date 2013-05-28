@@ -9,7 +9,7 @@
 
     #canvas-inner
       .drag-shim
-      iframe.canvas-frame seamless=true src="/canvas-content?code_sync_channel=canvas_content" frameborder="0" style="" height="150%" width="150%"
+      iframe.canvas-frame seamless=true src="/canvas-content?code_sync_channel=canvas_content" frameborder="0" style="" height="100%" width="100%"
 
 javascript:
   window.codeSyncClient = new CodeSync.Client()
@@ -18,10 +18,6 @@ javascript:
   });
 
 - content_for(:head) do
-  == stylesheet_link_tag 'vendor/animate', 'entypo', 'canvas'
-
-- content_for(:javascript_dependencies) do
-  == javascript_include_tag 'vendor/jquery', 'vendor/jquery-ui-resize-drag.min'
-
+  == stylesheet_link_tag 'canvas'
 
 == javascript_include_tag 'canvas'

@@ -63,6 +63,37 @@ module CodeSync
     end
 
     protected
+
+      def initialize options={}
+        @options = options.freeze
+
+        create_server()
+
+        unless options[:disable_watcher]
+          listen_for_changes_on_the_filesystem do |changed_assets|
+            changed_assets.each do |asset|
+              notify_clients_of_change_to(asset)
+            end
+          end
+        end
+
+        unless options[:disable_internal_watch]
+          listen_for_changes_to_codesync do |changed_assets|
+            changed_assets.each do |asset|
+              puts "Detected internal change"
+              puts asset.inspect
+
+              notify_clients_of_change_to(asset)
+            end
+          end
+        end
+      end
+
+
+
+
+
+
       def build_process_map
         @process_map = processes.inject({}) do |memo,config|
           name = config.first
@@ -87,42 +118,12 @@ module CodeSync
       end
 
       def exit_gracefully
-        puts "EXIT"
-
         yield if block_given?
 
-        puts "Didn't make it past yield"
         puts "#{ process_map.inspect }"
 
         process_map.each do |process_name,pid|
-          puts "Killing #{ process_name } #{pid}"
-
           Process.kill(9,pid)
-        end
-      end
-
-      def initialize options={}
-        @options = options.freeze
-
-
-        create_server()
-
-        unless options[:disable_watcher]
-          puts "Listening for changes on the filesystem"
-          listen_for_changes_on_the_filesystem do |changed_assets|
-            changed_assets.each do |asset|
-              notify_clients_of_change_to(asset)
-            end
-          end
-        end
-
-        unless options[:enable_listener]
-          listen_for_changes_from_clients do |changed_assets|
-          end
-        end
-
-        unless options[:disable_internal_watch]
-          listen_for_changes_to_code_sync()
         end
       end
 
@@ -150,19 +151,16 @@ module CodeSync
         @client = ::Faye::Client.new("http://localhost:9295/faye")
       end
 
-      def listen_for_changes_from_clients &handler
-        manage_child_process("listener") do
-          EM.run do
-            client.subscribe("/code-sync/inbound") do |message|
-              puts "Received Code-Sync Inbound"
-              puts message.inspect
+      def listen_for_changes_to_codesync &handler
+        manage_child_process("internal") do
+          internal.change do |modified,added,removed|
+            begin
+              handler.call process_changes_to(modified+added)
+            rescue
+              puts "Error handling changes: #{ $! }"
             end
           end
-        end
-      end
 
-      def listen_for_changes_to_code_sync &handler
-        manage_child_process("internal") do
           internal.start
         end
       end
@@ -195,15 +193,11 @@ module CodeSync
       end
 
       def internal
-        lib = File.dirname(__FILE__)
-        puts "Listening to #{ lib }"
+        lib = File.join(File.dirname(__FILE__),'..','assets')
 
-        @internal_watch = Listen.to( lib )
-          .filter(/.rb/)
+        @internal_watch ||= Listen.to( lib )
+          .filter(/\.coffee|\.css/)
           .latency(1)
-          .change do
-            restart_everything!
-          end
 
         @internal_watch
       end

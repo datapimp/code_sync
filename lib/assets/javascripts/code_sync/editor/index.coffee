@@ -9,6 +9,8 @@ CodeSync.AssetEditor = Backbone.View.extend
   name: "code_sync"
   className: "codesync-editor"
 
+  height: 400
+
   # Valid options are top, bottom, static
   position: "top"
 
@@ -46,10 +48,6 @@ CodeSync.AssetEditor = Backbone.View.extend
 
   plugins:[
     "DocumentTabs"
-    "ModeSelector"
-    "PreferencesPanel"
-    "ElementSync"
-    "KeymapSelector"
   ]
 
   pluginOptions: {}
@@ -70,17 +68,20 @@ CodeSync.AssetEditor = Backbone.View.extend
 
     @startMode        = @modes.get(@startMode) || CodeSync.Modes.defaultMode()
 
-
     @on "editor:change", _.debounce(@editorChangeHandler, @editorChangeThrottle), @
 
     @on "codemirror:setup", ()=> @loadDefaultDocument()
 
-    @$el.html JST["code_sync/editor/templates/asset_editor"]()
+    @$el.append "<div class='toolbar-wrapper' />"
+    @$el.append "<div class='codemirror-wrapper' />"
+    @setupToolbar()
 
     @$el.attr('data-codesync', @name) if @name?
 
+
     @loadPlugins()
 
+    @setHeight(@height, false)
     @setPosition(@position, false)
 
     @render() unless @autoRender is false
@@ -93,12 +94,11 @@ CodeSync.AssetEditor = Backbone.View.extend
       options = @pluginOptions[plugin] || {}
       PluginClass = CodeSync.plugins[plugin]
 
+      options.PluginClass = PluginClass
       PluginClass.setup.call(@,@,options)
 
   render: ()->
     return @ if @rendered is true
-
-    @setupToolbar()
 
     @delegateEvents()
 
@@ -123,7 +123,7 @@ CodeSync.AssetEditor = Backbone.View.extend
     return if @codeMirror?
 
     @height ||= @$el.height()
-    @codeMirror = CodeMirror(@$('.codesync-asset-editor')[0], @getCodeMirrorOptions())
+    @codeMirror = CodeMirror(@$('.codemirror-wrapper')[0], @getCodeMirrorOptions())
 
     @on "initial:document:load", ()=>
       if @startMode
@@ -168,6 +168,13 @@ CodeSync.AssetEditor = Backbone.View.extend
 
   editorChangeHandler: (editorContents)->
     @currentDocument.set("contents", editorContents)
+
+  setHeight: (@height, show=true)->
+    if _.isNumber(@height)
+      @height = "#{ @height }px"
+
+    @$el.css('height', @height)
+    @$el.addClass('static-height')
 
   setPosition: (@position="top", show=true)->
     for available in ["top","bottom","static"] when available isnt @position
@@ -215,6 +222,9 @@ CodeSync.AssetEditor = Backbone.View.extend
   setCodeMirrorOptions: (options={})->
     for option,value of options
       @codeMirror.setOption(option,value)
+
+  addToolbarButton: (options={})->
+    @$('.toolbar-wrapper').append CodeSync.template("toolbar_button", options)
 
   setupToolbar: ()->
     @$('.toolbar-wrapper').hide() unless @enableToolbar
@@ -297,7 +307,7 @@ CodeSync.AssetEditor = Backbone.View.extend
       , 1200
 
   hintHeight: ()->
-    offset = if @showVisibleTab then @$('.document-tabs-container').height() else 0
+    offset = if @showVisibleTab then @$('.document-tabs').height() else 0
 
   visibleStyleSettings: ()->
     if @position is "static"
@@ -310,7 +320,7 @@ CodeSync.AssetEditor = Backbone.View.extend
     if @position is "bottom"
       settings =
         bottom: '0px'
-        height: '400px'
+        height: @height
 
     settings
 
@@ -320,13 +330,13 @@ CodeSync.AssetEditor = Backbone.View.extend
 
     if @position is "top"
       settings =
-        top: ((@$el.height() + 8) * -1 ) + @hintHeight()
+        top: @$('.codemirror-wrapper').height() * -1
         bottom: 'auto'
 
     if @position is "bottom"
       settings =
         bottom: '0px'
-        height: "#{ @hintHeight() - 8 }px"
+        height: @height - @$('.document-tabs').height()
 
     settings
 

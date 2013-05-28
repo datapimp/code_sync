@@ -62,20 +62,30 @@ module CodeSync
     def process_changes_to assets=[]
 
       results = Array(assets).map do |path|
+        if asset = env.find_asset(path)
+          logical_name  = asset.logical_path
+          basename      = File.basename(path)
+          extension     = basename.split('.').slice(1,100).join(".")
 
-        asset = env.find_asset(path)
+          is_template = ['.jst.skim','.jst','.hamlc','.mustache'].any? do |needle|
+            !basename[needle].nil?
+          end
 
-        asset && notification = {
-          asset_path: path,
-          digest_path:asset.digest_path,
-          name:asset.logical_path,
-          source: (asset.to_s rescue nil),
-          path: path,
-          content: IO.read(path)
-        }
+          codesync_document_attributes = {
+            path: path,
+            extension: "." + extension,
+            name: basename,
+            logical_name: logical_name,
+            compiled: (asset.to_s rescue nil),
+            content: IO.read(path),
+            template: is_template
+          }
+        end
+
+        codesync_document_attributes
       end
 
-      Array(results)
+      Array(results.compact)
     end
 
     def compile content, options={}
@@ -96,9 +106,25 @@ module CodeSync
       end
 
       files.reject! {|path| path.match(/\.min\.js/) || path.match(/\-min\.js/) }
-      files.select! {|path| path.match(/\.jst|\.coffee|\.css|\.js/)}
+      files.select! {|path| path.match(/\.jst|\.mustache|\.skim|\.hamlc|\.scss|\.sass|\.coffee|\.css|\.js/)}
 
-      files
+      files.map do |file|
+        asset         = env.find_asset(file)
+        logical_path  = asset && asset.logical_path
+        folder        = if asset.content_type == "application/javascript"
+          "javascripts"
+        else
+          "stylesheets"
+        end
+
+        {
+          :path => file,
+          :name => File.basename(file),
+          :logical_path => logical_path,
+          :url => "#{ folder }/#{ logical_path }",
+          :relative_path => file.gsub(root,'.')
+        }
+      end
     end
 
 

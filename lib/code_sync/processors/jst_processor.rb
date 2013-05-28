@@ -4,7 +4,7 @@ module CodeSync
   module Processors
     class JstProcessor
       def self.process contents,filename="adhoc",extension=".jst"
-        contents.match(/this.JST\[(.*)\]/) do |match|
+        contents.match(/\w+.JST\[(.*)\]/) do |match|
           if match[1]
             contents[match[1]] = "\"#{filename}\""
           end

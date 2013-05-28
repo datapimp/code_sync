@@ -100,6 +100,12 @@ modes =
       tabSize: 2
       indentWithTabs: false
 
+  haml:
+    codeMirrorMode: "haml"
+    extension: ".hamlc"
+    name: "Haml Coffee"
+    template: true
+
   scss:
     codeMirrorMode: "css"
     extension: ".css.scss"

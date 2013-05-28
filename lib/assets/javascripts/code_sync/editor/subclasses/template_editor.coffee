@@ -5,18 +5,6 @@ CodeSync.TemplateEditor = CodeSync.AssetEditor.extend
   startMode: "skim"
   keyBindings: CodeSync.get("defaultKeyBindings") || "vim"
   position: "static"
-
-  plugins:[
-    "ModeSelector"
-    "KeymapSelector"
-    "ElementSync"
-  ]
-
-  pluginOptions:
-    ModeSelector:
-      showModes: "template"
-
-
   initialize:(@options={})->
     _.extend(@, @options)
 

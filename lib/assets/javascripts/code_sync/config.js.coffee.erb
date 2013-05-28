@@ -1,9 +1,7 @@
 root = @
 
-if typeof(exports) isnt "undefined"
-  CodeSync = exports
-else
-  CodeSync = root.CodeSync = {}
+root.CodeSync = CodeSync = ()->
+ CodeSync.Client.get()
 
 CodeSync.VERSION    = "<%= CodeSync::Version %>"
 

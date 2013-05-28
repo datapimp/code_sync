@@ -51,6 +51,8 @@ CodeSync.plugins.ModeSelector = Backbone.View.extend
 
 CodeSync.plugins.ModeSelector.setup = (editor,options)->
   options.editor = editor
+  options.attachTo = editor.$('.codemirror-wrapper')
 
   @views.modeSelector = new CodeSync.plugins.ModeSelector(options)
+
   @views.modeSelector.attach()

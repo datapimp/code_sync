@@ -1,5 +1,5 @@
 CodeSync.plugins.DocumentTabs = Backbone.View.extend
-
+  className: "document-tabs"
   # Save, Open, New tabs
   includeActionTabs: true
 
@@ -162,17 +162,11 @@ CodeSync.plugins.DocumentTabs.setup = (editor, options={})->
 
   dm = @views.documentTabs = new CodeSync.plugins.DocumentTabs(options)
 
-  # _.extend editor.codeMirrorKeyBindings,
-  #   "Ctrl-T": ()->
-  #     dm.toggleAssetSelector()
+  if editor.position is "top"
+    @$el.append(dm.render().el)
 
-  #   "Ctrl-S": ()->
-  #     dm.getCurrentDocument().save()
-
-  #   "Ctrl-N": ()->
-  #     dm.createDocument()
-
-  @$el.append(dm.render().el)
+  if editor.position is "bottom"
+    @$el.append(dm.render().el)
 
   dm.on "tab:click", ()=>
     @show() if @visible is false

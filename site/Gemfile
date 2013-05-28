@@ -1,5 +1,4 @@
-# If you have OpenSSL installed, we recommend updating
-# the following line to use "https"
+# If you have OpenSSL installed, we recommend updating # the following line to use "https"
 source 'http://rubygems.org'
 
 gem "middleman", "~>3.0.13"
@@ -10,4 +9,5 @@ gem "redcarpet"
 gem "slim"
 gem "skim"
 gem "sass"
+gem "haml_coffee_assets"
 gem "code_sync", path: File.join("..")

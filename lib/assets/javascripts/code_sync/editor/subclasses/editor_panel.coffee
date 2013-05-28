@@ -1,11 +1,14 @@
 CodeSync.EditorPanel = Backbone.View.extend
   className: "codesync-editor-panel"
 
-  template: "code_sync/editor/subclasses/editor_panel_template"
+  events:
+    "click #target-selector li[data-option]" : "selectTarget"
+    "click #layout-selector li[data-option]" : "selectLayout"
 
   editors:[
     type: "TemplateEditor"
     name: "template_editor"
+    enableStatusMessages: "error"
     document:
       localStorageKey: "panel:1"
   ,
@@ -14,42 +17,48 @@ CodeSync.EditorPanel = Backbone.View.extend
     autoRender: true
     renderVisible: true
     startMode: "scss"
+    enableStatusMessages: "error"
     keyBindings: CodeSync.get("defaultKeyBindings")
     position: "static"
-    plugins:[
-      "ModeSelector"
-      "KeymapSelector"
-      "ColorPicker"
-    ]
     document:
       localStorageKey: "panel:2"
-
-    pluginOptions:
-      ModeSelector:
-        showModes: "style"
   ,
     name: "script_editor"
     hideable: false
     autoRender: true
     renderVisible: true
     startMode: "coffeescript"
+    enableStatusMessages: "error"
     keyBindings: CodeSync.get("defaultKeyBindings")
     position: "static"
-    plugins:[
-      "ModeSelector"
-      "KeymapSelector"
-    ]
     document:
       localStorageKey: "panel:3"
-    pluginOptions:
-      ModeSelector:
-        showModes: "script"
+    plugins:[
+      "ScriptLoader"
+    ]
   ]
 
   initialize: ()->
-    @$el.append "<div class='editor-panel-wrapper' />"
-
+    @$el.html CodeSync.template("editor_panel")
     Backbone.View::initialize.apply(arguments)
+
+  selectTarget: (e)->
+    el = @$(e.target).closest('li[data-option]')
+    option = el.data('option')
+    el.siblings().removeClass('active')
+    el.addClass('active')
+
+    @$el.attr('data-target', option)
+    @trigger "target:change", option
+
+  selectLayout: (e)->
+    el = @$(e.target).closest('li[data-option]')
+    option = el.data('option')
+    el.siblings().removeClass('active')
+    el.addClass('active')
+
+    @$el.attr('data-layout', option)
+    @trigger "layout:change", option
 
   render: ()->
     @delegateEvents()
@@ -57,6 +66,7 @@ CodeSync.EditorPanel = Backbone.View.extend
 
   renderIn: (containerElement)->
     $(containerElement).html(@render().el)
+
     @renderEditors()
 
   each: (args...)->
@@ -69,8 +79,11 @@ CodeSync.EditorPanel = Backbone.View.extend
     for config, index in @editors
       id = config.name || config.cid
 
-      @$('.editor-panel-wrapper').append JST[@template]()
-      config.appendTo = @$('.editor-panel .editor').eq(index)
+      container = @$('.editor-wrapper .editor').eq(index)
+
+      container.attr('data-editor', index)
+
+      config.appendTo = container
 
       EditorClass = CodeSync[config.type] || CodeSync.AssetEditor
 

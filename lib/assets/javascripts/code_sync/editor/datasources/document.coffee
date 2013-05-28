@@ -110,11 +110,10 @@ CodeSync.Document = Backbone.Model.extend
 
   loadInPage: (options={})->
     doc     = @
-    content = doc.get("compiled")
 
     notification =
       type: doc.type()
-      content: doc.get("compiled")
+      compiled: doc.get("compiled")
       complete: options.complete
 
     payload = _.extend notification,
