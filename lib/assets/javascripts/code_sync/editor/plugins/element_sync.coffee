@@ -1,13 +1,17 @@
-CodeSync.plugins.ElementSync = Backbone.View.extend
-  buttonLabel: ""
+CodeSync.plugins.ElementSync = CodeSync.ToolbarPanel.extend
+  buttonIcon: "loop"
 
-  buttonClass: "icon icon-loop"
+  tooltip: "Sync markup content with the DOM"
 
-  className : "codesync-element-sync toggleable-input"
+  className: "codesync-element-sync"
 
   action: "html"
 
   visible: true
+
+  panelTemplate: "element_sync"
+
+  availableInModes: "template"
 
   events:
     "keyup input" : ()->
@@ -33,9 +37,7 @@ CodeSync.plugins.ElementSync = Backbone.View.extend
 
     @editor.on "code:sync:template", @syncWithElement, @
 
-    @editor.on "change:mode", (mode)=>
-
-    @editor.on "document:loaded", (doc)=>
+    CodeSync.ToolbarPanel::initialize.apply(@, arguments)
 
   syncWithElement: (doc)->
     return unless @selector and tmpl = doc.templateFunction()

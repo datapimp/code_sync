@@ -1,0 +1,30 @@
+.codesync-editor {
+  .toolbar-panel {
+    position: absolute;
+    top: 35px;
+    left: 40px;
+    z-index: 9000;
+
+    max-width: 500px;
+    width: 80%;
+    max-height: 400px;
+    height: 80%;
+    margin: auto;
+    background: rgba(255,255,255,0.2);
+    box-shadow: 0 0 6px rgba(255,255,255,0.2);
+    border-radius: 3px;
+
+    label {
+      color: #fff;
+      text-decoration: underline;
+      display: block
+    }
+
+  }
+
+}
+.codesync-editor[data-theme='xq-light'] {
+  .toolbar-panel {
+    background: rgba(30,30,30,0.9);
+  }
+}

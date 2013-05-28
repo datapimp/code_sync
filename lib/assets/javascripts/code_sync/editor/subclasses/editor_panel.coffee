@@ -1,3 +1,12 @@
+plugins = [
+  "ColorPicker"
+  "ElementSync"
+  "ScriptLoader"
+  "StylesheetLoader"
+  "PreferencesPanel"
+  "DocumentTabs"
+]
+
 CodeSync.EditorPanel = Backbone.View.extend
   className: "codesync-editor-panel"
 
@@ -9,6 +18,8 @@ CodeSync.EditorPanel = Backbone.View.extend
     type: "TemplateEditor"
     name: "template_editor"
     enableStatusMessages: "error"
+    plugins: plugins
+
     document:
       localStorageKey: "panel:1"
   ,
@@ -20,6 +31,7 @@ CodeSync.EditorPanel = Backbone.View.extend
     enableStatusMessages: "error"
     keyBindings: CodeSync.get("defaultKeyBindings")
     position: "static"
+    plugins: plugins
     document:
       localStorageKey: "panel:2"
   ,
@@ -31,11 +43,9 @@ CodeSync.EditorPanel = Backbone.View.extend
     enableStatusMessages: "error"
     keyBindings: CodeSync.get("defaultKeyBindings")
     position: "static"
+    plugins: plugins
     document:
       localStorageKey: "panel:3"
-    plugins:[
-      "ScriptLoader"
-    ]
   ]
 
   initialize: ()->

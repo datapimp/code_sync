@@ -218,7 +218,9 @@ CodeSync.AssetEditor = Backbone.View.extend
       @codeMirror.setOption(option,value)
 
   addToolbarButton: (options={})->
-    @$('.toolbar-wrapper').append CodeSync.template("toolbar_button", options)
+    el = $(CodeSync.template("toolbar_button", options))
+    @$('.toolbar-wrapper').append(el)
+    el
 
   setupToolbar: ()->
     @$('.toolbar-wrapper').hide() unless @enableToolbar

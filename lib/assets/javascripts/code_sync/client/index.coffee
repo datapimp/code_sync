@@ -76,11 +76,7 @@ class CodeSync.Client
   notificationHandlerOptions: {}
 
   defaultNotificationHandler: (notification)->
-    console.log notification.path
-    console.log @projectAssets.pluck 'path'
-
     if doc = @projectAssets?.findDocumentByPath(notification.path)
-      console.log "Found Project Asset", doc
       if notification.contents
         doc.set("contents", notification.contents, silent: false)
         doc.trigger "contents:synced"

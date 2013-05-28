@@ -1,8 +1,5 @@
-- console.log(@)
-
-.toolbar-button.button
+%a.toolbar-button.button{"data-panel"=>@panel,:title=>"#{@tooltip}"}
   - if @icon
-    %i{:class=>"icon #{ @icon }"}
-
+    %i{:class=>"icon icon-#{ @icon }"}
   - if @text
     %span #{ @text }

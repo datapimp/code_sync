@@ -43,3 +43,53 @@ $white: rgba(230,230,230,0.9);
     }
   }
 }
+
+.codesync-editor-panel {
+
+}
+
+.codesync-editor-panel[data-layout="1"] {
+  .editor[data-editor="0"]{
+    display: block;
+    width: 100%;
+  }
+  .editor[data-editor="1"]{
+    display: none;
+  }
+  .editor[data-editor="2"]{
+    display: none;
+  }
+}
+
+
+.codesync-editor-panel[data-layout="2"] {
+  .editor[data-editor="0"]{
+    display: block;
+    width: 50%;
+  }
+  .editor[data-editor="1"]{
+    display: block;
+    left: 50%;
+    width: 50%;
+  }
+  .editor[data-editor="2"]{
+    display: none;
+  }
+}
+
+.codesync-editor-panel[data-layout="3"] {
+  .editor[data-editor="0"]{
+    display: block;
+    width: 33.333333%;
+  }
+  .editor[data-editor="1"]{
+    display: block;
+    left: 33.333333%;
+    width: 33.333333%;
+  }
+  .editor[data-editor="2"]{
+    display: block;
+    width: 33.333333%;
+  }
+}
+

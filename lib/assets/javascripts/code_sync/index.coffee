@@ -2,9 +2,7 @@
 #= require ./config
 #= require_self
 #= require ./client
-
-#= require ./slide_drawer
-#= require ./editor/toolbar_panel
+#= require_tree ./datasources
 #= require ./editor
 
 evalRunner = (code, onError) =>
