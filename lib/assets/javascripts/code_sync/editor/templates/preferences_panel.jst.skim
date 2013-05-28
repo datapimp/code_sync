@@ -1,38 +1,50 @@
 form
-  .control-group
-    label
-      | KeyBindings
-    .controls
-      select name="keyMap"
-        option value="default" Default
-        option value="vim" Vim
+  - if @enableMode
+    .control-group.mode-selector
+      label
+        | Language
+      .controls
+        select name="mode"
 
-  .control-group
-    label
-      | Theme
-    .controls
-      select name="theme"
-        option value="ambiance" Ambiance
-        option value="lesser-dark" Lesser Dark
-        option value="monokai" Monokai
-        option value="xq-light" XQ Light
+  - if @enableKeyBindings
+    .control-group
+      label
+        | KeyBindings
+      .controls
+        select name="keyMap"
+          option value="default" Default
+          option value="vim" Vim
 
-  .control-group
-    label
-      | Asset Compiler Endpoint
-    .controls
-      input type="text" name="asset_endpoint" value="#{ CodeSync.get('assetCompilationEndpoint') }"
+  - if @enableTheme
+    .control-group
+      label
+        | Theme
+      .controls
+        select name="theme"
+          option value="ambiance" Ambiance
+          option value="lesser-dark" Lesser Dark
+          option value="monokai" Monokai
+          option value="xq-light" XQ Light
 
-  .control-group
-    label
-      | Hotkey
-    .controls
-      input type="text" name="editor_hotkey" value="#{ CodeSync.get('editorToggleHotkey') }"
+  - if @enableEndpoint
+    .control-group
+      label
+        | Asset Compiler Endpoint
+      .controls
+        input type="text" name="asset_endpoint" value="#{ CodeSync.get('assetCompilationEndpoint') }"
 
-  .control-group
-    label
-      | Position
-    .controls
-      select name="position"
-        option value="top" Top
-        option value="bottom" Bottom
+  - if @enableHotKey
+    .control-group
+      label
+        | Hotkey
+      .controls
+        input type="text" name="editor_hotkey" value="#{ CodeSync.get('editorToggleHotkey') }"
+
+  - if @enablePosition
+    .control-group
+      label
+        | Position
+      .controls
+        select name="position"
+          option value="top" Top
+          option value="bottom" Bottom

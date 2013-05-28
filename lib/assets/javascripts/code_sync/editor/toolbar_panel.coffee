@@ -54,13 +54,16 @@ CodeSync.ToolbarPanel = Backbone.View.extend
   removeOtherToolbarPanels: ()->
     $(@renderTo).find('.toolbar-panel').addClass('animated #{ @exitEffect }').attr('data-removed',true)
 
+  templateOptions: ->
+    @options
+
   render: ()->
     if @rendered is true
       return @
     else
       @beforeRender?()
       @$el.addClass("toolbar-panel")
-      @$el.html CodeSync.template(@panelTemplate)
+      @$el.html CodeSync.template(@panelTemplate, @templateOptions())
       @rendered = !! $(@renderTo).append(@el)
       @afterRender?()
       @checkAvailabilityInMode()
