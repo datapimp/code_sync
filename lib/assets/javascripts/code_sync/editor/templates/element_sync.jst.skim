@@ -13,7 +13,7 @@
       .btn-group
         a.btn.done-button
           i.icon.icon-check
-        a.btn.hide-button
+        a.btn.hide-panel-button
           i.icon.icon-export
         a.btn.find-button
           i.icon.icon-hair-cross
