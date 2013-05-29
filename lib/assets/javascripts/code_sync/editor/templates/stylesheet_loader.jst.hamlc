@@ -1,10 +1,9 @@
-#external-stylesheet-panel.panel
-  %form
-    .control-group
-      %label
-        Enter a list of stylesheet urls to load
-      .controls
-        %textarea{:name=>"resource-list"}
-    .form-actions
-      .btn.btn-primary.submit
-        Load Stylesheets
+.form
+  .control-group
+    %label
+      Enter a list of stylesheet urls to load
+    .controls
+      %textarea{:name=>"resource-list"}
+  .form-actions
+    %a.btn.btn-primary.submit
+      Load Stylesheets

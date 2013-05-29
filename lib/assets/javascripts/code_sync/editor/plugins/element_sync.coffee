@@ -23,6 +23,7 @@ CodeSync.plugins.ElementSync = CodeSync.ToolbarPanel.extend
       @action = @$(e.target).val()
 
     "click .hide-panel-button" : ()->
+      @syncWithElement()
       @hide()
 
     "click .done-button" : ()->

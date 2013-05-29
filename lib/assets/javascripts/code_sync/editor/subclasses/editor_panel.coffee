@@ -61,7 +61,7 @@ CodeSync.EditorPanel = Backbone.View.extend
     plugins: plugins
     pluginOptions:
       PreferencesPanel:
-        showModes: "script"
+        showModes: "all"
     document:
       localStorageKey: "panel:3"
   ]

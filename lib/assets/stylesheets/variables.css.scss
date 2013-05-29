@@ -1,4 +1,12 @@
+//typography
+$baseFontSize: 14px;
+$baseLineHeight: 22px;
+
+//colors
 $white: rgba(255,255,255,0.8);
 $fadedWhite: rgba(225,225,225,0.6);
 $darkBackground: rgba(30,30,30,0.8);
 $activeHighlightOnDarkBackground: opacify(#bada55,0.2);
+
+
+$primary: #4067c5;

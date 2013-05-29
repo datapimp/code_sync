@@ -22,6 +22,49 @@
 }
 
 .codesync-editor {
+
+.toolbar-panel {
+  color: $white;
+  border-radius: 4px;
+  box-shadow: 0 0 6px $fadedWhite;
+  max-width: 600px;
+  .form {
+    padding: 20px;
+    .control-group {
+      label {
+        margin-bottom: $baseLineHeight / 2;
+        font-weight: bold;
+      }
+      textarea {
+        width: 80%;
+        resize: none;
+        min-height: 100px;
+      }
+    }
+    .form-actions {
+      padding-top: $baseLineHeight / 2;
+      clear: both;
+      width: 100%;
+      .btn {
+        background-color: $fadedWhite;
+        font-weight: bold;
+        cursor: pointer;
+      }
+    }
+    .btn-primary {
+      background: linear-gradient($primary,darken($primary,30)) !important;
+      text-shadow: 1px 1px $darkBackground;
+    }
+    .btn {
+      border-radius: 4px;
+      text-align: center;
+      font-size: $baseFontSize;
+      line-height: $baseLineHeight;
+      padding: $baseLineHeight / 2.5;
+    }
+  }
+}
+
   .toolbar-panel {
     .btn-group {
       margin-top: 12px;

@@ -1,10 +1,25 @@
-#external-stylesheet-panel.panel
-  %form
-    .control-group
-      %label
-        Enter a list of javascript urls to load
-      .controls
-        %textarea{:name=>"resource-list"}
-    .form-actions
-      .btn.btn-primary.submit
-        Load Javascripts
+.form
+  .card-view
+    .card.active
+      .control-group
+        %label Select a package
+        .controls
+          %select{:name=>"script_package"}
+
+      .control-group
+        %label
+          Enter a list of javascript urls to load
+        .controls
+          %textarea{:name=>"resource-list"}
+      .form-actions
+        %a.btn.btn-primary.submit
+          Load Javascripts
+
+    .card.results
+      .results-container
+      .form-actions
+        %a.btn.btn-primary.save-as-package
+          Save As Package
+
+
+
