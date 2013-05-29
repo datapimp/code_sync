@@ -1,4 +1,4 @@
-%a.toolbar-button.button{"data-editor"=>@name,:title=>"#{@tooltip}"}
+%a.toolbar-button.button{"data-button-id"=>@buttonId,:title=>@tooltip}
   - if @icon
     %i{:class=>"icon icon-#{ @icon }"}
   - if @text

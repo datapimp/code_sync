@@ -1,24 +1,17 @@
 .element-sync-panel
-  .row
+  .row-fluid.selector-info
     .span9
       input name="css-selector" placeholder="Enter a CSS selector to sync with"
     .span3
-      select name="action"
-        option value="html" Replace
-        option value="before" Before
-        option value="before" After
-  .row
+      .btn-group.actions
+        a.btn.done-button title="Finish syncing with his element"
+          i.icon.icon-check
+        a.btn.hide-panel-button title="Hide this panel, continue syncing."
+          i.icon.icon-export
+        / a.btn.find-button title="Find an element"
+        /   i.icon.icon-hair-cross
+  .row-fluid
     .span9
       .element-sync-status
-      .btn-group
-        a.btn.done-button
-          i.icon.icon-check
-        a.btn.hide-panel-button
-          i.icon.icon-export
-        a.btn.find-button
-          i.icon.icon-hair-cross
-
-
-
-
-
+    .span3
+      .search-scope-description

@@ -1,0 +1,32 @@
+.form
+  .row-fluid
+    .span6
+      .control-group.name.required
+        label Filename
+        .controls
+          input type="text" name="name" placeholder="Enter a name for this file" value="#{ @name }"
+    .span6
+      - if !@path || @path?.length is 0
+        .control-group.folder
+          label Folder
+          .controls
+            input type="text" name="folder" placeholder="Where will this file be stored? Relative to the project root" value="#{ @folder }"
+
+  - if @path?.length > 0
+    .control-group.current-file-location
+      label Current file location
+      .controls
+        input type="text" name="path" value="#{ @path }"
+  - else
+    .control-group.new-file-location
+      label New file location
+      .controls
+        input#document_path type="text" name="path" value="#{ @newPath }"
+
+  .control-group
+    .btn-group
+      .btn.save-button
+        | Save
+      - if @path?.length > 0
+        .btn.load-from-disk
+          | Reload

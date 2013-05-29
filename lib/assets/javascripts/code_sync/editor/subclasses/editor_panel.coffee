@@ -5,6 +5,8 @@ plugins = [
   "StylesheetLoader"
   "PreferencesPanel"
   "DocumentTabs"
+  "AssetSelector"
+  "FileControls"
 ]
 
 CodeSync.EditorPanel = Backbone.View.extend

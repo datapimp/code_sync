@@ -1,16 +1,26 @@
-CodeSync.AssetSelector = Backbone.View.extend
+CodeSync.plugins.AssetSelector = CodeSync.ToolbarPanel.extend
   className: "codesync-asset-selector"
+
+  panelTemplate: "asset_selector"
+
+  buttonIcon: "search"
+
+  entranceEffect: "fadeIn"
+
+  exitEffect: "fadeOut"
+
+  tooltip: "Load a document from this project"
+
+  handle: "assetSelector"
 
   events:
     "keyup input": "keyHandler"
     "click .search-result": "selectSearchResult"
 
   initialize:(options={})->
-    Backbone.View::initialize.apply(@, arguments)
+    CodeSync.ToolbarPanel::initialize.apply(@, arguments)
 
-    @editor = options.editor
-
-    _.bindAll(@,"keyHandler","loadAsset")
+    _.bindAll(@,"keyHandler","loadAssetByPath","loadDocument")
 
     @selected = new Backbone.Model(index: -1)
 
@@ -38,8 +48,10 @@ CodeSync.AssetSelector = Backbone.View.extend
       @selected.set('index',0,silent:true)
 
       _.delay ()=>
-        @loadAsset @searchResults[index].get('path')
+        @loadDocument @searchResults[index]
+        @hideSearchResults()
       , 10
+
       @hide()
 
   previousSearchResult: ()->
@@ -55,10 +67,18 @@ CodeSync.AssetSelector = Backbone.View.extend
     @selected.set {index}
 
   selectSearchResult: (e)->
-    @loadAsset $(e.target)?.data('path')
+    target = @$(e.target).closest('.search-result')
+    @selected.set target.data('index')
+    @openCurrentSearchResult()
 
-  loadAsset: (path)->
+  loadAssetByPath: (path)->
     @trigger "asset:selected", path
+    @editor.documentManager?.openDocuments?.findOrCreateForPath path, (doc)=>
+      @editor.documentManager.openDocument(doc,@editor)
+
+  loadDocument: (doc)->
+    doc.loadSourceFromDisk (doc)=>
+      @editor.documentManager?.openDocument(doc, @editor)
 
   filterAssetsBy: (value)->
     return if value.length <= 1
@@ -68,16 +88,31 @@ CodeSync.AssetSelector = Backbone.View.extend
 
     @selected.set('index',-1, silent: true)
 
-    @searchResults = @collection.select (model)->
+    @searchResults = @collection.select (doc)->
       regex = new RegExp("#{value}")
-      model.get("description")?.match(regex) || model.get("path")?.match(regex)
+      doc.nameWithExtension()?.match(regex) || doc.get("description")?.match(regex) || doc.get("path")?.match(regex)
 
     @searchResults = @searchResults.slice(0,5)
 
     for model,index in @searchResults
-      wrapper.append "<div data-path='#{ model.get('path') }' class='search-result'>#{ model.get('description') }</div>"
+      wrapper.append "<div data-path='#{ model.get('path') }' class='search-result'>#{ model.description() }</div>"
 
     wrapper.height( @searchResults.length * 40 )
+
+  render: ()->
+    return @ if @rendered
+
+    @collection = CodeSync.Documents.getProjectAssets()
+
+    CodeSync.ToolbarPanel::render.apply(@, arguments)
+    @wrapper = @$(".search-results-wrapper")
+    @
+
+  show: ()->
+    CodeSync.ToolbarPanel::show.apply(@, arguments)
+    @selected.set "index", undefined
+    @$('input').val()
+
 
   showSearchResults: ()->
     @wrapper.show()
@@ -85,22 +120,3 @@ CodeSync.AssetSelector = Backbone.View.extend
   hideSearchResults: ()->
     @wrapper.hide()
 
-  toggle: ()->
-    if @visible then @hide() else @show()
-
-  show: ()->
-    @wrapper.empty()
-    @visible = true
-    @$el.show()
-    @hideSearchResults()
-    @$('input').val('').focus()
-
-  hide: ()->
-    @$el.hide()
-    @visible = false
-    @editor.codeMirror.focus()
-
-  render: ()->
-    @$el.html JST["code_sync/editor/templates/asset_selector"]()
-    @wrapper ||= @$('.search-results-wrapper')
-    @

@@ -30,6 +30,36 @@ CodeSync.Document = Backbone.Model.extend
   templateFunction: ()->
     JST[@nameWithoutExtension()]
 
+  folder: ()->
+    if folder = @get("folder")
+      return folder
+
+    folder = if path = @get("path")
+      path = path.replace(@nameWithExtension(), '')
+
+      if projectRoot = CodeSync.get("projectRoot")
+        path = path.replace(projectRoot,'')
+    else
+      switch @type()
+        when "script", "template"
+          "javascripts"
+        when "stylesheet"
+          "stylesheets"
+
+
+    @set("folder", folder, silent: true)
+
+    folder
+
+  description: ()->
+    if path = @get("path")
+      return path.replace(CodeSync.get('projectRoot'), '')
+
+    return "#{ @folder() }/#{ @nameWithExtension() }"
+
+  newPath: ()->
+    "#{ CodeSync.get('projectRoot') }/#{ @folder() }"
+
   saveToDisk: ()->
     if @isSaveable()
       @sendToServer(true, "saveToDisk")
@@ -46,15 +76,24 @@ CodeSync.Document = Backbone.Model.extend
       url: "#{ @url() }?path=#{ @get('path') }"
       type: "GET"
       success: (response={})=>
+        silent = callback?
         if response.success is true and response.contents?
-          @set("contents", response.contents, silent: true)
-          callback(@)
+          @set("contents", response.contents, silent: silent)
+          callback?(@)
 
   toJSON: ()->
     name: @nameWithoutExtension()
     path: @get('path')
     extension: @get('extension') || @determineExtension()
     contents: @toContent()
+
+  nameWithExtension: ()->
+    name = @get("name")
+
+    unless name.match(/\./)
+      name += @get("extension")
+
+    name
 
   nameWithoutExtension: ()->
     extension = @get('extension') || @determineExtension()
@@ -74,7 +113,12 @@ CodeSync.Document = Backbone.Model.extend
     @toMode().get("codeMirrorOptions")
 
   toContent: ()->
-    "#{ @get("contents") || @toMode()?.get("defaultContent") || " " }"
+    myContent = "#{ @get("contents") || @toMode()?.get("defaultContent") || " " }"
+
+    if prefix = CodeSync.Document.getPrefixContentFor(@)
+      myContent = "#{ prefix }\n#{ myContent }";
+
+    myContent
 
   onContentChange: ()->
     if key = @localStorageKey()
@@ -176,15 +220,14 @@ CodeSync.Document.getExtensionFor = (string="")->
   if val = rest.length > 0 && rest.join('.')
     ".#{ val }"
 
+CodeSync.Document.getPrefixContentFor = (doc)->
+  ""
+
 CodeSync.Documents = Backbone.Collection.extend
   model: CodeSync.Document
 
   initialize: (models,options)->
     Backbone.Collection::initialize.apply(@, arguments)
-
-    if client = CodeSync.Client.get() && client?.socket?
-      client.subscribeWith (notification)->
-        console.log "Documents", notification
 
   nextId: ()->
     @models.length + 1
@@ -207,3 +250,17 @@ CodeSync.Documents = Backbone.Collection.extend
       documentModel.loadSourceFromDisk ()=>
         callback?(documentModel)
 
+
+CodeSync.Documents._projectAssets = undefined
+
+CodeSync.Documents.getProjectAssets = ()->
+  collection = CodeSync.Documents._projectAssets ||= new CodeSync.Documents()
+
+  $.ajax
+    type: "GET"
+    url: CodeSync.get("serverInfoEndpoint")
+    success: (response={})=>
+      if response.project_assets?.length > 0
+        collection.reset response.project_assets
+
+  collection

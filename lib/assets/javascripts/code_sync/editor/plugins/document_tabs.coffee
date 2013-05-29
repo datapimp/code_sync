@@ -14,11 +14,9 @@ CodeSync.plugins.DocumentTabs = Backbone.View.extend
     "click .closable .close-anchor":  "closeTab"
     "click .new-document" :           "createDocument"
     "click .save-document" :          "saveDocument"
-    "click .open-document":           "toggleAssetSelector"
     "dblclick .editable":             "onDoubleClickTab"
     "blur .editable .contents":       "onEditableTabBlur"
     "keydown .editable .contents":    "onEditableTabKeyPress"
-
 
   tabTemplate: JST["code_sync/editor/templates/document_manager_tab"]
 
@@ -40,13 +38,6 @@ CodeSync.plugins.DocumentTabs = Backbone.View.extend
 
     @on "editor:visible", ()=>
       @$('.document-tab.hideable').show()
-
-    @views.assetSelector = new CodeSync.AssetSelector
-      collection: @projectAssets
-      documents: @docs
-      editor: @editor
-
-    @views.assetSelector.on "asset:selected", @onAssetSelection, @
 
     Backbone.View::initialize.apply(@, arguments)
 

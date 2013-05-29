@@ -27,6 +27,7 @@ CodeSync.ToolbarPanel = Backbone.View.extend
     return @buttonElement.show() if (@availableInModes is "all" or !@availableInModes?)
 
     type = @editor.mode?.type?() || @editor.currentDocument.type()
+
     if type is @availableInModes
       @buttonElement.show()
     else
@@ -65,15 +66,19 @@ CodeSync.ToolbarPanel = Backbone.View.extend
   setupButtonElement: ()->
     return @buttonElement if @buttonElement
 
+    buttonId              = _.uniqueId()
     wrapper               = @editor.toolbarWrapperElement()
-    html                  = $(CodeSync.template(@buttonTemplate, name: @name, icon: @buttonIcon, text: @buttonText))
+    html                  = $(CodeSync.template(@buttonTemplate, buttonId: buttonId, icon: @buttonIcon, text: @buttonText, tooltip: @tooltip))
 
     wrapper.append(html)
-    @buttonElement = wrapper.find("[data-editor='#{ @name }']").eq(0)
+    @buttonElement = wrapper.find("[data-button-id='#{ buttonId }']").eq(0)
 
     @buttonElement.on "click", ()=> @toggle()
 
     @buttonElement
+
+  applyTemplate: ()->
+    @$el.html CodeSync.template(@panelTemplate, @templateOptions())
 
   render: () ->
     if @rendered is true
@@ -82,7 +87,7 @@ CodeSync.ToolbarPanel = Backbone.View.extend
       return @ if @beforeRender?() is false
 
       @$el.addClass("toolbar-panel")
-      @$el.append CodeSync.template(@panelTemplate, @templateOptions())
+      @applyTemplate()
       $(@renderTo()).append(@el)
 
       @afterRender?()
@@ -97,8 +102,6 @@ CodeSync.ToolbarPanel.setup = (editor,options={})->
   {PluginClass} = options
 
   options.editor = editor
-
-  editor.views ||= {}
 
   panel = new PluginClass(options)
 

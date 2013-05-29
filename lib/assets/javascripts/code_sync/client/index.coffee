@@ -42,8 +42,13 @@ class CodeSync.Client
     $.ajax
       type: "GET"
       url: CodeSync.get("serverInfoEndpoint")
-      success: (response)=>
-        if CodeSync.ProjectAssets?
+      success: (response={})=>
+        CodeSync.set("latestServerInfo", response)
+
+        if response.root
+          CodeSync.set("projectRoot", response.root)
+
+        if response.project_assets? && CodeSync.ProjectAssets?
           @projectAssets = new CodeSync.ProjectAssets(response.project_assets)
 
   buildStylesheetMap: ()->

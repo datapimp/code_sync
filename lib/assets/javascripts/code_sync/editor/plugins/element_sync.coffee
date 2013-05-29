@@ -70,7 +70,7 @@ CodeSync.plugins.ElementSync = CodeSync.ToolbarPanel.extend
   status: ()->
     length = @$elementSync?.length
 
-    msg = if length? is 0 && @getValue().length > 0
+    msg = if length is 0 && @getValue().length > 0
       "CSS Selector not found"
     else if length is 1
       "1 total element"
@@ -78,5 +78,8 @@ CodeSync.plugins.ElementSync = CodeSync.ToolbarPanel.extend
       "#{ length } total elements"
     else
       ""
+
+    if name = (@searchScope || window)?.name
+      @$('.search-scope-description').html(name)
 
     @$('.element-sync-status').html(msg)

@@ -1,0 +1,13 @@
+@import "code_sync/variables";
+
+.file-controls {
+  color: $white;
+  height: auto !important;
+  min-height: auto !important;
+  .form {
+    padding: 10px;
+  }
+  .controls input {
+    width: 100%;
+  }
+}
