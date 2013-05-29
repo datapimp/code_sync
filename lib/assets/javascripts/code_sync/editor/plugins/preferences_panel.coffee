@@ -32,6 +32,11 @@ CodeSync.plugins.PreferencesPanel = CodeSync.ToolbarPanel.extend
 
     values
 
+  syncWithEditor: ()->
+    @$('select[name="theme"]').val @editor.codeMirror.getOption('theme')
+    @$('select[name="mode"]').val (@editor.mode?.id || @editor.startMode)
+    @$('select[name="keyMap"]').val @editor.codeMirror.getOption('keyMap')
+
   updateEditor: ()->
     values = @getValues()
 
@@ -66,3 +71,4 @@ CodeSync.plugins.PreferencesPanel = CodeSync.ToolbarPanel.extend
 
       select.val(@editor.startMode)
 
+    @syncWithEditor()

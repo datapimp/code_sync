@@ -9,6 +9,8 @@ plugins = [
   "FileControls"
 ]
 
+
+
 CodeSync.EditorPanel = Backbone.View.extend
   className: "codesync-editor-panel"
 
@@ -27,7 +29,9 @@ CodeSync.EditorPanel = Backbone.View.extend
     name: "template_editor"
     enableStatusMessages: "error"
     plugins: plugins
-
+    pluginOptions:
+      PreferencesPanel:
+        showModes: "template"
     document:
       localStorageKey: "panel:1"
   ,
@@ -40,6 +44,9 @@ CodeSync.EditorPanel = Backbone.View.extend
     keyBindings: CodeSync.get("defaultKeyBindings")
     position: "static"
     plugins: plugins
+    pluginOptions:
+      PreferencesPanel:
+        showModes: "style"
     document:
       localStorageKey: "panel:2"
   ,
@@ -52,6 +59,9 @@ CodeSync.EditorPanel = Backbone.View.extend
     keyBindings: CodeSync.get("defaultKeyBindings")
     position: "static"
     plugins: plugins
+    pluginOptions:
+      PreferencesPanel:
+        showModes: "script"
     document:
       localStorageKey: "panel:3"
   ]
