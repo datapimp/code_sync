@@ -3,6 +3,8 @@ CodeSync.ToolbarPanel = Backbone.View.extend
 
   buttonIcon: undefined
 
+  buttonTemplate: "toolbar_button"
+
   entranceEffect: "bounceInDown"
 
   exitEffect: "bounceOutUp"
@@ -60,6 +62,19 @@ CodeSync.ToolbarPanel = Backbone.View.extend
   templateOptions: ->
     @options
 
+  setupButtonElement: ()->
+    return @buttonElement if @buttonElement
+
+    wrapper               = @editor.toolbarWrapperElement()
+    html                  = $(CodeSync.template(@buttonTemplate, name: @name, icon: @buttonIcon, text: @buttonText))
+
+    wrapper.append(html)
+    @buttonElement = wrapper.find("[data-editor='#{ @name }']").eq(0)
+
+    @buttonElement.on "click", ()=> @toggle()
+
+    @buttonElement
+
   render: () ->
     if @rendered is true
       return @
@@ -90,9 +105,7 @@ CodeSync.ToolbarPanel.setup = (editor,options={})->
   if panel.handle
     editor.views[panel.handle] = panel
 
-  panel.buttonElement = editor.addToolbarButton panel: panel.className, text: panel.buttonText, tooltip: panel.tooltip, icon: panel.buttonIcon
-
-  panel.buttonElement.on "click", (e)=> panel.toggle()
+  panel.setupButtonElement()
 
   panel.renderTo = ()-> editor.$('.codemirror-wrapper')
 

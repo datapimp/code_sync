@@ -46,6 +46,8 @@ CodeSync.AssetEditor = Backbone.View.extend
 
   pluginOptions: {}
 
+  toolbarWrapperSelector: '.toolbar-wrapper'
+
   initialize: (@options={})->
     _.extend(@, @options)
 
@@ -58,7 +60,7 @@ CodeSync.AssetEditor = Backbone.View.extend
     _.bindAll(@, "editorChangeHandler")
 
     @modes            = CodeSync.Modes.get()
-    @documentManager  = new CodeSync.DocumentManager(editor: @)
+    @documentManager  = @options.documentManager || new CodeSync.DocumentManager(editor: @)
 
     @startMode        = @modes.get(@startMode) || CodeSync.Modes.defaultMode()
 
@@ -128,8 +130,6 @@ CodeSync.AssetEditor = Backbone.View.extend
 
       if @theme ||= localStorage.getItem("codesync:theme")
         @setTheme(@theme)
-
-
 
     @codeMirror.on "change", _.debounce(((changeObj)=> @trigger "editor:change", @codeMirror.getValue(), changeObj), @editorChangeThrottle)
 
@@ -217,13 +217,11 @@ CodeSync.AssetEditor = Backbone.View.extend
     for option,value of options
       @codeMirror.setOption(option,value)
 
-  addToolbarButton: (options={}, toolbarPanel)->
-    el = $(CodeSync.template("toolbar_button", options))
-    @$('.toolbar-wrapper').append(el)
-    el
+  toolbarWrapperElement : ()->
+    @$(@toolbarWrapperSelector)
 
   setupToolbar: ()->
-    @$('.toolbar-wrapper').hide() unless @enableToolbar
+    @toolbarWrapperElement().hide() unless @enableToolbar
 
     if @hideable is true
       @$('.toolbar-wrapper').append "<div class='button hide-button'>Hide</div>"

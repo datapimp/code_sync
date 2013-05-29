@@ -56,8 +56,11 @@ CodeSync.EditorPanel = Backbone.View.extend
 
   initialize: (@options = {})->
     _.extend(@, @options)
+    panel = @
 
     @$el.html CodeSync.template("editor_panel")
+
+    @documentManager = new CodeSync.DocumentManager getEditor: ()-> panel.getCurrentEditor()
 
     Backbone.View::initialize.apply(arguments)
 
@@ -65,6 +68,13 @@ CodeSync.EditorPanel = Backbone.View.extend
     @$el.attr("data-#{ setting }", value)
     @[setting] = value
     value
+
+  getCurrentEditor: ()->
+    return @currentEditor if @currentEditor
+
+    name = @$el.attr('data-current-editor')
+
+    @assetEditors[name]
 
   setCurrentEditor: (editor)->
     @$el.attr('data-current-editor', editor.name || editor.cid)
@@ -107,7 +117,6 @@ CodeSync.EditorPanel = Backbone.View.extend
     _(@editors).each (config,index)=>
       id = config.name || config.cid
 
-
       container = @$(@editorContainerSelector).eq(index)
       container.attr('data-editor', index)
 
@@ -117,6 +126,8 @@ CodeSync.EditorPanel = Backbone.View.extend
 
       editor = @assetEditors[id] = new EditorClass(config)
 
+      @defaultEditor ||= editor
+
       editor.on "codemirror:setup", (cm)->
         currentEditor = @
         cm.on "focus", ()->
@@ -125,5 +136,3 @@ CodeSync.EditorPanel = Backbone.View.extend
       @currentEditor ||= editor
 
     @trigger "editors:loaded"
-
-

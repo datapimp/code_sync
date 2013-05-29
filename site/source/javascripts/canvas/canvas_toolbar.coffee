@@ -11,7 +11,7 @@ CodeSync.toolbars.CanvasToolbar = Backbone.View.extend
     Backbone.View::initialize.apply(@, arguments)
 
   adjustSetting: (e)->
-    $target   = @$(e.target)
+    $target   = @$(e.target).closest('li[data-option]')
     siblings  = $target.siblings('li[data-option]')
     control   = $target.parents('.controls').eq(0)
     value     = $target.data('option')

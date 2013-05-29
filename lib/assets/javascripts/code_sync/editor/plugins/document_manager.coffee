@@ -3,6 +3,10 @@ CodeSync.DocumentManager = Backbone.Model.extend
     @editor = @attributes.editor
     delete @attributes.editor
 
+    if _.isFunction @attributes.getEditor
+      @getEditor = @attributes.getEditor
+      delete @attributes.getEditor
+
     @openDocuments = new CodeSync.Documents()
 
     for trigger in ["add","remove","change:display","change:sticky"]
@@ -32,7 +36,7 @@ CodeSync.DocumentManager = Backbone.Model.extend
     @setCurrentDocument(doc, editor)
 
   setCurrentDocument: (@currentDocument, editor)->
-    editor ||= @editor
+    editor ||= @getEditor()
     editor.loadDocument(@currentDocument)
 
   saveDocument: ()->
