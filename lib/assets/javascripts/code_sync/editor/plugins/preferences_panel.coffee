@@ -3,7 +3,7 @@ CodeSync.plugins.PreferencesPanel = CodeSync.ToolbarPanel.extend
 
   tooltip: "Set preferences for this editor"
 
-  className: "preferences-panel"
+  className: "codesync-preferences-panel"
 
   panelTemplate: "preferences_panel"
 
@@ -20,10 +20,29 @@ CodeSync.plugins.PreferencesPanel = CodeSync.ToolbarPanel.extend
   enablePosition: false
 
   events:
-    "change select" : "updateEditor"
-    "change input" : "updateEditor"
+    "change select":  "updateEditor"
+    "change input":   "updateEditor"
+
+  getValues: ()->
+    values = {}
+
+    for field in @$('select,input')
+      name = $(field).attr('name')
+      values[name] = $(field).val()
+
+    values
 
   updateEditor: ()->
+    values = @getValues()
+
+    if @enableTheme and values.theme?
+      @editor.setTheme(values.theme)
+
+    if @enableKeyBindings and values.keyMap
+      @editor.setKeyMap(values.keyMap)
+
+    if @enableMode
+      @editor.setMode( @modes.get(values.mode) )
 
   templateOptions: ->
     enableMode: @enableMode

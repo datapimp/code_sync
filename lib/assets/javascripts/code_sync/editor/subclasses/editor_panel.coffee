@@ -10,11 +10,6 @@ plugins = [
 CodeSync.EditorPanel = Backbone.View.extend
   className: "codesync-editor-panel"
 
-  events:
-    "click #target-selector li[data-option]" : "selectTarget"
-    "click #layout-selector li[data-option]" : "selectLayout"
-
-
   layout: "3"
 
   target: "canvas"
@@ -59,28 +54,17 @@ CodeSync.EditorPanel = Backbone.View.extend
       localStorageKey: "panel:3"
   ]
 
-  initialize: ()->
+  initialize: (@options = {})->
+    _.extend(@, @options)
+
     @$el.html CodeSync.template("editor_panel")
+
     Backbone.View::initialize.apply(arguments)
 
-  selectTarget: (e)->
-    el = @$(e.target).closest('li[data-option]')
-    option = el.data('option')
-    el.siblings().removeClass('active')
-    el.addClass('active')
-
-    @$el.attr('data-target', @target = option)
-    @trigger "target:change", option
-
-  selectLayout: (e)->
-    el = @$(e.target).closest('li[data-option]')
-    option = el.data('option')
-
-    el.siblings().removeClass('active')
-    el.addClass('active')
-
-    @$el.attr('data-layout', @layout = option)
-    @trigger "layout:change", option
+  set: (setting, value)->
+    @$el.attr("data-#{ setting }", value)
+    @[setting] = value
+    value
 
   setCurrentEditor: (editor)->
     @$el.attr('data-current-editor', editor.name || editor.cid)
@@ -97,13 +81,23 @@ CodeSync.EditorPanel = Backbone.View.extend
     @renderEditors()
     @setupEditorToolbar()
 
+    @
+
   each: (args...)->
     editors = _(@assetEditors).values()
     _(editors).each(args...)
 
   setupEditorToolbar: ()->
     if CodeSync.toolbars[@toolbarClass]?
-      @toolbar = new CodeSync.toolbars[@toolbarClass](@toolbarOptions || {})
+      options = @toolbarOptions || {}
+      options.editorPanel = @
+      @toolbar = new CodeSync.toolbars[@toolbarClass](options)
+
+
+    if @toolbar
+      @$(@toolbarContainerSelector).append( @toolbar.render().el )
+
+    @
 
   renderEditors: ()->
     @assetEditors ||= {}
@@ -113,8 +107,10 @@ CodeSync.EditorPanel = Backbone.View.extend
     _(@editors).each (config,index)=>
       id = config.name || config.cid
 
+
       container = @$(@editorContainerSelector).eq(index)
       container.attr('data-editor', index)
+
       config.appendTo = container
 
       EditorClass = CodeSync[config.type] || CodeSync.AssetEditor

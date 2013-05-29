@@ -1,0 +1,16 @@
+.url-control
+  .button.toggle-control
+    | Canvas Control
+
+  .menu style="display:none"
+    ul
+      li.back-button
+        i.icon.icon-left
+      li.forward-button
+        i.icon.icon-right
+      li.refresh-button
+        i.icon.icon-ccw
+      li.input-wrapper
+        input type="text" value="#{ @url }" placeholder="Enter a URL to view in the Canvas"
+      li.submit.toggle-control
+        | Hide

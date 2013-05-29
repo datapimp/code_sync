@@ -34,6 +34,34 @@ body[data-canvas-application] {
   }
 }
 
+.codesync-canvas-toolbar {
+  .controls {
+    ul li.label {
+      padding-right: 20px;
+      text-decoration: underline;
+    }
+  ul li[data-option] {
+      padding: 0px 6px;
+      border-right: 1px solid;
+      &:last-child {
+        border: 0px;
+      }
+    }
+  }
+  #target-selector, #layout-selector {
+  }
+  #canvas-url-control {
+   ul li.input-wrapper {
+      width: 300px;
+      input {
+        width: 50%;
+        border-radius: 4px;
+        padding: 4px;
+      }
+    }
+  }
+}
+
 #underneath {
   background: #333;
 }

@@ -12,11 +12,11 @@
       .element-sync-status
       .btn-group
         a.btn.done-button
-          i.icon.icon-loop
-        a.btn.hide-butotn
-          i.icon.icon-loop
+          i.icon.icon-check
+        a.btn.hide-button
+          i.icon.icon-export
         a.btn.find-button
-          i.icon.icon-loop
+          i.icon.icon-hair-cross
 
 
 

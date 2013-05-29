@@ -46,10 +46,10 @@ CodeSync.AssetEditor = Backbone.View.extend
 
   pluginOptions: {}
 
-  views: {}
-
   initialize: (@options={})->
     _.extend(@, @options)
+
+    @views = {}
 
     Backbone.View::initialize.apply(@, arguments)
 
@@ -217,7 +217,7 @@ CodeSync.AssetEditor = Backbone.View.extend
     for option,value of options
       @codeMirror.setOption(option,value)
 
-  addToolbarButton: (options={})->
+  addToolbarButton: (options={}, toolbarPanel)->
     el = $(CodeSync.template("toolbar_button", options))
     @$('.toolbar-wrapper').append(el)
     el

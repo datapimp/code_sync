@@ -1,4 +1,0 @@
-%ul
-  %li.label Target
-  %li{"data-option"=>"canvas"} Canvas
-  %li{"data-option"=>"app"} Global

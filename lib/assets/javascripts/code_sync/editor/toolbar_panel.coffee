@@ -55,19 +55,21 @@ CodeSync.ToolbarPanel = Backbone.View.extend
     @
 
   removeOtherToolbarPanels: ()->
-    $(@renderTo).find('.toolbar-panel').addClass("animated #{ @exitEffect }").attr('data-removed',true)
+    $(@renderTo()).find('.toolbar-panel').addClass("animated #{ @exitEffect }").attr('data-removed',true)
 
   templateOptions: ->
     @options
 
-  render: ()->
+  render: () ->
     if @rendered is true
       return @
     else
-      @beforeRender?()
+      return @ if @beforeRender?() is false
+
       @$el.addClass("toolbar-panel")
-      @$el.html CodeSync.template(@panelTemplate, @templateOptions())
-      $(@renderTo).append(@el)
+      @$el.append CodeSync.template(@panelTemplate, @templateOptions())
+      $(@renderTo()).append(@el)
+
       @afterRender?()
       @rendered = true
       @checkAvailabilityInMode()
@@ -92,4 +94,8 @@ CodeSync.ToolbarPanel.setup = (editor,options={})->
 
   panel.buttonElement.on "click", (e)=> panel.toggle()
 
-  panel.renderTo = editor.$('.codemirror-wrapper')
+  panel.renderTo = ()-> editor.$('.codemirror-wrapper')
+
+  editor.on "codemirror:setup", (cm)->
+    cm.on "focus", ()-> panel.hide()
+

@@ -1,0 +1,21 @@
+.row-fluid
+  .span9
+    #canvas-url-control.controls
+  .span3
+    .row-fluid
+      .span6
+        #layout-selector.controls data-setting="layout" data-value="3"
+          ul
+            li.label Layout
+            li data-option="1"
+              i.icon.icon-dot
+            li data-option="2"
+              i.icon.icon-two-dots
+            li.active data-option="3"
+              i.icon.icon-three-dots
+      .span6
+        #target-selector.controls data-setting="target" data-value="canvas"
+          ul
+            li.label Scope
+            li data-option="app" Global
+            li.active data-option="canvas" Canvas
