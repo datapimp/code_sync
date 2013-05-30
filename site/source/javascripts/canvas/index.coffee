@@ -38,6 +38,7 @@ CodeSync.Canvas = Backbone.View.extend
 
   routeEditorOutputToGlobal: ()->
     @editorPanel.each (editor)=>
+      editor.targetWindow = window
       editor.views.elementSync.searchScope = window
       editor.views.elementSync.setValue('')
 
@@ -49,9 +50,10 @@ CodeSync.Canvas = Backbone.View.extend
 
     @editorPanel.each (editor)=>
       editor.views.elementSync.searchScope = frame = @getFrameWindow()
+      editor.targetWindow = frame
 
-      if @autoSyncWithBodyElement is true
-        editor.views.elementSync.setValue 'body[data-canvas-inner]'
+      if @autoSyncWithElement?
+        editor.views.elementSync.setValue(@autoSyncWithElement)
 
     CodeSync.processChangeNotification = (a, b)=>
       if @target is "app"

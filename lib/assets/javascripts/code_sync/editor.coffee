@@ -1,4 +1,3 @@
-#= require skim
 #= require_tree ./editor/templates
 #= require_tree ./editor/datasources
 #= require ./editor/asset_editor.coffee

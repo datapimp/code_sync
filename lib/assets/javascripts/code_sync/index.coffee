@@ -2,6 +2,7 @@
 #= require ./config
 #= require_self
 #= require ./client
+#= require_tree ./lib
 #= require_tree ./datasources
 #= require ./editor
 
@@ -52,7 +53,7 @@ CodeSync.processChangeNotification = (attributes={}, options={})->
       hookFn = CodeSync.onScriptChange
 
   _.delay ()->
-    hookFn?()
-    attributes.complete?()
-    attributes.success?()
+    hookFn?(attributes, options)
+    attributes.complete?(attributes, options)
+    attributes.success?(attributes, options)
   , 150

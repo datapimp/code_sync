@@ -89,3 +89,14 @@
     }
   }
 }
+
+.stylesheet-loader, .script-loader {
+  .card-view {
+    .card {
+      display: none;
+      &.active {
+        display: block;
+      }
+    }
+  }
+}

@@ -8,8 +8,8 @@
           i.icon.icon-check
         a.btn.hide-panel-button title="Hide this panel, continue syncing."
           i.icon.icon-export
-        / a.btn.find-button title="Find an element"
-        /   i.icon.icon-hair-cross
+        a.btn.find-button title="Find an element"
+          i.icon.icon-hair-cross
   .row-fluid
     .span9
       .element-sync-status

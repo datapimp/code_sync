@@ -138,12 +138,8 @@ CodeSync.plugins.DocumentTabs = Backbone.View.extend
   createDocument: ()->
     @manager.createDocument()
 
-  toggleAssetSelector: ()->
-    @views.assetSelector.toggle()
-
   render: ()->
     @$el.append "<div class='document-tabs-container' />"
-    @$el.append( @views.assetSelector.render().el )
 
     @
 

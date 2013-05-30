@@ -33,7 +33,7 @@ CodeSync.ToolbarPanel = Backbone.View.extend
     else
       @buttonElement.hide()
 
-  toggle: ()->
+  toggle: (options={})->
     # if the DOM element was removed
     # that means another panel was displayed
     # so we need to sync up w what our state should be
@@ -41,19 +41,29 @@ CodeSync.ToolbarPanel = Backbone.View.extend
       @visible = true
       @$el.removeAttr('data-removed')
 
-    if @visible then @hide() else @show()
+    if @visible then @hide(options) else @show(options)
 
-  show: ()->
+  show: (options={})->
     @removeOtherToolbarPanels()
     @render()
     @$el.removeClass(@exitEffect)
-    @$el.addClass("animated #{ @entranceEffect }")
+
+    if options.withEffect
+      @$el.addClass("animated #{ @entranceEffect }")
+    else
+      @$el.show()
+
     @visible = true
     @
 
-  hide: ()->
+  hide: (options={})->
     @$el.removeClass(@entranceEffect)
-    @$el.addClass("animated #{ @exitEffect }")
+
+    if options.withEffect
+      @$el.addClass("animated #{ @exitEffect }")
+    else
+      @$el.hide()
+
     @visible = false
     @
 
@@ -68,6 +78,8 @@ CodeSync.ToolbarPanel = Backbone.View.extend
 
     buttonId              = _.uniqueId()
     wrapper               = @editor.toolbarWrapperElement()
+    wrapper               = wrapper.find(@toolbarEl) if @toolbarEl?
+
     html                  = $(CodeSync.template(@buttonTemplate, buttonId: buttonId, icon: @buttonIcon, text: @buttonText, tooltip: @tooltip))
 
     wrapper.append(html)

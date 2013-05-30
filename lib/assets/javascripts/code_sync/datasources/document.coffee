@@ -31,23 +31,21 @@ CodeSync.Document = Backbone.Model.extend
     JST[@nameWithoutExtension()]
 
   folder: ()->
-    if folder = @get("folder")
-      return folder
+    unless folder = @get("folder")
+      if path = @get("path")
+        folder = path = path.replace(@nameWithExtension(), '')
 
-    folder = if path = @get("path")
-      path = path.replace(@nameWithExtension(), '')
+        if projectRoot = CodeSync.get("projectRoot")
+          folder = path.replace(projectRoot,'')
+      else
+        folder = switch @type()
+          when "script", "template"
+            "javascripts"
+          else
+            "stylesheets"
 
-      if projectRoot = CodeSync.get("projectRoot")
-        path = path.replace(projectRoot,'')
-    else
-      switch @type()
-        when "script", "template"
-          "javascripts"
-        when "stylesheet"
-          "stylesheets"
-
-
-    @set("folder", folder, silent: true)
+    unless folder is "undefined"
+      @set("folder", folder, silent: true)
 
     folder
 
@@ -106,6 +104,26 @@ CodeSync.Document = Backbone.Model.extend
   toCodeMirrorMode: ()->
     @toMode()?.get("codeMirrorMode")
 
+  toCompiledDocument: ()->
+    if @compiledDocument?
+      @compiledDocument.set "contents", @get("compiled"), silent: true
+      return @compiledDocument
+
+    switch @type()
+      when "template", "script"
+        compileMode = "javascript"
+        compiledExtension = ".js"
+      when "stylesheet"
+        compileMode = "css"
+        compiledExtension = ".css"
+
+    @compiledDocument = new CodeSync.Document
+      doNotSave: true
+      raw: true
+      extension: compiledExtension
+      mode: compileMode
+      contents:  @get("compiled")
+
   toCodeMirrorDocument: ()->
     CodeMirror.Doc @toContent(), @toCodeMirrorMode(), 0
 
@@ -120,11 +138,12 @@ CodeSync.Document = Backbone.Model.extend
 
     myContent
 
-  onContentChange: ()->
+  onContentChange: (document, value, options={})->
     if key = @localStorageKey()
       @saveToLocalStorage(key)
 
-    @sendToServer(false, "onContentChange")
+    if options.liveMode is true
+      @sendToServer(false, "onContentChange")
 
   sendToServer: (allowSaveToDisk=false, reason="")->
     allowSaveToDisk = false unless @isSaveable()
@@ -159,6 +178,9 @@ CodeSync.Document = Backbone.Model.extend
       type: doc.type()
       compiled: doc.get("compiled")
       complete: options.complete
+      name: doc.get("name")
+      path: doc.get("path")
+      contents: doc.get("contents")
 
     payload = _.extend notification,
       error: (message)->
@@ -175,7 +197,7 @@ CodeSync.Document = Backbone.Model.extend
         "stylesheet"
       when "coffeescript","javascript"
         "script"
-      when "skim","mustache","jst","haml","eco"
+      when "skim","mustache","jst","haml","eco", "html"
         "template"
 
   missingFileName: ()->

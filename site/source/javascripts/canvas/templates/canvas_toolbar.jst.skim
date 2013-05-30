@@ -1,9 +1,18 @@
 .row-fluid
-  .span9
+  .span8
     #canvas-url-control.controls
-  .span3
+  .span4
     .row-fluid
-      .span6
+      .span4
+        .controls
+          ul
+            li
+              a.btn.toggle-script-loader
+                | Scripts
+            li
+              a.btn.toggle-stylesheet-loader
+                | Stylesheets
+      .span4
         #layout-selector.controls data-setting="layout" data-value="3"
           ul
             li.label Layout
@@ -13,7 +22,9 @@
               i.icon.icon-two-dots
             li.active data-option="3"
               i.icon.icon-three-dots
-      .span6
+            li.toggle-custom-layout-selector
+              | Custom
+      .span4
         #target-selector.controls data-setting="target" data-value="canvas"
           ul
             li.label Scope

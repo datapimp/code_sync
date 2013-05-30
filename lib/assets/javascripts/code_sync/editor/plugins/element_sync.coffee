@@ -16,7 +16,10 @@ CodeSync.plugins.ElementSync = CodeSync.ToolbarPanel.extend
   handle: "elementSync"
 
   events:
-    "keyup input" : ()->
+    "keyup input" : (e)->
+      if $(e.target).val() is ""
+        @selectedElement = undefined
+
       @bindToSelector()
 
     "change select": (e)->
@@ -24,7 +27,18 @@ CodeSync.plugins.ElementSync = CodeSync.ToolbarPanel.extend
 
     "click .hide-panel-button" : ()->
       @syncWithElement()
+      @editor.currentDocument?.trigger("change:contents")
       @hide()
+
+    "click .find-button" : ()->
+      root = @searchScope || window
+
+      el = root.$('body')
+
+      el.on "inspekt", (e, selected)=>
+        @selectElement $(selected.target)
+
+      CodeSync.util.inspectElementsWithin({root,el})
 
     "click .done-button" : ()->
       @clear()
@@ -45,6 +59,21 @@ CodeSync.plugins.ElementSync = CodeSync.ToolbarPanel.extend
   render: ()->
     CodeSync.ToolbarPanel::render.apply(@, arguments)
 
+  selectElement: (@selectedElement, display)->
+    id    = $(@selectedElement).attr('id')
+    cls   = $(@selectedElement).attr('class')
+
+    if !display? && $(@selectedElement).length > 0
+      display   = $(@selectedElement)[0].tagName
+      display   += "##{ id }" if id?
+      display   += ".#{ cls }" if cls?
+
+      @$('input[name="css-selector"]').val(display)
+
+    @selector = @selectedElement
+
+    @bindToSelector
+
   syncWithElement: (doc)->
     return unless @selector and tmpl = doc.templateFunction()
     @$elementSync?[@action || "html"](tmpl())
@@ -53,7 +82,7 @@ CodeSync.plugins.ElementSync = CodeSync.ToolbarPanel.extend
     @$elementSync.html()
 
   getValue: ()->
-    @$('input[name="css-selector"]').val()
+    @selectedElement || @$('input[name="css-selector"]').val()
 
   setValue: (@selector)->
     @$('input[name="css-selector"]').val(@selector)
@@ -61,8 +90,7 @@ CodeSync.plugins.ElementSync = CodeSync.ToolbarPanel.extend
 
   clear: ()->
     @$('input[name="css-selector"]').val('')
-    @$elementSync = undefined
-    @selector = ''
+    @selector = @selectedElement = @$elementSync = undefined
     @$('.element-sync-status').html("")
 
   existsInDocument: ()->

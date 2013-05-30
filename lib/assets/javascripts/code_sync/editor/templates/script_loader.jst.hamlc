@@ -4,19 +4,25 @@
       .control-group
         %label Select a package
         .controls
-          %select{:name=>"script_package"}
+          %select{:name=>"load_script_package"}
+            %option{:value=>""} Select One
 
       .control-group
         %label
-          Enter a list of javascript urls to load
+          Enter a list of Javascript URLS
         .controls
-          %textarea{:name=>"resource-list"}
+          %textarea{:name=>"list"}
       .form-actions
         %a.btn.btn-primary.submit
-          Load Javascripts
+          Load Resources
 
     .card.results
-      .results-container
+      .control-group
+        %label Package Name
+        %input{:type=>"text",:name=>"package"}
+
+      %ul.results-container
+
       .form-actions
         %a.btn.btn-primary.save-as-package
           Save As Package

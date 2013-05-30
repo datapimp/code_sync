@@ -1,15 +1,24 @@
+CodeSync.ToolbarPanel::toolbarel = ".left"
+
 plugins = [
   "ColorPicker"
   "ElementSync"
-  "ScriptLoader"
-  "StylesheetLoader"
   "PreferencesPanel"
-  "DocumentTabs"
   "AssetSelector"
   "FileControls"
+  "CompiledCodeViewer"
 ]
 
-
+pluginOptions =
+  ElementSync:
+    toolbarEl: ".left"
+  PreferencesPanel:
+    showModes: "all"
+    toolbarEl: ".right"
+  FileControls:
+    toolbarEl: ".right"
+  AssetSelector:
+    toolbarEl: ".right"
 
 CodeSync.EditorPanel = Backbone.View.extend
   className: "codesync-editor-panel"
@@ -29,9 +38,7 @@ CodeSync.EditorPanel = Backbone.View.extend
     name: "template_editor"
     enableStatusMessages: "error"
     plugins: plugins
-    pluginOptions:
-      PreferencesPanel:
-        showModes: "template"
+    pluginOptions: pluginOptions
     document:
       localStorageKey: "panel:1"
   ,
@@ -44,9 +51,7 @@ CodeSync.EditorPanel = Backbone.View.extend
     keyBindings: CodeSync.get("defaultKeyBindings")
     position: "static"
     plugins: plugins
-    pluginOptions:
-      PreferencesPanel:
-        showModes: "style"
+    pluginOptions: pluginOptions
     document:
       localStorageKey: "panel:2"
   ,
@@ -59,9 +64,7 @@ CodeSync.EditorPanel = Backbone.View.extend
     keyBindings: CodeSync.get("defaultKeyBindings")
     position: "static"
     plugins: plugins
-    pluginOptions:
-      PreferencesPanel:
-        showModes: "all"
+    pluginOptions: pluginOptions
     document:
       localStorageKey: "panel:3"
   ]

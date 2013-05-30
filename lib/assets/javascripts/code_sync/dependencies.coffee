@@ -5,4 +5,8 @@
 #= require ./vendor/underscore.string.min
 #= require ./vendor/backbone-min
 #= require ./vendor/spectrum
+#= require ./vendor/css-utilities
+#= require ./vendor/css-utilities-selector
 #= require hamlcoffee
+#= require skim
+

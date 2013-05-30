@@ -41,12 +41,13 @@ CodeSync.AssetEditor = Backbone.View.extend
     "click .hide-button" : "hide"
 
   plugins:[
-    "DocumentTabs"
   ]
 
   pluginOptions: {}
 
   toolbarWrapperSelector: '.toolbar-wrapper'
+
+  liveMode: true
 
   initialize: (@options={})->
     _.extend(@, @options)
@@ -64,16 +65,15 @@ CodeSync.AssetEditor = Backbone.View.extend
 
     @startMode        = @modes.get(@startMode) || CodeSync.Modes.defaultMode()
 
-    @on "editor:change", _.debounce(@editorChangeHandler, @editorChangeThrottle), @
 
     @on "codemirror:setup", ()=> @loadDefaultDocument()
 
-    @$el.append "<div class='toolbar-wrapper' />"
-    @$el.append "<div class='codemirror-wrapper' />"
+    @enableLiveMode() if @liveMode is true
+
     @setupToolbar()
 
+    @$el.append "<div class='codemirror-wrapper' />"
     @$el.attr('data-codesync', @name) if @name?
-
 
     @loadPlugins()
 
@@ -81,6 +81,13 @@ CodeSync.AssetEditor = Backbone.View.extend
     @setPosition(@position, false)
 
     @render() unless @autoRender is false
+
+  enableLiveMode: (throttle)->
+    @liveModeHandler = _.debounce(@editorChangeHandler, throttle || @editorChangeThrottle)
+    @on "editor:change", @liveModeHandler, @
+
+  disableLiveMode: ()->
+    @off "editor:change", @liveModeHandler
 
   addPlugin: (plugin)->
     CodeSync.plugins[plugin]?.setup.call(@,@)
@@ -161,7 +168,7 @@ CodeSync.AssetEditor = Backbone.View.extend
       extraKeys: passthrough
 
   editorChangeHandler: (editorContents)->
-    @currentDocument.set("contents", editorContents)
+    @currentDocument.set("contents", editorContents, liveMode: @liveMode)
 
   setHeight: (@height, show=true)->
     if _.isNumber(@height)
@@ -221,6 +228,7 @@ CodeSync.AssetEditor = Backbone.View.extend
     @$(@toolbarWrapperSelector)
 
   setupToolbar: ()->
+    @$el.append CodeSync.template("editor_toolbar")
     @toolbarWrapperElement().hide() unless @enableToolbar
 
     if @hideable is true

@@ -94,17 +94,12 @@ modes =
     extension: ".css.sass"
     defaultContent: "// You are currently in Sass mode."
     style: true
+
     codeMirrorOptions:
       indentUnit: 2
       smartIndent: true
       tabSize: 2
       indentWithTabs: false
-
-  haml:
-    codeMirrorMode: "haml"
-    extension: ".hamlc"
-    name: "Haml Coffee"
-    template: true
 
   scss:
     codeMirrorMode: "css"
@@ -112,6 +107,13 @@ modes =
     name: "SCSS"
     defaultContent: "/* You are currently in SCSS mode. */"
     style: true
+
+  haml:
+    codeMirrorMode: "haml"
+    extension: ".hamlc"
+    name: "Haml Coffee"
+    template: true
+    defaultContent: "/ HAML Coffeescript Mode "
 
   skim:
     extension: ".jst.skim"
@@ -123,17 +125,31 @@ modes =
       tabSize: 2
       indentWithTabs: false
 
+  html:
+    name: "HTML"
+    codemirrorMode: "html"
+    extension: ".html"
+    defaultContent: "<!-- HTML Mode -->"
+    template: true
+    raw: true
+
   css:
     name: "CSS"
     extension: ".css"
+    codeMirrorMode: "css"
     defaultContent: "/* You are currently in raw CSS mode. */"
     style: true
+    raw: true
 
   javascript:
     name: "Javascript"
     extension: ".js"
+    codeMirrorMode: "javascript"
     defaultContent: "/* You are currently in raw JS mode. */"
     script: true
+    raw: true
+
+
 
 
 

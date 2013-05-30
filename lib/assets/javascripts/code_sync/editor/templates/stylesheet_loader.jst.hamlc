@@ -1,9 +1,35 @@
 .form
-  .control-group
-    %label
-      Enter a list of stylesheet urls to load
-    .controls
-      %textarea{:name=>"resource-list"}
-  .form-actions
-    %a.btn.btn-primary.submit
-      Load Stylesheets
+  .card-view
+    .card.active
+      - if @packages.length >= 1
+        .control-group
+          %label Select a package
+          .controls
+            %select{:name=>"load_package"}
+              %option{:value=>""} Select One
+              - for name in @packages.pluck('name')
+                %option{:value=>name}
+                  #{ name }
+
+      .control-group
+        %label
+          Enter a list of stylesheet URLS
+        .controls
+          %textarea{:name=>"package_text"}
+      .form-actions
+        %a.btn.btn-primary.submit
+          Load Resources
+
+    .card.results
+      .control-group
+        %label Package Name
+        %input{:type=>"text",:name=>"package_name"}
+
+      %ul.results-container
+
+      .form-actions
+        %a.btn.btn-primary.save-as-package
+          Save As Package
+
+
+

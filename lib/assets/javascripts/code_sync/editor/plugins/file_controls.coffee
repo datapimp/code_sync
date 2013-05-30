@@ -12,16 +12,42 @@ CodeSync.plugins.FileControls = CodeSync.ToolbarPanel.extend
   tooltip: "Open, Save, Create, etc."
 
   events:
-    "click .save-button": "saveDocument"
-    "click .reload-button": "reloadDocument"
+    "click .save-to-disk":                "saveToDisk"
+    "click .load-from-disk":              "loadFromDisk"
+    "click .compile":                     "compileDocument"
+
+    "focus .read-only": (e)-> $(e.target).blur()
+
+    "keyup input.modifiable":             "updateDocumentAttributes"
+    "blur input.modifiable":              "updateDocumentAttributes"
 
   initialize: (@options={})->
     _.extend(@, @options)
     CodeSync.ToolbarPanel::initialize.apply @, arguments
 
+    @updateDocumentAttributes = _.debounce(@updateDocumentAttributes, 400)
+
   show: ()->
     @syncWithDocument()
     CodeSync.ToolbarPanel::show.apply(@, arguments)
+
+  saveToDisk: ()->
+    @doc.set("doNotSave", false)
+    @doc.saveToDisk()
+
+  loadFromDisk: ()->
+    @doc.loadSourceFromDisk()
+
+  compileDocument: ()->
+    @doc.set("doNotSave", false)
+    @doc.sendToServer(false)
+
+  updateDocumentAttributes: ()->
+    name    = @$('#document_name').val()
+    folder  = @$('#document_folder').val()
+    path    = (CodeSync.get("projectRoot") + "/#{ folder }/#{ name }").replace("//","/")
+
+    @doc.set {path,name,folder}
 
   templateOptions: ()->
     name: @doc.nameWithExtension()
