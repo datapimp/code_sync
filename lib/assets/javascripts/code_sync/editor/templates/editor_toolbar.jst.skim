@@ -1,0 +1,4 @@
+.toolbar-wrapper.row-fluid
+  .left.span4
+  .middle.span4
+  .right.span4

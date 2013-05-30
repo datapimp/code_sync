@@ -21,6 +21,8 @@ pluginOptions =
     toolbarEl: ".right"
 
 CodeSync.EditorPanel = Backbone.View.extend
+  name: "editor-panel"
+
   className: "codesync-editor-panel"
 
   layout: "3"
@@ -39,8 +41,6 @@ CodeSync.EditorPanel = Backbone.View.extend
     enableStatusMessages: "error"
     plugins: plugins
     pluginOptions: pluginOptions
-    document:
-      localStorageKey: "panel:1"
   ,
     name: "style_editor"
     hideable: false
@@ -52,8 +52,6 @@ CodeSync.EditorPanel = Backbone.View.extend
     position: "static"
     plugins: plugins
     pluginOptions: pluginOptions
-    document:
-      localStorageKey: "panel:2"
   ,
     name: "script_editor"
     hideable: false
@@ -65,8 +63,6 @@ CodeSync.EditorPanel = Backbone.View.extend
     position: "static"
     plugins: plugins
     pluginOptions: pluginOptions
-    document:
-      localStorageKey: "panel:3"
   ]
 
   initialize: (@options = {})->
@@ -75,7 +71,8 @@ CodeSync.EditorPanel = Backbone.View.extend
 
     @$el.html CodeSync.template("editor_panel")
 
-    @documentManager = new CodeSync.DocumentManager getEditor: ()-> panel.getCurrentEditor()
+    @documentManager = new CodeSync.DocumentManager
+      getEditor: ()-> panel.getCurrentEditor()
 
     Backbone.View::initialize.apply(arguments)
 
@@ -113,6 +110,8 @@ CodeSync.EditorPanel = Backbone.View.extend
     _(editors).each(args...)
 
   setupEditorToolbar: ()->
+    return unless @toolbarClass?
+
     if CodeSync.toolbars[@toolbarClass]?
       options = @toolbarOptions || {}
       options.editorPanel = @
@@ -136,8 +135,12 @@ CodeSync.EditorPanel = Backbone.View.extend
       container.attr('data-editor', index)
 
       config.appendTo = container
+      config.documentManager = @documentManager
 
       EditorClass = CodeSync[config.type] || CodeSync.AssetEditor
+
+      config.document ||= {}
+      config.document.localStorageKey = panel.name + ':' + index
 
       editor = @assetEditors[id] = new EditorClass(config)
 
