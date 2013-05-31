@@ -1,4 +1,4 @@
-CodeSync.plugins.AssetSelector = CodeSync.ToolbarPanel.extend
+CodeSync.plugins.AssetSelector = CodeSync.EditorUtility.extend
   className: "codesync-asset-selector"
 
   panelTemplate: "asset_selector"
@@ -18,7 +18,7 @@ CodeSync.plugins.AssetSelector = CodeSync.ToolbarPanel.extend
     "click .search-result": "selectSearchResult"
 
   initialize:(options={})->
-    CodeSync.ToolbarPanel::initialize.apply(@, arguments)
+    CodeSync.EditorUtility::initialize.apply(@, arguments)
 
     _.bindAll(@,"keyHandler","loadAssetByPath","loadDocument")
 
@@ -104,12 +104,12 @@ CodeSync.plugins.AssetSelector = CodeSync.ToolbarPanel.extend
 
     @collection = CodeSync.Documents.getProjectAssets()
 
-    CodeSync.ToolbarPanel::render.apply(@, arguments)
+    CodeSync.EditorUtility::render.apply(@, arguments)
     @wrapper = @$(".search-results-wrapper")
     @
 
   show: ()->
-    CodeSync.ToolbarPanel::show.apply(@, arguments)
+    CodeSync.EditorUtility::show.apply(@, arguments)
     @selected.set "index", undefined
     @$('input').val()
 

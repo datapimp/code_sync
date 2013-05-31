@@ -1,6 +1,6 @@
 .form
   .card-view
-    .card.active
+    .card.menu.active.boom
       - if @packages.length >= 1
         .control-group
           %label Select a package
@@ -13,12 +13,14 @@
 
       .control-group
         %label
-          Enter a list of stylesheet URLS
+          Enter a list of stylesheet Urls
         .controls
           %textarea{:name=>"package_text"}
       .form-actions
         %a.btn.btn-primary.submit
           Load Resources
+        %a.btn.finished
+          Cancel
 
     .card.results
       .control-group
@@ -30,6 +32,5 @@
       .form-actions
         %a.btn.btn-primary.save-as-package
           Save As Package
-
-
-
+        %a.btn.finished
+          Finished

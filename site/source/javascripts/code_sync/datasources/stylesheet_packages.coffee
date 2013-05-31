@@ -34,15 +34,14 @@ CodeSync.StylesheetPackages = CodeSync.LocalStore.extend
 
       pkg = @
 
-      @updateStatus = _.debounce ()=>
+      @updateStatus = (url)=>
         @onLoad.apply(pkg, arguments)
-      , 400
+        @attributes.status[url] = true
+        @trigger "resource:loaded", pkg, url
 
     onLoad: (url)->
       status = @get("status")
       status[url] = true
-
-      console.log "On Load", url, status
 
       @set({status})
 

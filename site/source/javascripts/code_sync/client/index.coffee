@@ -86,6 +86,8 @@ class CodeSync.Client
         doc.set("contents", notification.contents, silent: false)
         doc.trigger "contents:synced"
 
+    console.log "Detected Change in #{ window.name }"
+
     CodeSync.processChangeNotification(notification, @notificationHandlerOptions)
 
 # Allows for hijacking a page which includes the code sync client

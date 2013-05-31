@@ -24,6 +24,13 @@ CodeSync.template = (templateIdentifier, variables={})->
 
 #CodeSync.template.namespaces = ["JST"]
 
+CodeSync.detectGlobalChangeTriggers = (type,attributes={})->
+  # TODO
+  # If we detect changes to important files, respond accordingly.
+  # for example, if a variables.css change is detected, we'll need to
+  # load the whole shebang
+  true
+
 CodeSync.processChangeNotification = (attributes={}, options={})->
   {type,compiled,content} = attributes
 
@@ -39,6 +46,8 @@ CodeSync.processChangeNotification = (attributes={}, options={})->
       type = "stylesheet"
     if attributes.logical_name.match('.js')
       type = "script"
+
+  CodeSync.detectGlobalChangeTriggers(type, attributes)
 
   switch type
     when "stylesheet"

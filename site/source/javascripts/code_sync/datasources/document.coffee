@@ -171,6 +171,8 @@ CodeSync.Document = Backbone.Model.extend
           @trigger "status", type: "error", message: response.error?.message
 
 
+  changeProcessor: CodeSync.processChangeNotification
+
   loadInPage: (options={})->
     doc     = @
 
@@ -188,7 +190,7 @@ CodeSync.Document = Backbone.Model.extend
       success: ()->
         doc.trigger "code:sync:#{ doc.get('type') }"
 
-    CodeSync.processChangeNotification(payload)
+    @changeProcessor(payload)
 
   # Determines how we will handle the compiled assets when loading in the page
   type: ()->

@@ -1,4 +1,4 @@
-CodeSync.ToolbarPanel = Backbone.View.extend
+CodeSync.EditorUtility = Backbone.View.extend
   buttonText: undefined
 
   buttonIcon: undefined
@@ -20,11 +20,11 @@ CodeSync.ToolbarPanel = Backbone.View.extend
 
     Backbone.View::initialize.apply(@, arguments)
 
-    @editor.on "change:mode", @checkAvailabilityInMode, @
-    @editor.on "document:loaded", @checkAvailabilityInMode, @
+    @editor?.on "change:mode", @checkAvailabilityInMode, @
+    @editor?.on "document:loaded", @checkAvailabilityInMode, @
 
   checkAvailabilityInMode: ()->
-    return @buttonElement.show() if (@availableInModes is "all" or !@availableInModes?)
+    return @buttonElement.show() if @availableInModes is "all" || !@availableInModes?
 
     type = @editor.mode?.type?() || @editor.currentDocument.type()
 
@@ -34,17 +34,10 @@ CodeSync.ToolbarPanel = Backbone.View.extend
       @buttonElement.hide()
 
   toggle: (options={})->
-    # if the DOM element was removed
-    # that means another panel was displayed
-    # so we need to sync up w what our state should be
-    if @$el.attr('data-removed') is true
-      @visible = true
-      @$el.removeAttr('data-removed')
-
     if @visible then @hide(options) else @show(options)
 
   show: (options={})->
-    @removeOtherToolbarPanels()
+    @removeOtherEditorUtilitys()
     @render()
     @$el.removeClass(@exitEffect)
 
@@ -67,25 +60,30 @@ CodeSync.ToolbarPanel = Backbone.View.extend
     @visible = false
     @
 
-  removeOtherToolbarPanels: ()->
-    $(@renderTo()).find('.toolbar-panel').addClass("animated #{ @exitEffect }").attr('data-removed',true)
+  removeOtherEditorUtilitys: ()->
+    $(@renderTo()).find('.editor-utility').addClass("animated #{ @exitEffect }").attr('data-removed',true)
 
   templateOptions: ->
     @options
+
+  getButtonWrapper: ()->
+    wrapper               = @editor.toolbarWrapperElement()
+    wrapper               = wrapper.find(@toolbarEl) if @toolbarEl?
+
+    wrapper
 
   setupButtonElement: ()->
     return @buttonElement if @buttonElement
 
     buttonId              = _.uniqueId()
-    wrapper               = @editor.toolbarWrapperElement()
-    wrapper               = wrapper.find(@toolbarEl) if @toolbarEl?
-
+    wrapper               = @getButtonWrapper()
     html                  = $(CodeSync.template(@buttonTemplate, buttonId: buttonId, icon: @buttonIcon, text: @buttonText, tooltip: @tooltip))
 
     wrapper.append(html)
     @buttonElement = wrapper.find("[data-button-id='#{ buttonId }']").eq(0)
 
-    @buttonElement.on "click", ()=> @toggle()
+    @buttonElement.on "click", ()=>
+      @toggle(withEffect: true)
 
     @buttonElement
 
@@ -98,7 +96,7 @@ CodeSync.ToolbarPanel = Backbone.View.extend
     else
       return @ if @beforeRender?() is false
 
-      @$el.addClass("toolbar-panel")
+      @$el.addClass("editor-utility")
       @applyTemplate()
       $(@renderTo()).append(@el)
 
@@ -107,10 +105,10 @@ CodeSync.ToolbarPanel = Backbone.View.extend
       @checkAvailabilityInMode()
       return @
 
-original = CodeSync.ToolbarPanel.extend
+original = CodeSync.EditorUtility.extend
 
 
-CodeSync.ToolbarPanel.setup = (editor,options={})->
+CodeSync.EditorUtility.setup = (editor,options={})->
   {PluginClass} = options
 
   options.editor = editor

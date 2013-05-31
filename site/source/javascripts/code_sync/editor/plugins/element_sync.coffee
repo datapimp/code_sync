@@ -1,4 +1,4 @@
-CodeSync.plugins.ElementSync = CodeSync.ToolbarPanel.extend
+CodeSync.plugins.ElementSync = CodeSync.EditorUtility.extend
   buttonIcon: "loop"
 
   tooltip: "Sync markup content with the DOM"
@@ -28,7 +28,7 @@ CodeSync.plugins.ElementSync = CodeSync.ToolbarPanel.extend
     "click .hide-panel-button" : ()->
       @syncWithElement()
       @editor.currentDocument?.trigger("change:contents")
-      @hide()
+      @hide(withEffect: true)
 
     "click .find-button" : ()->
       root = @searchScope || window
@@ -54,10 +54,7 @@ CodeSync.plugins.ElementSync = CodeSync.ToolbarPanel.extend
 
     @editor.on "code:sync:template", @syncWithElement, @
 
-    CodeSync.ToolbarPanel::initialize.apply(@, arguments)
-
-  render: ()->
-    CodeSync.ToolbarPanel::render.apply(@, arguments)
+    CodeSync.EditorUtility::initialize.apply(@, arguments)
 
   selectElement: (@selectedElement, display)->
     id    = $(@selectedElement).attr('id')
@@ -76,7 +73,9 @@ CodeSync.plugins.ElementSync = CodeSync.ToolbarPanel.extend
 
   syncWithElement: (doc)->
     return unless @selector and tmpl = doc.templateFunction()
-    @$elementSync?[@action || "html"](tmpl())
+    vars = CodeSync.plugins.ElementSync.getTemplateVariables?() || {}
+
+    @$elementSync?[@action || "html"](tmpl(vars))
 
   getSelectorContents: ()->
     @$elementSync.html()

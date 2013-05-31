@@ -1,4 +1,4 @@
-CodeSync.ToolbarPanel::toolbarel = ".left"
+CodeSync.EditorUtility::toolbarEl = ".left"
 
 plugins = [
   "ColorPicker"
@@ -108,6 +108,9 @@ CodeSync.EditorPanel = Backbone.View.extend
   each: (args...)->
     editors = _(@assetEditors).values()
     _(editors).each(args...)
+
+  getWindow: ()->
+    @targetWindow
 
   setupEditorToolbar: ()->
     return unless @toolbarClass?

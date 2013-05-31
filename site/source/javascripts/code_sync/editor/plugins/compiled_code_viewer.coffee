@@ -1,4 +1,4 @@
-CodeSync.plugins.CompiledCodeViewer = CodeSync.ToolbarPanel.extend
+CodeSync.plugins.CompiledCodeViewer = CodeSync.EditorUtility.extend
   buttonIcon: "code"
   availableInModes: "all"
   handle: "compiledCodeViewer"

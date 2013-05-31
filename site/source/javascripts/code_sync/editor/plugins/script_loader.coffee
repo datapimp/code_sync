@@ -1,4 +1,4 @@
-CodeSync.plugins.ScriptLoader = CodeSync.ToolbarPanel.extend
+CodeSync.plugins.ScriptLoader = CodeSync.EditorUtility.extend
   buttonIcon: "thunder-cloud"
   className: "script-loader"
   tooltip: "Load external javascripts"

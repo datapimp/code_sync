@@ -9,13 +9,10 @@
 
     #canvas-inner
       .drag-shim
-      iframe.canvas-frame seamless=true src="/canvas-content?code_sync_channel=canvas_content" frameborder="0" style="" height="100%" width="100%"
+      iframe.canvas-frame seamless=true src="/canvas-content" frameborder="0" style="" height="100%" width="100%"
 
 javascript:
   window.codeSyncClient = new CodeSync.Client()
-  codeSyncClient.subscribeWith(function(){
-    console.log("canvas app codesync client", arguments)
-  });
 
 - content_for(:head) do
   == stylesheet_link_tag 'canvas'

@@ -1,4 +1,4 @@
-CodeSync.plugins.PreferencesPanel = CodeSync.ToolbarPanel.extend
+CodeSync.plugins.PreferencesPanel = CodeSync.EditorUtility.extend
   buttonIcon: "cog"
 
   tooltip: "Set preferences for this editor"

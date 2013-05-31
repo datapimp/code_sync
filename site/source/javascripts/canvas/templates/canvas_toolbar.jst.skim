@@ -1,15 +1,18 @@
 .row-fluid
-  .span8
+  .span6
     #canvas-url-control.controls
-  .span4
+  .span6
     .row-fluid
       .span4
-        .controls
+        #resource-loader.controls
           ul
-            li
+            li.label
+              a.btn.toggle-document-browser
+                | Documents
+            li.label
               a.btn.toggle-script-loader
                 | Scripts
-            li
+            li.label
               a.btn.toggle-stylesheet-loader
                 | Stylesheets
       .span4

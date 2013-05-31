@@ -80,19 +80,11 @@ module CodeSync
         unless options[:disable_internal_watch]
           listen_for_changes_to_codesync do |changed_assets|
             changed_assets.each do |asset|
-              puts "Detected internal change"
-              puts asset.inspect
-
               notify_clients_of_change_to(asset)
             end
           end
         end
       end
-
-
-
-
-
 
       def build_process_map
         @process_map = processes.inject({}) do |memo,config|

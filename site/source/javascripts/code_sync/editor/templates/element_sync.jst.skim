@@ -1,4 +1,8 @@
 .element-sync-panel
+  header
+    h3 Template / DOM Sync
+    p Use this to compile a template to any part of the DOM
+
   .row-fluid.selector-info
     .span9
       input name="css-selector" placeholder="Enter a CSS selector to sync with"
@@ -10,6 +14,8 @@
           i.icon.icon-export
         a.btn.find-button title="Find an element"
           i.icon.icon-hair-cross
+        a.btn.set-template-options title="Specify template code"
+          i.icon.icon-code
   .row-fluid
     .span9
       .element-sync-status

@@ -1,4 +1,4 @@
-CodeSync.plugins.FileControls = CodeSync.ToolbarPanel.extend
+CodeSync.plugins.FileControls = CodeSync.EditorUtility.extend
   buttonIcon: "save"
 
   handle: "fileControls"
@@ -23,13 +23,13 @@ CodeSync.plugins.FileControls = CodeSync.ToolbarPanel.extend
 
   initialize: (@options={})->
     _.extend(@, @options)
-    CodeSync.ToolbarPanel::initialize.apply @, arguments
+    CodeSync.EditorUtility::initialize.apply @, arguments
 
     @updateDocumentAttributes = _.debounce(@updateDocumentAttributes, 400)
 
   show: ()->
     @syncWithDocument()
-    CodeSync.ToolbarPanel::show.apply(@, arguments)
+    CodeSync.EditorUtility::show.apply(@, arguments)
 
   saveToDisk: ()->
     @doc.set("doNotSave", false)

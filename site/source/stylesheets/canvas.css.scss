@@ -1,5 +1,4 @@
-$dark: rgba(30,30,30,0.9);
-$white: rgba(230,230,230,0.9);
+@import "code_sync/variables";
 
 html, body {
   height: 100%;
@@ -34,29 +33,60 @@ body[data-canvas-application] {
   }
 }
 
+.editor-panel-toolbar {
+  position: absolute;
+  width: 100%;
+  font-size: $baseFontSize;
+  line-height: $baseLineHeight;
+  .codesync-canvas-toolbar {
+    width: 98%;
+    margin: 0px auto;
+  }
+}
+
 .codesync-canvas-toolbar {
   .controls {
-    ul li.label {
-      padding-right: 20px;
-      text-decoration: underline;
-    }
-  ul li[data-option] {
-      padding: 0px 6px;
-      border-right: 1px solid;
-      &:last-child {
+      ul {
+        border: 1px solid $darkBackground;
+        box-shadow: 0 0 3px $fadedWhite;
+        border-radius: 4px;
+        background: linear-gradient($darkBackground, lighten($darkBackground,10) );
+        line-height: 36px;
+      }
+
+      ul li {
+        padding: 8px !important;
+      }
+
+      ul li.label {
+        text-decoration: underline;
+        text-align: center;
+        font-weight: bold;
+      }
+
+      ul li[data-option] {
+        padding: 0px 6px;
+      }
+
+      ul li:last-child {
         border: 0px;
       }
-    }
   }
-  #target-selector, #layout-selector {
-  }
+
   #canvas-url-control {
+  .button .toggle-control {
+    width: 100% !important;
+    margin-left: 8px;
+  }
+   .button .controls {
+     width: 140px;
+   }
+
    ul li.input-wrapper {
       width: 300px;
       input {
         width: 50%;
         border-radius: 4px;
-        padding: 4px;
       }
     }
   }
@@ -128,7 +158,7 @@ body[data-canvas-application] {
     height: 25px;
     width: 65px;
     border-radius: 0px 0px 4px 4px;
-    box-shadow: 0 0 6px $dark;
+    box-shadow: 0 0 6px $darkBackground;
   }
 
   .handle.horizontal-handle {
@@ -137,7 +167,7 @@ body[data-canvas-application] {
     height: 65px;
     width: 25px;
     border-radius: 0px 4px 4px 0px;
-    box-shadow: 0 0 6px $dark;
+    box-shadow: 0 0 6px $darkBackground;
   }
 }
 

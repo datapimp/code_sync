@@ -1,33 +1,44 @@
 @import "code_sync/variables";
 
-.codesync-editor {
-  .toolbar-panel {
-    background: $darkBackground;
+.btn-primary {
+  background: linear-gradient($primary,darken($primary,30)) !important;
+  text-shadow: 1px 1px $darkBackground;
+}
+
+.btn {
+  border-radius: 4px;
+  text-align: center;
+  font-size: $baseFontSize;
+  line-height: $baseLineHeight;
+  padding: $baseLineHeight / 2.5;
+}
+
+.editor-utility.top-aligned {
+  top: 40px;
+}
+
+.editor-utility.bottom-aligned {
+  top: 140px;
+}
+
+.editor-utility {
+  background: $darkBackground;
+  border-radius: 4px;
+  box-shadow: 0 0 6px $fadedWhite;
+  color: $white;
+  max-width: 600px;
+  color: $white;
+  padding: 20px;
+  position: absolute;
+  z-index: 9000;
+  label {
     color: $white;
-    padding: 20px;
-    position: absolute;
-    height: auto;
-    width: auto !important;
-    min-width: 80%;
-    top: 40px;
-    left: 40px;
-    z-index: 9000;
-    border-radius: 3px;
-    label {
-      color: $white;
-      text-decoration: underline;
-      display: block
-    }
+    text-decoration: underline;
+    display: block
   }
 }
 
-.codesync-editor {
-
-.toolbar-panel {
-  color: $white;
-  border-radius: 4px;
-  box-shadow: 0 0 6px $fadedWhite;
-  max-width: 600px;
+.editor-utility {
   .form {
     padding: 20px;
     .control-group {
@@ -51,31 +62,20 @@
         cursor: pointer;
       }
     }
-    .btn-primary {
-      background: linear-gradient($primary,darken($primary,30)) !important;
-      text-shadow: 1px 1px $darkBackground;
-    }
-    .btn {
-      border-radius: 4px;
-      text-align: center;
-      font-size: $baseFontSize;
-      line-height: $baseLineHeight;
-      padding: $baseLineHeight / 2.5;
-    }
+
   }
 }
 
-  .toolbar-panel {
-    .btn-group {
-      margin-top: 12px;
+.editor-utility {
+  .btn-group {
+    margin-top: 12px;
+    float: left;
+    width: 100%;
+    clear: both;
+    .btn {
       float: left;
-      width: 100%;
-      clear: both;
-      .btn {
-        float: left;
-        padding-right: 8px;
-        cursor: pointer;
-      }
+      padding-right: 8px;
+      cursor: pointer;
     }
   }
 }
@@ -90,7 +90,32 @@
   }
 }
 
+.editor-utility {
+  .form-actions {
+    a.btn {
+      margin-right: 4px;
+    }
+  }
+
+}
+
 .stylesheet-loader, .script-loader {
+  .results {
+    .control-group input {
+      width: 80%;
+    }
+  }
+  ul.results-container {
+    padding: 0px;
+    margin: 20px 0px;
+
+    li {
+      list-style-type: none;
+      margin: 0px;
+      padding: 0px;
+    }
+  }
+
   .card-view {
     .card {
       display: none;

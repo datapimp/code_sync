@@ -37,28 +37,36 @@ CodeSync.Canvas = Backbone.View.extend
     @editorPanel.assetEditors[name]
 
   routeEditorOutputToGlobal: ()->
+    @editorPanel.targetWindow = window
+
     @editorPanel.each (editor)=>
       editor.targetWindow = window
       editor.views.elementSync.searchScope = window
       editor.views.elementSync.setValue('')
 
-    CodeSync.processChangeNotification = original
+    CodeSync.Document::changeProcessor = window.CodeSync.processChangeNotification
 
   routeEditorOutputToCanvas: ()->
     @getFrameWindow().name = "CanvasInner"
     @getFrameWindow().$('body').attr('data-canvas-inner',true)
 
+    frame = @getFrameWindow()
+
+    @editorPanel.targetWindow = frame
+
     @editorPanel.each (editor)=>
-      editor.views.elementSync.searchScope = frame = @getFrameWindow()
+      editor.views.elementSync.searchScope = frame
       editor.targetWindow = frame
 
       if @autoSyncWithElement?
         editor.views.elementSync.setValue(@autoSyncWithElement)
 
-    CodeSync.processChangeNotification = (a, b)=>
+    CodeSync.Document::changeProcessor = (a, b)=>
       if @target is "app"
         original(a,b)
 
+      # If we're routing stuff to the canvas
+      # we also want to process script code globally
       else if @target is "canvas"
         if a.type is "script"
           original(a,b)
@@ -66,6 +74,7 @@ CodeSync.Canvas = Backbone.View.extend
         if a.type is "template"
           original(a,b)
 
+        # Now let the canvas process it
         @getFrameWindow().CodeSync.processChangeNotification(a,b)
 
   routeEditorOutput: (@target)->
@@ -81,8 +90,6 @@ CodeSync.Canvas = Backbone.View.extend
     @frameControl   = new CodeSync.FrameControl(frame: @getFrame())
 
     @editorPanel.renderIn $(@editorContainer)
-
-    console.log "Putting url control", $('#canvas-url-control').length
 
     $('#canvas-url-control').html @frameControl.render().el
 
