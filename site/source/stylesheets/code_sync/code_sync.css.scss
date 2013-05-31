@@ -2,6 +2,9 @@
  *= require ./src/codemirror
  *= require ./src/editor
  *= require ./src/editor-panel
+ *= require ./src/editor-utility
+ *= require ./src/toolbars
+ *= require ./src/buttons
  *= require_tree ./src/plugins
  *= require_self
 */

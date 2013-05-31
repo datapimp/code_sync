@@ -1,4 +1,7 @@
 .toolbar-wrapper.row-fluid
-  .left.span4
-  .middle.span4
-  .right.span4
+  .span4
+    .controls.left
+  .span4
+    .controls.middle
+  .span4
+    .controls.right

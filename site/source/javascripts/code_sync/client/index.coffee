@@ -86,9 +86,10 @@ class CodeSync.Client
         doc.set("contents", notification.contents, silent: false)
         doc.trigger "contents:synced"
 
-    console.log "Detected Change in #{ window.name }"
+    options = @notificationHandlerOptions
+    options.origin = "watcher"
 
-    CodeSync.processChangeNotification(notification, @notificationHandlerOptions)
+    CodeSync.processChangeNotification(notification, options)
 
 # Allows for hijacking a page which includes the code sync client
 # and overriding the notification channel.  this allows for sandboxd

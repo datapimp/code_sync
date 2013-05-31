@@ -15,6 +15,8 @@ CodeSync.EditorUtility = Backbone.View.extend
 
   availableInModes: "all"
 
+  alignment: undefined
+
   initialize: (@options)->
     _.extend(@, @options)
 
@@ -22,6 +24,8 @@ CodeSync.EditorUtility = Backbone.View.extend
 
     @editor?.on "change:mode", @checkAvailabilityInMode, @
     @editor?.on "document:loaded", @checkAvailabilityInMode, @
+
+    @$el.addClass "#{ @alignment }-aligned" if @alignment?
 
   checkAvailabilityInMode: ()->
     return @buttonElement.show() if @availableInModes is "all" || !@availableInModes?
@@ -40,23 +44,13 @@ CodeSync.EditorUtility = Backbone.View.extend
     @removeOtherEditorUtilitys()
     @render()
     @$el.removeClass(@exitEffect)
-
-    if options.withEffect
-      @$el.addClass("animated #{ @entranceEffect }")
-    else
-      @$el.show()
-
+    @$el.addClass("animated #{ @entranceEffect }")
     @visible = true
     @
 
   hide: (options={})->
     @$el.removeClass(@entranceEffect)
-
-    if options.withEffect
-      @$el.addClass("animated #{ @exitEffect }")
-    else
-      @$el.hide()
-
+    @$el.addClass("animated #{ @exitEffect }")
     @visible = false
     @
 
@@ -80,6 +74,7 @@ CodeSync.EditorUtility = Backbone.View.extend
     html                  = $(CodeSync.template(@buttonTemplate, buttonId: buttonId, icon: @buttonIcon, text: @buttonText, tooltip: @tooltip))
 
     wrapper.append(html)
+
     @buttonElement = wrapper.find("[data-button-id='#{ buttonId }']").eq(0)
 
     @buttonElement.on "click", ()=>
@@ -112,6 +107,7 @@ CodeSync.EditorUtility.setup = (editor,options={})->
   {PluginClass} = options
 
   options.editor = editor
+  options.alignment = "top"
 
   panel = new PluginClass(options)
 

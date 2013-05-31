@@ -1,31 +1,36 @@
 .form
   .card-view
-    .card.active
-      .control-group
-        %label Select a package
-        .controls
-          %select{:name=>"load_script_package"}
-            %option{:value=>""} Select One
+    .card.menu.active.boom
+      - if @packages.length >= 1
+        .control-group
+          %label Select a package
+          .controls
+            %select{:name=>"load_package"}
+              %option{:value=>""} Select One
+              - for name in @packages.pluck('name')
+                %option{:value=>name}
+                  #{ name }
 
       .control-group
         %label
-          Enter a list of Javascript URLS
+          Enter a list of javascript Urls
         .controls
-          %textarea{:name=>"list"}
+          %textarea{:name=>"package_text"}
       .form-actions
         %a.btn.btn-primary.submit
           Load Resources
+        %a.btn.finished
+          Cancel
 
     .card.results
       .control-group
         %label Package Name
-        %input{:type=>"text",:name=>"package"}
+        %input{:type=>"text",:name=>"package_name"}
 
       %ul.results-container
 
       .form-actions
         %a.btn.btn-primary.save-as-package
           Save As Package
-
-
-
+        %a.btn.finished
+          Finished

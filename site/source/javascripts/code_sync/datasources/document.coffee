@@ -184,13 +184,15 @@ CodeSync.Document = Backbone.Model.extend
       path: doc.get("path")
       contents: doc.get("contents")
 
+    1;
+
     payload = _.extend notification,
       error: (message)->
         doc.trigger "status", type: "error", sticky: "true", message: "JS Error: #{ message }"
       success: ()->
         doc.trigger "code:sync:#{ doc.get('type') }"
 
-    @changeProcessor(payload)
+    @changeProcessor(payload, origin:"document", documentId: doc.cid)
 
   # Determines how we will handle the compiled assets when loading in the page
   type: ()->

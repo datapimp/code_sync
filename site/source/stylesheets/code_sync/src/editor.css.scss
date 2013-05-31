@@ -115,22 +115,3 @@
   }
 }
 
-.codesync-editor-panel {
-  .toolbar-wrapper {
-    .icon {
-      color: $white;
-      font-size: 44px;
-      line-height: 30px;
-      width: 34px;
-      float: left;
-      cursor: pointer;
-      &:active {
-        color: opacify($white,0.6) !important;
-        font-size: 42px;
-      }
-      &:hover {
-        color: opacify($white,1);
-      }
-    }
-  }
-}

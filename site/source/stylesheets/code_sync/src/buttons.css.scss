@@ -1,0 +1,26 @@
+@import "code_sync/variables";
+
+.btn-primary {
+  background: linear-gradient($primary,darken($primary,30)) !important;
+  text-shadow: 1px 1px $darkBackground;
+}
+
+.btn {
+  border-radius: 4px;
+  text-align: center;
+  font-size: $baseFontSize;
+  line-height: $baseLineHeight;
+  padding: $baseLineHeight / 2.5;
+}
+
+.btn-group {
+  margin-top: 12px;
+  float: left;
+  width: 100%;
+  clear: both;
+  .btn {
+    float: left;
+    padding-right: 8px;
+    cursor: pointer;
+  }
+}

@@ -18,16 +18,16 @@ CodeSync.toolbars.CanvasToolbar = Backbone.View.extend
     button = @$(e.target)
 
     @styleLoader ||= new CodeSync.plugins.StylesheetLoader
+      alignment: "bottom"
+
       checkAvailabilityInMode: ->
+        true
 
       getWindow: ()=>
         @editorPanel?.getWindow()
 
       renderTo: ()=>
         @editorPanel.$el
-
-    el = @styleLoader.$el.addClass('bottom-aligned')
-    el.css('left', button.position().left - el.width() * 0.5 )
 
     @styleLoader.toggle(withEffect: true)
 
@@ -35,16 +35,16 @@ CodeSync.toolbars.CanvasToolbar = Backbone.View.extend
     button = @$(e.target)
 
     @scriptLoader ||= new CodeSync.plugins.ScriptLoader
+      alignment: "bottom"
+
       checkAvailabilityInMode: ->
+        true
 
       getWindow: ()=>
         @editorPanel?.getWindow()
 
       renderTo: ()=>
         @editorPanel.$el
-
-    el = @scriptLoader.$el.addClass('bottom-aligned')
-    el.css('left', button.position().left - el.width() * 0.5 )
 
     @scriptLoader.toggle(withEffect: true)
 

@@ -51,9 +51,9 @@ CodeSync.plugins.StylesheetLoader = CodeSync.EditorUtility.extend
   showRequestStatus: (pkg)->
     container = @$('.results-container').empty()
 
-    for script, status of pkg.get('status')
-      icon = if status then 'loop' else 'retweet'
-      cls = if status then "success" else "danger"
+    for script, loaded of pkg.get('status')
+      icon = if loaded then 'check' else 'cross'
+      cls = if loaded then "success" else "danger"
       container.append "<li>#{ script }<span class='status-indicator #{ cls }'><i class='icon icon-#{ icon }' /></span></li>"
 
   getWindow: ()->

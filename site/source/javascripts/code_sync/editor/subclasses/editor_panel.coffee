@@ -1,12 +1,8 @@
 CodeSync.EditorUtility::toolbarEl = ".left"
 
 plugins = [
-  "ColorPicker"
   "ElementSync"
   "PreferencesPanel"
-  "AssetSelector"
-  "FileControls"
-  "CompiledCodeViewer"
 ]
 
 pluginOptions =

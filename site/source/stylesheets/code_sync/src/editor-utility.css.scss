@@ -1,24 +1,23 @@
 @import "code_sync/variables";
 
-.btn-primary {
-  background: linear-gradient($primary,darken($primary,30)) !important;
-  text-shadow: 1px 1px $darkBackground;
-}
-
-.btn {
-  border-radius: 4px;
-  text-align: center;
-  font-size: $baseFontSize;
-  line-height: $baseLineHeight;
-  padding: $baseLineHeight / 2.5;
+.editor-utility {
+  min-width: 450px;
+  max-width: 600px;
+  .control-group {
+    textarea {
+      border-radius: 4px;
+    }
+  }
 }
 
 .editor-utility.top-aligned {
   top: 40px;
+  left: 40px;
 }
 
 .editor-utility.bottom-aligned {
   top: 140px;
+  left: 40px;
 }
 
 .editor-utility {
@@ -62,31 +61,6 @@
         cursor: pointer;
       }
     }
-
-  }
-}
-
-.editor-utility {
-  .btn-group {
-    margin-top: 12px;
-    float: left;
-    width: 100%;
-    clear: both;
-    .btn {
-      float: left;
-      padding-right: 8px;
-      cursor: pointer;
-    }
-  }
-}
-
-.element-sync-panel {
-  .selector-info {
-    input {
-      width: 90%;
-      border-radius: 4px;
-      padding: 4px;
-    }
   }
 }
 
@@ -96,10 +70,9 @@
       margin-right: 4px;
     }
   }
-
 }
 
-.stylesheet-loader, .script-loader {
+.editor-utility {
   .results {
     .control-group input {
       width: 80%;
@@ -113,15 +86,6 @@
       list-style-type: none;
       margin: 0px;
       padding: 0px;
-    }
-  }
-
-  .card-view {
-    .card {
-      display: none;
-      &.active {
-        display: block;
-      }
     }
   }
 }

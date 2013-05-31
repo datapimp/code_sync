@@ -121,10 +121,15 @@ CodeSync.Canvas = Backbone.View.extend
     Backbone.View::initialize.apply(@, arguments)
 
 
-CodeSync.Canvas.startApplication ||= ()->
+CodeSync.Canvas.startApplication ||= (force=false)->
   window.name = "CanvasApp"
+
+  console.log "Restarting App" if force and App?
+  window.App = undefined if force and App?
+
   window.App ||= new CodeSync.Canvas(editorContainer:"#editor")
 
+  console.log "Rendering", App.cid
   App.render()
 
   $('body').attr('data-canvas-application',true)

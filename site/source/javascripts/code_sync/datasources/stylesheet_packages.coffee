@@ -15,13 +15,17 @@ CodeSync.StylesheetPackages = CodeSync.LocalStore.extend
     for line in text.split("\n")
       list.push _.str.strip(line)
 
-    model = new @model({list,name})
+    model = new @model(list: list, name: name)
 
     @add(model, options)
 
     model
 
+
   model: Backbone.Model.extend
+
+    sync: CodeSync.LocalStore::sync
+
     initialize:(@attributes)->
       Backbone.Model::initialize.apply(@, arguments)
 
@@ -53,7 +57,23 @@ CodeSync.StylesheetPackages = CodeSync.LocalStore.extend
       for script, value of @get("status")
         root.CodeSync.util.loadStylesheet script, tracker: "#{ name }:#{ script }", complete: @updateStatus
 
-CodeSync.StylesheetPackages.samples =
+s = CodeSync.StylesheetPackages.samples = []
+
+s.push
+  name: "purecss.io"
+  list:[
+    "//yui.yahooapis.com/pure/0.1.0/pure-min.css"
+  ]
+
+s.push
+  name: "Luca"
+  list:[
+    "//netdna.bootstrapcdn.com/twitter-bootstrap/2.3.0/css/bootstrap-combined.min.css"
+    "//netdna.bootstrapcdn.com/font-awesome/3.0.2/css/font-awesome.css"
+    "//datapimp.github.com/luca/vendor/assets/stylesheets/luca-ui.css"
+  ]
+
+s.push
   name: "bootstrap / amelia"
   list:[
     "//netdna.bootstrapcdn.com/twitter-bootstrap/2.3.1/css/bootstrap-combined.no-icons.min.css"

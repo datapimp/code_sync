@@ -1,5 +1,16 @@
 @import "code_sync/variables";
 
+.element-sync-panel {
+  .selector-info {
+    input {
+      width: 90%;
+      border-radius: 4px;
+      padding: 4px;
+    }
+  }
+}
+
+
 .file-controls {
   color: $white;
   height: auto !important;

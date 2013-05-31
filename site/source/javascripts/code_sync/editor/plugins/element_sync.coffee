@@ -26,7 +26,7 @@ CodeSync.plugins.ElementSync = CodeSync.EditorUtility.extend
       @action = @$(e.target).val()
 
     "click .hide-panel-button" : ()->
-      @syncWithElement()
+      @syncWithElement(@editor.currentDocument)
       @editor.currentDocument?.trigger("change:contents")
       @hide(withEffect: true)
 
@@ -72,7 +72,7 @@ CodeSync.plugins.ElementSync = CodeSync.EditorUtility.extend
     @bindToSelector
 
   syncWithElement: (doc)->
-    return unless @selector and tmpl = doc.templateFunction()
+    return unless doc && @selector && tmpl = doc.templateFunction()
     vars = CodeSync.plugins.ElementSync.getTemplateVariables?() || {}
 
     @$elementSync?[@action || "html"](tmpl(vars))
@@ -98,7 +98,7 @@ CodeSync.plugins.ElementSync = CodeSync.EditorUtility.extend
   status: ()->
     length = @$elementSync?.length
 
-    msg = if length is 0 && @getValue().length > 0
+    msg = if length is 0 && @getValue()?.length > 0
       "CSS Selector not found"
     else if length is 1
       "1 total element"

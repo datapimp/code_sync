@@ -34,9 +34,6 @@ CodeSync.detectGlobalChangeTriggers = (type,attributes={})->
 CodeSync.processChangeNotification = (attributes={}, options={})->
   {type,compiled,content} = attributes
 
-  if _(options.skip).indexOf(type) >= 0
-    return
-
   return if CodeSync.beforeChange?(attributes,options) is false
 
   type ||= "template" if attributes.template is true
