@@ -39,6 +39,7 @@ CodeSync.ScriptPackages = CodeSync.LocalStore.extend
       pkg = @
 
       @updateStatus = (url)=>
+        console.log "Script Loaded", url
         @onLoad.apply(pkg, arguments)
         @attributes.status[url] = true
         @trigger "resource:loaded", pkg, url
@@ -55,6 +56,7 @@ CodeSync.ScriptPackages = CodeSync.LocalStore.extend
       root ||= window
 
       for script, value of @get("status")
+        console.log "Loading Script", script
         root.CodeSync.util.loadScript script, tracker: "#{ name }:#{ script }", complete: @updateStatus
 
 s = CodeSync.ScriptPackages.samples = []

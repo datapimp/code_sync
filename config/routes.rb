@@ -17,7 +17,8 @@
       root: root
     })
 
-    scope "/code-sync" do
+    scope "/code-sync", :module => "code_sync" do
+      get "/canvas", :to => "canvas#index"
       get "/info", :to => server_info
       match "/source", :to => source_provider
     end
