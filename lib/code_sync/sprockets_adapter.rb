@@ -60,9 +60,14 @@ module CodeSync
     end
 
     def process_changes_to assets=[]
-
       results = Array(assets).map do |path|
-        if asset = env.find_asset(path)
+        asset = env.find_asset(path)
+
+        if !asset
+          asset = env.find_asset( path.split('/').pop )
+        end
+
+        if asset
           logical_name  = asset.logical_path
           basename      = File.basename(path)
           extension     = basename.split('.').slice(1,100).join(".")

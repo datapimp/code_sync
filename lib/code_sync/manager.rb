@@ -111,7 +111,6 @@ module CodeSync
         create_server()
 
         unless options[:disable_watcher]
-          puts "Listening for changes on the filesystem"
           listen_for_changes_on_the_filesystem do |changed_assets|
             changed_assets.each do |asset|
               notify_clients_of_change_to(asset)
@@ -119,12 +118,12 @@ module CodeSync
           end
         end
 
-        unless options[:enable_listener]
+        if options[:enable_listener]
           listen_for_changes_from_clients do |changed_assets|
           end
         end
 
-        unless options[:disable_internal_watch]
+        if options[:enable_internal_watch]
           listen_for_changes_to_code_sync()
         end
       end
@@ -139,6 +138,8 @@ module CodeSync
       end
 
       def notify_clients_of_change_to asset
+        puts "Notifying CLients of Change to #{ asset }"
+
         payload = JSON.generate(asset)
 
         puts "== Codesync detected change: #{ asset[:name] }"
@@ -166,7 +167,7 @@ module CodeSync
 
       def listen_for_changes_to_code_sync &handler
         manage_child_process("internal") do
-          internal.start
+          internal.start!
         end
       end
 
@@ -174,13 +175,29 @@ module CodeSync
         manage_child_process("watcher") do
           watcher.change do |modified,added,removed|
             begin
-              handler.call process_changes_to(modified+added)
+              processed = process_changes_to(modified+added)
+
+              # This is weird because it looks like the sprockets env
+              # in a rails project isn't working as nice
+              if processed.empty?
+                puts "Process changes to #{ modified } is empty. Something is wrong in the config"
+              else
+                handler.call(processed)
+              end
             rescue
-              puts "Error handling changes: #{ $! }"
+              begin
+                puts "Encounterd an error: #{ $! } Retrying.."
+                retry_payload = (modified + added).map {|f| File.join(root, f) }
+                processed = process_changes_to(retry_payload)
+                handler.call(processed)
+              rescue
+                puts "Retry failed: #{ $! }"
+                binding.pry
+              end
             end
           end
 
-          watcher.start
+          watcher.start!
         end
       end
 

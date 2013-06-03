@@ -5,7 +5,10 @@ module CodeSync
       forbid_saving = (app.config.forbid_code_sync_save) rescue false
 
       if enabled && !$rails_rake_task
-        CodeSync::Manager.start(sprockets: app.assets, forked: true, forbid_saving: !!forbid_saving)
+        CodeSync::Manager.start(sprockets: app.assets,
+                                forked: true,
+                                root: File.join(::Rails.root,'app','assets'),
+                                forbid_saving: !!forbid_saving)
       end
     end
   end
