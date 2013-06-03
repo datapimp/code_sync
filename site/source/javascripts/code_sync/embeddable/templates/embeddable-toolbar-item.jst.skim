@@ -1,0 +1,2 @@
+a.toolbar-button title="#{ @tooltip }"
+  span class="icon icon-#{ @icon }"

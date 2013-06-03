@@ -1,0 +1,25 @@
+== javascript_include_tag 'code_sync/embeddable'
+- content_for(:head) do
+  == stylesheet_link_tag 'code_sync/embeddable'
+
+#editor-container style="width: 1200px; margin: 40px auto; height: 400px;"
+
+javascript:
+  var codesync  = new CodeSync.Client(),
+      container = $('#editor-container')
+
+  CodeSync.onTemplateChange = function(attributes,options){
+    if(options.origin === "watcher") {
+      CodeSync.Embeddable.createIn(container);
+    }
+  }
+
+  CodeSync.onScriptChange = function(attributes,options){
+    if(options.origin === "watcher") {
+      CodeSync.Embeddable.createIn(container);
+    }
+  }
+
+  $(function(){
+    CodeSync.Embeddable.createIn(container);
+  })

@@ -1,0 +1,17 @@
+.toolbar.top.empty
+  section.left
+    |&nbsp;
+  section.middle
+    |&nbsp;
+  section.right
+    |&nbsp;
+
+.editor-component
+
+.toolbar.bottom.empty
+  section.left
+    |&nbsp;
+  section.middle
+    |&nbsp;
+  section.right
+    |&nbsp;

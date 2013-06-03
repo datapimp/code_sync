@@ -6,12 +6,13 @@ html lang="en"
     meta name="author" content="Jonathan Soeder aka Datapimp"
     meta name="keywords" content="asset pipeline tools, coffeescript, sass, codemirror, datapimp, jonathan soeder, soederpop"
     title CodeSync: Asset Pipeline Live Reload
-    == stylesheet_link_tag 'all', 'marketing'
+    link rel="stylesheet" href="//weloveiconfonts.com/api/?family=fontawesome"
+    == stylesheet_link_tag 'code_sync'
     == yield_content(:head)
 
   body
     == yield_content(:javascript_dependencies)
-    == javascript_include_tag 'code_sync', 'marketing'
+    == javascript_include_tag 'code_sync'
     == yield
 
 

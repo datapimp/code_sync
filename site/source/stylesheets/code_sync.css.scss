@@ -1,0 +1,20 @@
+/*
+ *= require_tree ./code_sync/vendor
+ *= require ./code_sync/src/codemirror
+ *= require ./code_sync/src/editor
+ *= require ./code_sync/src/editor-panel
+ *= require ./code_sync/src/editor-utility
+ *= require ./code_sync/src/toolbars
+ *= require ./code_sync/src/buttons
+ *= require_tree ./code_sync/src/plugins
+ *= require_self
+*/
+
+.card-view {
+  .card {
+    display: none;
+    &.active {
+      display: block;
+    }
+  }
+}

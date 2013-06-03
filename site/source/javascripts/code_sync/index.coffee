@@ -1,4 +1,6 @@
 #= require ./vendor/keylauncher
+#= require ./dependencies
+#= require ./codemirror
 #= require ./config
 #= require_self
 #= require ./client

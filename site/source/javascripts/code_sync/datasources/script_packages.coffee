@@ -62,8 +62,10 @@ CodeSync.ScriptPackages = CodeSync.LocalStore.extend
 s = CodeSync.ScriptPackages.samples = []
 
 s.push
-  name: "Luca"
+  name: "Backbone + Underscore + jQuery"
   list:[
-    "//datapimp.github.com/luca/vendor/assets/javascripts/luca-dependencies.min.js"
-    "//datapimp.github.com/luca/vendor/assets/javascripts/luca.min.js"
+    "//cdnjs.cloudflare.com/ajax/libs/jquery/2.0.1/jquery.min.js"
+    "//cdnjs.cloudflare.com/ajax/libs/underscore.js/1.4.4/underscore-min.js"
+    "//cdnjs.cloudflare.com/ajax/libs/underscore.string/2.3.0/underscore.string.min.js"
+    "//cdnjs.cloudflare.com/ajax/libs/backbone.js/1.0.0/backbone-min.js"
   ]
