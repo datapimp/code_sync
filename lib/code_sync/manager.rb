@@ -169,8 +169,15 @@ module CodeSync
       def listen_for_changes_on_the_filesystem &handler
         manage_child_process("watcher") do
           watcher.change do |modified,added,removed|
-            processed = process_changes_to(modified+added)
-            handler.call(processed)
+
+            processed = begin
+              process_changes_to(modified+added)
+            rescue
+              puts "Error Processing Changes: #{ $! }"
+              nil
+            end
+
+            handler.call(processed) if processed
           end
 
           # the listen gem api changed

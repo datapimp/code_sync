@@ -7,17 +7,16 @@ CodeSync.plugins.EmbeddablePreferences = Backbone.View.extend
   entranceEffect: "fadeIn"
   exitEffect: "fadeOut"
 
-  className: "embeddable-utlity-panel bottom-aligned embeddable-preferences"
+  className: "embeddable-utility-panel bottom-aligned embeddable-preferences"
 
   events:
     "change select": "setOption"
     "click .cancel": "hide"
     "keyup input" : _.debounce ((e)-> @setOption(e)), 850
 
-
   initialize: (@options)=>
     _.extend(@,@options)
-
+    true
     Backbone.View::initialize.apply(@, arguments)
 
   setOption: (e)->

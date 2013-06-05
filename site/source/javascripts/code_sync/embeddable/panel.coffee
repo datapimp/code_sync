@@ -81,6 +81,7 @@ CodeSync.EditorPanel = Backbone.View.extend
       theme: @theme
       keyBindings: @keyBindings
       startMode: @startMode
+      restrictMode: true
 
     @editor.parent = @
 

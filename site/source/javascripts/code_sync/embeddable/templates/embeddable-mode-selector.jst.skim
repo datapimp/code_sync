@@ -1,5 +1,6 @@
 .control-group
   label Select a language
-  ul.inline
-    li Coffeescript
-    li Javascript
+  ul.inline.option-selector
+    - for mode in @restrictedModes()
+      li.option data-option=mode.id #{ _.str.capitalize(mode.get('name')) }
+

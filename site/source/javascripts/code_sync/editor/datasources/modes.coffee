@@ -1,5 +1,10 @@
 CodeSync.Modes = Backbone.Collection.extend
   model: Backbone.Model.extend
+    type: ()->
+      return "template" if @get("template") is true
+      return "style" if @get("style") is true
+      return "script" if @get("script") is true
+
     isOfType: (type="any")->
       @get(type) is true || type is "any" || type is "all"
 

@@ -1,4 +1,5 @@
 //typography
+$baseFont: "Helvetica";
 $baseFontSize: 14px;
 $baseLineHeight: 22px;
 
@@ -7,6 +8,11 @@ $white: rgba(255,255,255,0.8);
 $fadedWhite: rgba(225,225,225,0.6);
 $darkBackground: rgba(30,30,30,0.8);
 $activeHighlightOnDarkBackground: opacify(#bada55,0.2);
+$background: rgba(30,30,30,0.8);
+$toolbarTextColor: #fafafa;
+
+$shadowColor: rgba(20,20,20,0.9);
+$whiteShadow: rgba(215,215,215,0.5);
 
 $errorBackground: #bada55;
 $errorText: #ffffff;
@@ -15,3 +21,6 @@ $successText: #ffffff;
 
 $primary: #4067c5;
 $alternate: #bada55;
+
+$toolbarSize: 32px;
+

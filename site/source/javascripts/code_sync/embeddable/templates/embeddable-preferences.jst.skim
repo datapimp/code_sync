@@ -9,13 +9,12 @@
             option value="lesser-dark" Lesser Dark
             option value="ambiance" Ambiance
             option value="xq-light" XQ Light
-
-        .control-group
-          label Keybindings
-          .controls
-            select.keymap-selector name="keyMap"
-              option value="" Default
-              option value="vim" Vim
+      .control-group
+        label Keybindings
+        .controls
+          select.keymap-selector name="keyMap"
+            option value="" Default
+            option value="vim" Vim
 
     .span4
       .control-group.layout-selector
@@ -41,16 +40,17 @@
       .control-group
         label Height
         .controls
-          input type="text" name="height"
+          input.input-small type="text" name="height"
+
       .control-group
         label Width
         .controls
-          input type="text" name="width"
+          input.input-small type="text" name="width"
 
 
   .form-actions
-    a.btn.cancel
-      | Cancel
     a.btn.btn-primary.set-default-preferences
       i.icon.icon-save
       | Save As Defaults
+    a.btn.cancel
+      | Cancel

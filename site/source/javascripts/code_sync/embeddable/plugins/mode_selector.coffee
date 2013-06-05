@@ -12,15 +12,18 @@ CodeSync.plugins.LanguageSelector = Backbone.View.extend
     "change select": "setOption"
     "click .cancel": "hide"
 
-
   initialize: (@options={})->
     _.extend(@,@options)
 
     Backbone.View::initialize.apply(@, arguments)
 
-    console.log "Creating language selector", @, arguments, @options
-
     @modes  = @editor.modes
+
+  restrictedModes: ()->
+    editorMode      = @editor.startMode || "any"
+    console.log "Restricting to", editorMode.type()
+    @modes.select (mode)->
+      mode.isOfType editorMode.type()
 
   setOption: (e)->
     target  = @$(e.target)
@@ -50,7 +53,7 @@ CodeSync.plugins.LanguageSelector = Backbone.View.extend
   render: ()->
     return @ if @rendered
 
-    @$el.html CodeSync.template("embeddable-mode-selector", modes: @modes)
+    @$el.html CodeSync.template("embeddable-mode-selector", @)
     @editor.parent.$el.append(@el)
 
     @rendered = true

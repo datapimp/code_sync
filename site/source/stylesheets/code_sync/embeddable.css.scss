@@ -1,15 +1,5 @@
 @import "code_sync/variables";
 
-$toolbarSize: 32px;
-$background: #333;
-$toolbarTextColor: #fafafa;
-$shadowColor: rgba(20,20,20,0.9);
-
-body, html {
-  height: 100%;
-  margin: 0;
-  padding: 0;
-}
 
 .codesync-embeddable, .codesync-embeddable * { -moz-box-sizing: border-box; -webkit-box-sizing: border-box; box-sizing: border-box; }
 
@@ -225,25 +215,47 @@ body, html {
   z-index: 10000;
 
   &.bottom-aligned {
-    bottom: 20px;
-    right: 20px;
+    bottom: 40px;
+    right: 10px;
   }
 
   &.top-aligned {
-    top: 20px;
-    right: 20px;
+    top: 40px;
+    left: 10px;
   }
 
   background: $darkBackground;
   color: $white;
   width: 480px;
   border-radius: 4px;
-  box-shadow: 0 0 6px $darkBackground;
+  box-shadow: 0 0 6px $whiteShadow;
   padding: 12px;
-  font-size: $baseFontSize * 1.2;
-  line-height: $baseLineHeight * 1.2;
-  .control-group {
-    margin-bottom: $baseLineHeight / 2;
+}
+
+.embeddable-utility-panel {
+  .form {
+    font-family: $baseFont;
+    font-size: $baseFontSize * 1.2;
+    line-height: $baseLineHeight * 1.2;
+    .control-group {
+      margin-bottom: $baseLineHeight / 2;
+    }
+    .controls {
+      input {
+        border-radius: 4px;
+      }
+      input.input-small {
+        width: 80px;
+      }
+    }
+
+    .form-actions {
+      padding-top: 20px;
+      .btn {
+        cursor: pointer;
+        float: right;
+      }
+    }
   }
 }
 
@@ -266,18 +278,22 @@ body, html {
 ul.inline {
   margin: 0px;
   padding: 0px;
+
   li {
     display: inline;
     list-style-type: none;
+    padding-left: 6px;
     padding-right: 6px;
     border-right: 1px solid;
+    cursor: pointer;
+
+    &:first-child {
+      padding-left: 0px;
+    }
+
     &:last-child {
-      padding-left: 6px;
       border: 0px;
     }
   }
 }
 
-.controls ul {
-  cursor: pointer;
-}
