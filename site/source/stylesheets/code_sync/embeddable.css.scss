@@ -189,12 +189,12 @@ body, html {
 }
 
 .embeddable-editor-panel {
-  .icon-resize-editor:before{
+  .icon-expand-editor:before{
     content:"\f065"
   }
 
   &.expanded {
-    .icon-resize-editor:before {
+    .icon-expand-editor:before {
       content:"\f066"
     }
   }
@@ -220,11 +220,20 @@ body, html {
   }
 }
 
-.embeddable-preferences {
+.embeddable-utility-panel {
   position: absolute;
   z-index: 10000;
-  bottom: 20px;
-  right: 20px;
+
+  &.bottom-aligned {
+    bottom: 20px;
+    right: 20px;
+  }
+
+  &.top-aligned {
+    top: 20px;
+    right: 20px;
+  }
+
   background: $darkBackground;
   color: $white;
   width: 480px;

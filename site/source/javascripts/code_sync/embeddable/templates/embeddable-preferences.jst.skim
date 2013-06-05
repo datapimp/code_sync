@@ -4,7 +4,7 @@
       .control-group
         label Theme
         .controls
-          select name="theme"
+          select.theme-selector name="theme"
             option value="" Select One
             option value="lesser-dark" Lesser Dark
             option value="ambiance" Ambiance
@@ -13,7 +13,7 @@
         .control-group
           label Keybindings
           .controls
-            select name="keyMap"
+            select.keymap-selector name="keyMap"
               option value="" Default
               option value="vim" Vim
 

@@ -42,9 +42,9 @@ CodeSync.EditorComponent = Backbone.View.extend
 
     @enableLiveMode(@liveModeThrottle) if @liveMode is true
 
-    @setupPlugins()
-
     @render() unless @autoRender is false
+
+    @setupPlugins()
 
   enableLiveMode: (throttle)->
     @liveModeHandler = _.debounce(@editorChangeHandler, throttle || @editorChangeThrottle)

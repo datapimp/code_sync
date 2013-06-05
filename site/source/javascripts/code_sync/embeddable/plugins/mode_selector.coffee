@@ -1,53 +1,61 @@
-CodeSync.plugins.ModeSelector = Backbone.View.extend
-  className: "config-select mode-selector"
+# Allows a user to select from a list of modes to change
+# the editor language
+CodeSync.plugins.LanguageSelector = Backbone.View.extend
+  visible: false
+
+  entranceEffect: "fadeIn"
+  exitEffect: "fadeOut"
+
+  className: "embeddable-utility-panel top-aligned embeddable-mode-selector"
 
   events:
-    "change select" : "onSelect"
+    "change select": "setOption"
+    "click .cancel": "hide"
 
-  initialize: (options={})->
-    _.extend(@, options)
 
-    throw "Must supply an @editor instance" unless @editor
-
-    @modes = @editor.modes
-
-    @modes.on "reset", @render, @
-
-    @editor.on "change:mode", (modeModel, modeId)=> @setValue(modeId)
+  initialize: (@options={})->
+    _.extend(@,@options)
 
     Backbone.View::initialize.apply(@, arguments)
 
-  onSelect: ()->
-    selected = @$('select').val()
-    mode = @modes.get(selected)
+    console.log "Creating language selector", @, arguments, @options
 
-    @editor.setMode(mode)
+    @modes  = @editor.modes
 
-  setValue: (val)->
-    @$('select').val(val)
+  setOption: (e)->
+    target  = @$(e.target)
+    value   = target.val()
+    name    = target.attr 'name'
 
-  hideLabel: ()->
-    @$('label').hide()
+    @["set#{ _.str.capitalize(name) }"](value)
 
-  showLabel: ()->
-    @$('label').show()
-
-  attach: ()->
+  show: ()->
+    @visible = true
     @render()
-    $(@attachTo || @$(".toolbar-wrapper")).html(@el)
+    @setValues()
+    @$el.removeClass(@exitEffect).addClass("animated #{ @entranceEffect }")
+    @
+
+  hide: ()->
+    @visible = false
+    @$el.removeClass(@entranceEffect).addClass("animated #{ @exitEffect }")
+    @
+
+  toggle: ()->
+    if @visible then @hide() else @show()
+    @
+
+  setValues: ()->
 
   render: ()->
-    options = ""
+    return @ if @rendered
 
-    for mode in @modes.models when mode.isOfType(@showModes) is true
-      options += "<option value='#{ mode.id }'>#{ mode.get('name') }</option>"
+    @$el.html CodeSync.template("embeddable-mode-selector", modes: @modes)
+    @editor.parent.$el.append(@el)
 
-    @$el.html("<label>Language:</label> <select>#{ options }</select>")
-
-    @hideLabel() unless @visibleLabel
-
+    @rendered = true
     @
 
 
-CodeSync.plugins.ModeSelector.setup = (editor,options)->
-  true
+CodeSync.plugins.LanguageSelector.setup = (editor,options={})->
+  editor.languageSelector  = new CodeSync.plugins.LanguageSelector(editor: @)

@@ -7,7 +7,7 @@ CodeSync.plugins.EmbeddablePreferences = Backbone.View.extend
   entranceEffect: "fadeIn"
   exitEffect: "fadeOut"
 
-  className: "embeddable-preferences"
+  className: "embeddable-utlity-panel bottom-aligned embeddable-preferences"
 
   events:
     "change select": "setOption"
@@ -82,8 +82,6 @@ CodeSync.plugins.EmbeddablePreferences = Backbone.View.extend
 
 
 CodeSync.plugins.EmbeddablePreferences.setup = (embeddable,options={})->
-  console.log "Setting it up!", arguments, @
-
   options.embeddable = @
 
   panel = new CodeSync.plugins.EmbeddablePreferences(options)

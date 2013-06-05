@@ -33,10 +33,7 @@ CodeSync.EditorUtility = Backbone.View.extend
     type = @editor.mode?.type?() || @editor.currentDocument.type()
 
     if type is @availableInModes
-      console.log "show button", @, type
     else
-      console.log "hide button", @, type
-      #@buttonElement.hide()
 
   toggle: (options={})->
     if @visible then @hide(options) else @show(options)

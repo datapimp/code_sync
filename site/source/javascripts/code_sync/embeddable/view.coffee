@@ -1,23 +1,3 @@
-resize =
-  icon:     "resize-editor"
-  tooltip:  "Resize this editor"
-  action:   "resize"
-  section:  "right"
-
-mode =
-  icon: "comment"
-  tooltop: "Select the language"
-  action: "selectMode"
-  section: "right"
-
-move =
-  icon: "fullscreen"
-  tooltip: "Re-arrange this panel"
-  action: "rearrange"
-  section: "left"
-  eventListener: "mousedown"
-
-
 CodeSync.EmbeddableView = Backbone.View.extend
 
   className:  "codesync-embeddable"
@@ -27,30 +7,12 @@ CodeSync.EmbeddableView = Backbone.View.extend
   defaultEditorConfig:
     template:
       startMode: "skim"
-      toolbarItems:
-        top:[
-          move,
-          mode,
-          resize
-        ]
 
     style:
       startMode: "scss"
-      toolbarItems:
-        top:[
-          move,
-          mode,
-          resize
-        ]
 
     script:
       startMode: "cofeescript"
-      toolbarItems:
-        top:[
-          move,
-          mode,
-          resize
-        ]
 
 
   plugins:[
@@ -61,6 +23,7 @@ CodeSync.EmbeddableView = Backbone.View.extend
 
   events:
     "click .toggle-preferences" : ()->
+
       @preferencesPanel.toggle()
 
   initialize:(@options={})->
@@ -108,6 +71,15 @@ CodeSync.EmbeddableView = Backbone.View.extend
   each: (args...)->
     _(@panels).each(args...)
 
+  detect: (args...)->
+    _(@panels).detect(args...)
+
+  select: (args...)->
+    _(@panels).select(args...)
+
+  map: (args...)->
+    _(@panels).map(args...)
+
   render: ()->
     @$el.html(CodeSync.template(@template))
     @
@@ -128,9 +100,9 @@ CodeSync.EmbeddableView = Backbone.View.extend
 
     @
 
-  resizeDelay: 600
+  expandDelay: 600
 
-  resizePanel: (panel)->
+  expandPanel: (panel)->
     @$el.addClass 'animating'
 
     el = panel.$el
@@ -146,7 +118,7 @@ CodeSync.EmbeddableView = Backbone.View.extend
           @$el.removeClass 'animating'
           el.removeClass 'animating'
           panel.expanded = false
-        , @resizeDelay
+        , @expandDelay
 
     else
       fullSettings =
@@ -162,4 +134,4 @@ CodeSync.EmbeddableView = Backbone.View.extend
           el.addClass('expanded')
           @$el.removeClass 'animating'
           el.removeClass('animating')
-      , @resizeDelay
+      , @expandDelay

@@ -1,6 +1,7 @@
 # The EditorPanel
 # Wraps the EditorComponent and Toolbar
 
+
 CodeSync.EditorPanel = Backbone.View.extend
   className: "embeddable-editor-panel"
 
@@ -9,14 +10,25 @@ CodeSync.EditorPanel = Backbone.View.extend
   defaultEditorPlugins:[
     "ElementSync"
     "ColorPicker"
-    "ModeSelector"
+    "LanguageSelector"
   ]
 
   defaultToolbarItems:
     top:[
-      icon:     "resize-editor"
-      tooltip:  "Resize this editor"
-      action:   "resize"
+      icon: "comment"
+      tooltop: "Select the language"
+      action: "selectLanguage"
+      section: "left"
+    ,
+      icon: "fullscreen"
+      tooltip: "Re-arrange this panel"
+      action: "rearrange"
+      section: "right"
+      eventListener: "mousedown"
+    ,
+      icon:     "expand-editor"
+      tooltip:  "Expand this editor"
+      action:   "expand"
       section:  "right"
     ]
 
@@ -70,6 +82,8 @@ CodeSync.EditorPanel = Backbone.View.extend
       keyBindings: @keyBindings
       startMode: @startMode
 
+    @editor.parent = @
+
     unless @editor.rendered is true
       @$('.editor-component').html(@editor.render().el)
 
@@ -83,8 +97,8 @@ CodeSync.EditorPanel = Backbone.View.extend
     @renderToolbars()
     @
 
-  resize: ()->
-    @parent.resizePanel(@)
+  expand: ()->
+    @parent.expandPanel(@)
 
   rearrange: ()->
     el        = @$el
@@ -115,19 +129,19 @@ CodeSync.EditorPanel = Backbone.View.extend
 
     @$el.siblings('.embeddable-editor-panel').droppable
       accept: @$el
-
       drop: (e,options)->
         target  = $(e.target)
         me      = $(@)
         all.removeClass('animating')
+
         me.animate(left: "#{ original }px" )
 
         _.delay ()->
           parent.removeClass('rearranging')
         , 400
 
-  selectMode: ()->
-    @modeSelector.toggle()
+  selectLanguage: ()->
+    @editor.languageSelector.toggle()
 
   setOriginalPosition: (settings)->
     @$el.css(settings)
