@@ -1,25 +1,23 @@
+# The EditorPanel
+# Wraps the EditorComponent and Toolbar
+
 CodeSync.EditorPanel = Backbone.View.extend
   className: "embeddable-editor-panel"
 
   template: "embeddable-editor-panel"
 
+  defaultEditorPlugins:[
+    "ElementSync"
+    "ColorPicker"
+    "ModeSelector"
+  ]
+
   defaultToolbarItems:
     top:[
-      icon: "cog"
-      tooltip: "Editor preferences"
-      action: "preferences"
-      section: "right"
-    ,
       icon:     "resize-editor"
       tooltip:  "Resize this editor"
       action:   "resize"
       section:  "right"
-    ]
-    bottom:[
-      icon: "link"
-      tooltip: "Choose the keybinding configuration"
-      action: "keybindings"
-      section: "right"
     ]
 
   initialize: (@options)->
@@ -27,7 +25,13 @@ CodeSync.EditorPanel = Backbone.View.extend
 
     @toolbarItems ||= @defaultToolbarItems || {}
 
+    @editorPlugins ||= @defaultEditorPlugins
+
     @$el.html CodeSync.template(@template, @)
+
+    @$el.removeClass 'active'
+
+    Backbone.View::initialize.apply(@, arguments)
 
   addToolbarItem: (item, options={})->
     {position} = options
@@ -41,7 +45,7 @@ CodeSync.EditorPanel = Backbone.View.extend
     container.append(itemElement)
 
     if item.action
-      itemElement.on "click", (e)=>
+      itemElement.on (item.eventListener || "click"), (e)=>
         @handleToolbarClick.call(@, item.action, item, e)
 
   handleToolbarClick: (action,item,e)->
@@ -61,15 +65,15 @@ CodeSync.EditorPanel = Backbone.View.extend
   renderEditorComponent: ()->
     @editor ||= new CodeSync.EditorComponent
       documentManager: @documentManager || @parent.documentManager
-      startMode: "coffeescript"
-      theme: "lesser-dark"
-      keyMap: "vim"
+      plugins: @editorPlugins
+      theme: @theme
+      keyBindings: @keyBindings
+      startMode: @startMode
 
     unless @editor.rendered is true
       @$('.editor-component').html(@editor.render().el)
 
     @editor
-
 
   renderIn: (container)->
     $(container).append @render().el
@@ -82,6 +86,55 @@ CodeSync.EditorPanel = Backbone.View.extend
   resize: ()->
     @parent.resizePanel(@)
 
+  rearrange: ()->
+    el        = @$el
+    parent    = @$el.parents('.codesync-embeddable')
+    width     = @$el.width()
+    height    = @$el.height()
+    original  = @$el.position().left
+    all       = @$el.parent().children('.embeddable-editor-panel')
+    count     = all.length
+
+    if @$el.is(".animating.ui-draggable")
+      @$el.draggable('destroy').removeClass('animating')
+      parent.removeClass('rearranging')
+      return
+
+    @$el.addClass('animating').draggable
+      axis: 'x'
+      handle: ".icon.icon-fullscreen"
+      snap: ".embeddable-editor-panel"
+      containment: ".codesync-embeddable"
+      start: ()->
+        parent.addClass 'rearranging'
+      stop: ()->
+        all.removeClass('animating')
+        _.delay ()->
+          parent.removeClass('rearranging')
+        , 400
+
+    @$el.siblings('.embeddable-editor-panel').droppable
+      accept: @$el
+
+      drop: (e,options)->
+        target  = $(e.target)
+        me      = $(@)
+        all.removeClass('animating')
+        me.animate(left: "#{ original }px" )
+
+        _.delay ()->
+          parent.removeClass('rearranging')
+        , 400
+
+  selectMode: ()->
+    @modeSelector.toggle()
+
   setOriginalPosition: (settings)->
     @$el.css(settings)
     @originalPosition = settings
+
+  setKeyMap: ()->
+    @editor.setKeyMap.apply(@editor, arguments)
+
+  setTheme: ()->
+    @editor.setTheme.apply(@editor, arguments)

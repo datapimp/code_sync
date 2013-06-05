@@ -18,3 +18,22 @@
     }
   }
 }
+
+.status-message {
+  width: 88%;
+  left: 10%;
+  bottom: 20%;
+  border-radius: 4px;
+  box-shadow: 0 0 6px #fff;
+  position: absolute;
+  z-index: 9000;
+  color: #fff;
+  background-color: #333;
+  padding: 8px;
+  &.error {
+    color: #ff8080;
+  }
+  &.success {
+    color: #80ff80;
+  }
+}

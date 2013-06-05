@@ -1,4 +1,5 @@
 CodeSync.DocumentManager = Backbone.Model.extend
+
   initialize: (@attributes={})->
     @editor = @attributes.editor
     delete @attributes.editor

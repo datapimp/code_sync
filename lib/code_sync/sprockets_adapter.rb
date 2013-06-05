@@ -64,17 +64,26 @@ module CodeSync
         asset = env.find_asset(path)
 
         if !asset
-          asset = env.find_asset( path.split('/').pop )
+          path = path.split("/").slice(1,25).join("/")
+          asset = env.find_asset(path)
+        end
+
+        if !asset
+          puts "Could not process changes to #{ assets } -- unable to find sprockets asset"
         end
 
         if asset
           logical_name  = asset.logical_path
-          basename      = File.basename(path)
+          basename      = File.basename(asset.pathname.to_s)
           extension     = basename.split('.').slice(1,100).join(".")
 
-          is_template = ['.jst.skim','.jst','.hamlc','.mustache'].any? do |needle|
+          type          = "script" if asset.content_type.match(/javascript/)
+
+          type = "template" if ['.jst.skim','.jst','.hamlc','.mustache'].any? do |needle|
             !basename[needle].nil?
           end
+
+          type          = "stylesheet" unless type.present?
 
           codesync_document_attributes = {
             path: path,
@@ -82,8 +91,10 @@ module CodeSync
             name: basename,
             logical_name: logical_name,
             compiled: (asset.to_s rescue nil),
-            content: IO.read(path),
-            template: is_template
+            content: IO.read(asset.pathname.to_s),
+            template: type == "template",
+            type: type
+
           }
         end
 

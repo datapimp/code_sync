@@ -1,3 +1,23 @@
+resize =
+  icon:     "resize-editor"
+  tooltip:  "Resize this editor"
+  action:   "resize"
+  section:  "right"
+
+mode =
+  icon: "comment"
+  tooltop: "Select the language"
+  action: "selectMode"
+  section: "right"
+
+move =
+  icon: "fullscreen"
+  tooltip: "Re-arrange this panel"
+  action: "rearrange"
+  section: "left"
+  eventListener: "mousedown"
+
+
 CodeSync.EmbeddableView = Backbone.View.extend
 
   className:  "codesync-embeddable"
@@ -5,9 +25,43 @@ CodeSync.EmbeddableView = Backbone.View.extend
   template:   "codesync-embeddable"
 
   defaultEditorConfig:
-    template: {}
-    style: {}
-    script: {}
+    template:
+      startMode: "skim"
+      toolbarItems:
+        top:[
+          move,
+          mode,
+          resize
+        ]
+
+    style:
+      startMode: "scss"
+      toolbarItems:
+        top:[
+          move,
+          mode,
+          resize
+        ]
+
+    script:
+      startMode: "cofeescript"
+      toolbarItems:
+        top:[
+          move,
+          mode,
+          resize
+        ]
+
+
+  plugins:[
+    "Draggable"
+    "Resizable"
+    "EmbeddablePreferences"
+  ]
+
+  events:
+    "click .toggle-preferences" : ()->
+      @preferencesPanel.toggle()
 
   initialize:(@options={})->
     _.extend(@,@options)
@@ -15,6 +69,9 @@ CodeSync.EmbeddableView = Backbone.View.extend
     @toolbarItems     = @defaultToolbarItems || {}
     @editorConfig     = @defaultEditorConfig || {}
     @documentManager  = new CodeSync.DocumentManager()
+
+    for plugin in @plugins when CodeSync.plugins[plugin]?
+      CodeSync.plugins[plugin].setup?.call(@, @, @pluginOptions?[plugin])
 
   addEditorPanel: (editor)->
     @panelCount ||= 0
@@ -28,23 +85,6 @@ CodeSync.EmbeddableView = Backbone.View.extend
     panel.renderIn(@editorPanelWrapper)
 
     panel
-
-  addToolbarItem: (item, options={})->
-    {position} = options
-
-    itemElement   = $(CodeSync.template(item.template || "embeddable-toolbar-item", item))
-    container     = @$(">.toolbar.#{ position }").removeClass('empty')
-
-    if item.section?
-      container = container.find('.' + item.section).removeClass('empty, fpo')
-
-    container.append(itemElement)
-
-    if item.action
-      itemElement.on "click", (e)=>
-        @handleToolbarClick.call(@, item.action, item, e)
-
-  handleToolbarClick: (action, toolbarItemConfig, e)->
 
   setLayout: (@layout)->
     @$el.attr('data-layout', @layout)
@@ -65,17 +105,15 @@ CodeSync.EmbeddableView = Backbone.View.extend
 
     @setLayout("#{ @panels.length }")
 
-  renderToolbars: ()->
-    for position, items of @toolbarItems
-      @addToolbarItem(item, {position}) for item in items
+  each: (args...)->
+    _(@panels).each(args...)
 
   render: ()->
     @$el.html(CodeSync.template(@template))
-    @renderToolbars()
     @
 
-  renderIn: (container)->
-    container.empty().append( @render().el ).attr('data-embeddable-instance', @cid)
+  renderIn: (container, options={})->
+    container.append( @render().el ).attr('data-embeddable-instance', @cid)
 
     @renderEditors()
 
@@ -85,6 +123,8 @@ CodeSync.EmbeddableView = Backbone.View.extend
         value = panel.editor.currentDocument.toContent()
         panel.editor.codeMirror.setValue(value)
       , 5
+
+    @trigger "ready"
 
     @
 

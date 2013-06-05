@@ -50,8 +50,8 @@ CodeSync.processChangeNotification = (attributes={}, options={})->
 
   switch type
     when "stylesheet"
-      $('head style[data-codesync-document]').remove()
-      $('head').append "<style type='text/css' data-codesync-document=true>#{ compiled }</style>"
+      $("head style[data-codesync-document='#{ options.origin }']").remove()
+      $("head").append "<style type='text/css' data-codesync-document='#{ options.origin }'>#{ compiled }</style>"
       hookFn = CodeSync.onStyleChange
     when "template"
       evalRunner(compiled, attributes.error)

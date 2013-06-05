@@ -1,0 +1,56 @@
+.form
+  .row-fluid
+    .span4
+      .control-group
+        label Theme
+        .controls
+          select name="theme"
+            option value="" Select One
+            option value="lesser-dark" Lesser Dark
+            option value="ambiance" Ambiance
+            option value="xq-light" XQ Light
+
+        .control-group
+          label Keybindings
+          .controls
+            select name="keyMap"
+              option value="" Default
+              option value="vim" Vim
+
+    .span4
+      .control-group.layout-selector
+        label Editors
+        .controls
+          select name="layout"
+            option value="" Select One
+            option value="3" Three
+            option value="2" Two
+            option value="1" One
+
+
+      .control-group.position-selector
+        label Positioning
+        .controls
+          select name="position"
+            option value="" Select One
+            option value="draggable" Draggable
+            option value="bottom" Bottom Drawer
+            option value="top" Top Drawer
+
+    .span4
+      .control-group
+        label Height
+        .controls
+          input type="text" name="height"
+      .control-group
+        label Width
+        .controls
+          input type="text" name="width"
+
+
+  .form-actions
+    a.btn.cancel
+      | Cancel
+    a.btn.btn-primary.set-default-preferences
+      i.icon.icon-save
+      | Save As Defaults

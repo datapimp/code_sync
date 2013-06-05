@@ -28,7 +28,6 @@ module CodeSync
       rescue
         puts "Error Manager. #{ $! }"
       ensure
-        puts "Clesning up finally"
         cleanup_stale_processes
       end
     end
@@ -98,8 +97,6 @@ module CodeSync
         puts "#{ process_map.inspect }"
 
         process_map.each do |process_name,pid|
-          puts "Killing #{ process_name } #{pid}"
-
           Process.kill(9,pid)
         end
       end
@@ -138,8 +135,6 @@ module CodeSync
       end
 
       def notify_clients_of_change_to asset
-        puts "Notifying CLients of Change to #{ asset }"
-
         payload = JSON.generate(asset)
 
         puts "== Codesync detected change: #{ asset[:name] }"
@@ -167,37 +162,23 @@ module CodeSync
 
       def listen_for_changes_to_code_sync &handler
         manage_child_process("internal") do
-          internal.start!
+          internal.respond_to?(:start!) ? internal.start! : internal.start
         end
       end
 
       def listen_for_changes_on_the_filesystem &handler
         manage_child_process("watcher") do
           watcher.change do |modified,added,removed|
-            begin
-              processed = process_changes_to(modified+added)
-
-              # This is weird because it looks like the sprockets env
-              # in a rails project isn't working as nice
-              if processed.empty?
-                puts "Process changes to #{ modified } is empty. Something is wrong in the config"
-              else
-                handler.call(processed)
-              end
-            rescue
-              begin
-                puts "Encounterd an error: #{ $! } Retrying.."
-                retry_payload = (modified + added).map {|f| File.join(root, f) }
-                processed = process_changes_to(retry_payload)
-                handler.call(processed)
-              rescue
-                puts "Retry failed: #{ $! }"
-                binding.pry
-              end
-            end
+            processed = process_changes_to(modified+added)
+            handler.call(processed)
           end
 
-          watcher.start!
+          # the listen gem api changed
+          if watcher.respond_to?(:start!)
+            watcher.start!
+          else
+            watcher.start
+          end
         end
       end
 
@@ -229,7 +210,6 @@ module CodeSync
       end
 
       def restart_everything!
-
       end
 
       def watcher

@@ -1,3 +1,7 @@
+# The Editor Component is a barebones wrapper
+# around CodeMirror, the DocumentManager, and the
+# associated handlers
+
 CodeSync.EditorComponent = Backbone.View.extend
   name: "code_sync"
 
@@ -7,6 +11,7 @@ CodeSync.EditorComponent = Backbone.View.extend
   enableStatusMessages: true
 
   startMode: "scss"
+
   theme: "ambiance"
 
   keyBindings: ""
@@ -15,6 +20,7 @@ CodeSync.EditorComponent = Backbone.View.extend
     "click .status-message" : "removeStatusMessages"
 
   liveMode: true
+  liveModeThrottle: 600
 
   initialize: (@options={})->
     _.extend(@, @options)
@@ -26,6 +32,7 @@ CodeSync.EditorComponent = Backbone.View.extend
     _.bindAll(@, "editorChangeHandler")
 
     @modes            = CodeSync.Modes.get()
+
     @documentManager  = @options.documentManager || new CodeSync.DocumentManager(editor: @)
 
     @startMode        = @modes.get(@startMode) || CodeSync.Modes.defaultMode()
@@ -33,7 +40,9 @@ CodeSync.EditorComponent = Backbone.View.extend
     @on "codemirror:setup", ()=>
       @loadDefaultDocument()
 
-    @enableLiveMode() if @liveMode is true
+    @enableLiveMode(@liveModeThrottle) if @liveMode is true
+
+    @setupPlugins()
 
     @render() unless @autoRender is false
 
@@ -48,12 +57,19 @@ CodeSync.EditorComponent = Backbone.View.extend
     @setupCodeMirror()
     @
 
+  setupPlugins: ()->
+    return if _.isEmpty(@plugins)
+
+    for plugin in @plugins when CodeSync.plugins[plugin]?
+      options = @pluginOptions?[plugin] || {}
+      options.PluginClass = CodeSync.plugins[plugin]
+      CodeSync.plugins[plugin].setup?.call(@, @, options)
+
   setupCodeMirror: ()->
     return if @codeMirror?
 
     @$el.append "<div class='codemirror-wrapper' />"
 
-    console.log(@$('.codemirror-wrapper')[0])
     @height ||= @$el.height()
     @codeMirror = CodeMirror(@$('.codemirror-wrapper')[0], @getCodeMirrorOptions())
 
@@ -86,9 +102,10 @@ CodeSync.EditorComponent = Backbone.View.extend
   getCodeMirrorOptions: ()->
     passthrough = {}
 
-    for keyCommand, handler of @codeMirrorKeyBindings
-       passthrough[keyCommand] = false
-       key(keyCommand,_.bind(handler, @))
+    if key?.call?
+      for keyCommand, handler of @codeMirrorKeyBindings
+         passthrough[keyCommand] = false
+         key(keyCommand,_.bind(handler, @))
 
     options =
       theme: 'lesser-dark'
@@ -148,8 +165,6 @@ CodeSync.EditorComponent = Backbone.View.extend
 
     defaultDocument = new CodeSync.Document(options)
 
-  # This is broken apart into separate methods
-  # so that plugins can tap in
   loadDefaultDocument: ()->
     @documentManager.openDocument(@getDefaultDocument(), @)
 

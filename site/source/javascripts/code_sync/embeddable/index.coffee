@@ -1,6 +1,11 @@
 #= require_tree ./templates
 #= require ./panel
 #= require ./view
+#= require ./plugins/embeddable_preferences
+#= require ./plugins/resizable
+#= require ./plugins/file_controls
+#= require ./plugins/mode_selector
+#= require ./plugins/element_sync
 
 #= require_self
 
@@ -12,6 +17,12 @@ CodeSync.Embeddable.createIn = (container, options={})->
 
   container.addClass("layout-visualization")
 
+  if options.width
+    container.css('width', options.width)
+
+  if options.empty
+    container.empty()
+
   if existing = container.data('embeddable-instance')
     existing = CodeSync.Embeddable.instances[existing]
     existing?.remove()
@@ -19,8 +30,9 @@ CodeSync.Embeddable.createIn = (container, options={})->
     delete CodeSync.Embeddable.instances[existing]
 
   embeddable = new CodeSync.EmbeddableView(options)
-  embeddable.renderIn(container)
+  embeddable.renderIn(container, options)
 
   CodeSync.Embeddable.instances[embeddable.cid] = embeddable
 
   embeddable
+

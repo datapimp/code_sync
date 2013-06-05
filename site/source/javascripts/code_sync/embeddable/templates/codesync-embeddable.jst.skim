@@ -1,21 +1,11 @@
-.drag-handle.top
-  i.icon.icon-align-justify
-
-.drag-handle.bottom
-  i.icon.icon-align-justify
-
-.toolbar.top.empty
-  section.left.empty
-  section.middle.empty
-  section.right.empty
-
-.toolbar.left.empty
-
 .panels-wrapper
 
-.toolbar.right.empty
+.global-toolbar
+  section.left
 
-.toolbar.bottom.empty
-  section.left.empty
-  section.middle.empty
-  section.right.empty
+  section.center
+    .button
+      i.icon.icon-align-justify.drag-handle
+  section.right
+    .button
+      i.icon.icon-cog.icon-cogs.toggle-preferences

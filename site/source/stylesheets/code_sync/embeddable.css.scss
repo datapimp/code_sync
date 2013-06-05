@@ -13,7 +13,6 @@ body, html {
 
 .codesync-embeddable, .codesync-embeddable * { -moz-box-sizing: border-box; -webkit-box-sizing: border-box; box-sizing: border-box; }
 
-
 .codesync-embeddable.ui-draggable-dragging {
   opacity: 0.9;
 }
@@ -23,37 +22,53 @@ body, html {
   margin: 0px;
   padding: 0px;
   height: 100%;
-  border-radius: 6px;
 
   &.animating {
-    .drag-handle {
+    .global-toolbar {
       opacity: 0 !important;
     }
   }
+
   .drag-handle {
+    cursor: hand !important;
+  }
+  .global-toolbar {
+    opacity: 1.0;
     position: absolute;
-    left: 50%;
-    z-index: 10;
-    color: $toolbarTextColor;
-    opacity: 0.4;
-    cursor: pointer;
-
-    &.top {
-      top: 8px;
+    bottom: 20px;
+    width: 100%;
+    z-index: 12;
+    color: $white;
+    section {
+      position: absolute;
+      z-index: 12;
+      width: 33.33333%;
+      .button {
+        cursor: pointer;
+      }
+      &.left {
+        left: 0%;
+      }
+      &.right {
+        left: 66.66666%;
+        padding-right: 12px;
+        .button {
+          float: right;
+        }
+      }
+      &.center {
+        left: 33.333333%;
+        .button {
+          width: 20px;
+          margin: 0px auto;
+        }
+      }
     }
 
-    &.bottom {
-      bottom: 8px;
-    }
 
-    &:hover {
-      opacity: 0.4;
-    }
   }
 
-
   .panels-wrapper {
-    border-radius: 6px;
     margin: 0px;
     padding: 0px;
     .embeddable-editor-panel {
@@ -66,24 +81,26 @@ body, html {
 
 .codesync-embeddable {
   .panels-wrapper {
-    border: 0px;
     .embeddable-editor-panel {
       position: absolute;
       z-index: 1;
 
-      &:first-child {
-        border-radius: 4px 0px 0px 4px;
+      .CodeMirror {
+        position: absolute;
+        left: 0px;
+        right: 0px;
+        top: 0px;
+        bottom: 0px;
+        height: 100%;
+        width: 99.8%;
       }
-      &:last-child {
-        border-radius: 0px 4px 4px 0px;
-      }
+
       &.expanded {
         z-index: 2;
-        border-radius: 4px;
       }
       &.animating {
         z-index: 2;
-        box-shadow: 2px 2px 2px 2px $shadowColor;
+        box-shadow: 0 0 4px 2px $shadowColor;
       }
     }
   }
@@ -100,34 +117,6 @@ body, html {
 
     &.empty {
       display: none;
-    }
-  }
-
-  .toolbar {
-    &.right {
-      width: $toolbarSize;
-      height: 120px;
-      right: 0px;
-      top: 50%;
-      margin-top: -60px;
-      border-radius: 4px 0px 0px 4px;
-    }
-    &.left {
-      width: $toolbarSize;
-      height: 120px;
-      left: 0px;
-      top: 40px;
-    }
-    &.top {
-      width: 100%;
-      height: $toolbarSize;
-      top: 0px;
-      left: 0px;
-    }
-    &.bottom {
-      width: 100%;
-      height: $toolbarSize;
-      bottom: 0px;
     }
   }
 }
@@ -177,7 +166,9 @@ body, html {
 }
 
 .codesync-embeddable {
-  box-shadow: 0px 0px 6px $shadowColor;
+  &.rearranging {
+    background-color: rgba(50,50,50,0.2);
+  }
   .toolbar-button {
     cursor: pointer;
     margin: 0px 6px;
@@ -207,4 +198,77 @@ body, html {
       content:"\f066"
     }
   }
+}
+
+
+.status-message {
+  width: 88%;
+  left: 10%;
+  top: 10%;
+  border-radius: 4px;
+  box-shadow: 0 0 6px #fff;
+  position: absolute;
+  z-index: 9000;
+  color: #fff;
+  background-color: #333;
+  padding: 8px;
+  &.error {
+    color: #ff8080;
+  }
+  &.success {
+    color: #80ff80;
+  }
+}
+
+.embeddable-preferences {
+  position: absolute;
+  z-index: 10000;
+  bottom: 20px;
+  right: 20px;
+  background: $darkBackground;
+  color: $white;
+  width: 480px;
+  border-radius: 4px;
+  box-shadow: 0 0 6px $darkBackground;
+  padding: 12px;
+  font-size: $baseFontSize * 1.2;
+  line-height: $baseLineHeight * 1.2;
+  .control-group {
+    margin-bottom: $baseLineHeight / 2;
+  }
+}
+
+.CodeMirror {
+  font-family: Monaco !important;
+  font-weight: 500;
+  font-size: 16px;
+  line-height: 24px;
+}
+
+.CodeMirror-gutters {
+  border: 0px !important;
+}
+
+
+.btn i {
+  margin-right: 6px;
+}
+
+ul.inline {
+  margin: 0px;
+  padding: 0px;
+  li {
+    display: inline;
+    list-style-type: none;
+    padding-right: 6px;
+    border-right: 1px solid;
+    &:last-child {
+      padding-left: 6px;
+      border: 0px;
+    }
+  }
+}
+
+.controls ul {
+  cursor: pointer;
 }
