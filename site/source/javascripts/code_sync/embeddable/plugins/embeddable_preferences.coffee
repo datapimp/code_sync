@@ -53,9 +53,15 @@ CodeSync.plugins.EmbeddablePreferences = Backbone.View.extend
     @embeddable.$el.attr('data-keymap', option )
     @embeddable.each (editor)-> editor.editor.setKeyMap(option)
 
-  setHeight: (option)->
-    @embeddable.height = option
-    @embeddable.$el.css('height', option)
+  # This is a hack until I can get the CSS
+  # figured out.  How to make the editor panel
+  # and codemirror elements automatically grow vertically.
+  setHeight: (height)->
+    @embeddable.height = height
+    @embeddable.$el.css('height', height)
+
+    toolbarHeight = @embeddable.$('.global-toolbar').height()
+    @embeddable.$('.CodeMirror, .editor-compoent, .embeddable-editor-panel').height(height - toolbarHeight)
 
   setWidth:(option)->
     @embeddable.width = option
