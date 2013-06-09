@@ -20,7 +20,7 @@
       .control-group.layout-selector
         label Editors
         .controls
-          select name="layout"
+          select.layout-selector name="layout"
             option value="" Select One
             option value="3" Three
             option value="2" Two
@@ -30,7 +30,7 @@
       .control-group.position-selector
         label Positioning
         .controls
-          select name="position"
+          select.position-selector name="position"
             option value="" Select One
             option value="draggable" Draggable
             option value="bottom" Bottom Drawer
@@ -53,4 +53,5 @@
       i.icon.icon-save
       | Save As Defaults
     a.btn.cancel
-      | Cancel
+      i.icon.icon-close
+      | Close

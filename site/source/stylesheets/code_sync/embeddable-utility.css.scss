@@ -1,0 +1,95 @@
+@import "code_sync/variables";
+
+.embeddable-utility-panel {
+  position: absolute;
+  z-index: 10000;
+
+  &.bottom-aligned {
+    bottom: 40px;
+    right: 10px;
+  }
+
+  &.top-aligned {
+    top: 40px;
+    left: 10px;
+  }
+
+  background: $darkBackground;
+  color: $white;
+  width: 480px;
+  border-radius: 4px;
+  box-shadow: 0 0 6px $whiteShadow;
+  padding: 12px;
+}
+
+.embeddable-utility-panel {
+  .form {
+    font-family: $baseFont;
+    font-size: $baseFontSize * 1.2;
+    line-height: $baseLineHeight * 1.2;
+    .control-group {
+      margin-bottom: $baseLineHeight / 2;
+    }
+    .controls {
+      input {
+        border-radius: 4px;
+      }
+      input.input-small {
+        width: 80px;
+      }
+    }
+
+    .form-actions {
+      padding-top: 20px;
+      .btn {
+        cursor: pointer;
+        float: right;
+      }
+    }
+  }
+}
+
+.codesync-embeddable {
+ul.inline {
+  margin: 0px;
+  padding: 0px;
+
+  li {
+    display: inline;
+    list-style-type: none;
+    padding-left: 6px;
+    padding-right: 6px;
+    border-right: 1px solid;
+    cursor: pointer;
+
+    &:first-child {
+      padding-left: 0px;
+    }
+
+    &:last-child {
+      border: 0px;
+    }
+  }
+}
+
+.status-message {
+  width: 88%;
+  left: 10%;
+  bottom: 0%;
+  border-radius: 4px;
+  box-shadow: 0 0 6px #fff;
+  position: absolute;
+  z-index: 9000;
+  color: #fff;
+  background-color: opacify(#333,0.5);
+  padding: 8px;
+  &.error {
+    color: #ff8080;
+  }
+  &.success {
+    color: #80ff80;
+  }
+}
+}
+
+

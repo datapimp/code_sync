@@ -1,8 +1,8 @@
 == javascript_include_tag 'code_sync/embeddable'
 - content_for(:head) do
-  == stylesheet_link_tag 'code_sync/embeddable'
+  == stylesheet_link_tag 'code_sync/embeddable', 'code_sync/embeddable-utility'
 
-#editor-container style="margin: 40px auto; height: 400px;"
+#editor-container style="height: 500px; width: 800px;"
 
 javascript:
   var codesync  = new CodeSync.Client(),

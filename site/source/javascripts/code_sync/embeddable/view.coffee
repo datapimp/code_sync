@@ -17,24 +17,25 @@ CodeSync.EmbeddableView = Backbone.View.extend
 
   plugins:[
     "Draggable"
-    "Resizable"
     "EmbeddablePreferences"
+    "Resizable"
+    "Positionable"
+    "SlideDrawer"
   ]
 
   events:
     "click .toggle-preferences" : ()->
-
       @preferencesPanel.toggle()
 
   initialize:(@options={})->
     _.extend(@,@options)
-
     @toolbarItems     = @defaultToolbarItems || {}
     @editorConfig     = @defaultEditorConfig || {}
     @documentManager  = new CodeSync.DocumentManager()
 
     for plugin in @plugins when CodeSync.plugins[plugin]?
       CodeSync.plugins[plugin].setup?.call(@, @, @pluginOptions?[plugin])
+
 
   addEditorPanel: (editor)->
     @panelCount ||= 0
@@ -47,11 +48,12 @@ CodeSync.EmbeddableView = Backbone.View.extend
 
     panel.renderIn(@editorPanelWrapper)
 
+    @trigger "editor:added", panel
     panel
 
-  setLayout: (@layout)->
+  setLayout: (layout)->
+    @trigger "layout:change", @layout, @layout=layout
     @$el.attr('data-layout', @layout)
-    @trigger "layout:change"
 
   renderEditors: ()->
     @editors ||= {}
@@ -82,6 +84,8 @@ CodeSync.EmbeddableView = Backbone.View.extend
 
   render: ()->
     @$el.html(CodeSync.template(@template))
+    _.defer ()=>
+      @trigger "after:render"
     @
 
   renderIn: (container, options={})->

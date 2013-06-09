@@ -1,17 +1,45 @@
 @import "code_sync/variables";
 
+$embeddableHeight: 400px;
+$embeddableWidth: 960px;
+$editorCount: 3;
 
-.codesync-embeddable, .codesync-embeddable * { -moz-box-sizing: border-box; -webkit-box-sizing: border-box; box-sizing: border-box; }
+$toolbarHeight: $baseLineHeight * 1.5;
+$toolbarBackground: #343434;
 
-.codesync-embeddable.ui-draggable-dragging {
-  opacity: 0.9;
+.codesync-embeddable, .codesync-embeddable * {
+  -moz-box-sizing: border-box;
+  -webkit-box-sizing: border-box;
+  box-sizing: border-box;
 }
 
 .codesync-embeddable {
-  position: relative;
+  height: $embeddableHeight;
+}
+
+.codesync-embeddable, .panels-wrapper, .editor-component, .global-toolbar {
+  background: $toolbarBackground;
   margin: 0px;
   padding: 0px;
-  height: 100%;
+  width: 100%;
+}
+
+.global-toolbar, .embeddable-editor-panel .toolbar {
+  height: $toolbarHeight;
+  background: $toolbarBackground;
+}
+
+.global-toolbar {
+  position: absolute;
+  bottom: 0px;
+  z-index: 12000;
+}
+
+// EFFECTS
+.codesync-embeddable {
+  &.ui-draggable-dragging {
+    opacity: 0.85;
+  }
 
   &.animating {
     .global-toolbar {
@@ -19,122 +47,45 @@
     }
   }
 
-  .drag-handle {
-    cursor: hand !important;
-  }
-  .global-toolbar {
-    opacity: 1.0;
-    position: absolute;
-    bottom: 20px;
-    width: 100%;
-    z-index: 12;
-    color: $white;
-    section {
-      position: absolute;
-      z-index: 12;
-      width: 33.33333%;
-      .button {
-        cursor: pointer;
-      }
-      &.left {
-        left: 0%;
-      }
-      &.right {
-        left: 66.66666%;
-        padding-right: 12px;
-        .button {
-          float: right;
-        }
-      }
-      &.center {
-        left: 33.333333%;
-        .button {
-          width: 20px;
-          margin: 0px auto;
-        }
-      }
+  .embeddable-editor-panel {
+    &.expanded {
+      z-index: 2;
+      box-shadow: 0px !important;
     }
-
-
-  }
-
-  .panels-wrapper {
-    margin: 0px;
-    padding: 0px;
-    .embeddable-editor-panel {
-      margin: 0px;
-      background: url(http://dabblet.com/img/noise.png) $background;
-      padding: 0px;
+    &.animating, &.raised {
+      z-index: 2;
+      box-shadow: 0 0 4px 2px $shadowColor;
     }
   }
 }
 
 .codesync-embeddable {
   .panels-wrapper {
-    .embeddable-editor-panel {
-      position: absolute;
-      z-index: 1;
+    height: $embeddableHeight - $toolbarHeight;
+  }
+  .embeddable-editor-panel {
+    position: absolute;
+    height: $embeddableHeight - ($toolbarHeight);
+    width: $embeddableWidth / $editorCount;
+    z-index: 1;
 
-      .CodeMirror {
-        position: absolute;
-        left: 0px;
-        right: 0px;
-        top: 0px;
-        bottom: 0px;
-        height: 100%;
-        width: 99.8%;
-      }
+    .CodeMirror, .editor-component {
+      width: 100%;
+      height: $embeddableHeight - ($toolbarHeight);
+    }
 
-      &.expanded {
-        z-index: 2;
-      }
-      &.animating {
-        z-index: 2;
-        box-shadow: 0 0 4px 2px $shadowColor;
-      }
+  }
+
+  &.animating {
+    .CodeMirror {
     }
   }
 }
 
-// TOOLBAR CONFIG
 .codesync-embeddable {
   .toolbar {
-    position: absolute;
     color: $toolbarTextColor;
-    margin: 0px;
-    padding: 0px;
-    z-index: 8;
-
-    &.empty {
-      display: none;
-    }
-  }
-}
-
-.embeddable-editor-panel {
-  height: 100%;
-  width: 100%;
-
-  .editor-component {
-    position: absolute;
-    top: $toolbarSize;
-    bottom: $toolbarSize;
-    width: 100%;
-    padding: 0px;
-    margin: 0px;
-  }
-
-  .toolbar {
-    margin: 0px;
-    padding: 0px;
-    height: $toolbarSize;
-    width: 100%;
-    clear: both;
-    &.top {
-    }
-
-    &.bottom {
-    }
+    opacity: 1.0;
 
     &:last-child {
       border-right: 0px;
@@ -143,12 +94,45 @@
     &.empty {
       display: none;
     }
+  }
+}
+
+.codesync-embeddable {
+  .global-toolbar, .toolbar {
+    display: block;
+    clear: both;
+    line-height: $toolbarHeight;
+    padding-left: 20px;
+    padding-right: 10px;
+
+    .button {
+      margin: 0px 8px;
+    }
 
     section {
-      width: 33.3333%;
+      width: 33.33333%;
       float: left;
-      padding: 8px;
+      &.center {
+        text-align: center;
+      }
+      &.left {
+        padding-left: 4px;
+        clear: left;
+        .button:first-child {
+          margin-left: 0px;
+        }
+      }
       &.right {
+        padding-right: 4px;
+        clear: right;
+
+        .button:first-child {
+          margin-right: 0px;
+        }
+
+        .button {
+          float: right;
+        }
         text-align: right;
       }
     }
@@ -156,29 +140,39 @@
 }
 
 .codesync-embeddable {
-  &.rearranging {
-    background-color: rgba(50,50,50,0.2);
-  }
-  .toolbar-button {
-    cursor: pointer;
-    margin: 0px 6px;
-    opacity: 0.5;
-    &:active {
-      color: $shadowColor;
-    }
-    &:hover {
-      opacity: 0.9;
-      text-shadow: 1px 1px $shadowColor;
-    }
-  }
   .icon {
     &:before {
       font-family: 'FontAwesome', sans-serif;
     }
   }
-}
 
-.embeddable-editor-panel {
+  .visibility-handle {
+    .slide-in, .slide-out {
+      display: none;
+    }
+    display: none;
+  }
+
+  &[data-position="bottom"], &[data-position="top"] {
+    .drag-handle {
+      display: none;
+    }
+    .visibility-handle {
+      display: block;
+    }
+    &.visible {
+      .visibility-handle .slide-out {
+        display: block;
+      }
+      .visibility-handle .slide-in {
+        display: none;
+      }
+    }
+  }
+
+  //down: 103
+  //up: 102
+
   .icon-expand-editor:before{
     content:"\f065"
   }
@@ -186,113 +180,6 @@
   &.expanded {
     .icon-expand-editor:before {
       content:"\f066"
-    }
-  }
-}
-
-
-.status-message {
-  width: 88%;
-  left: 10%;
-  top: 10%;
-  border-radius: 4px;
-  box-shadow: 0 0 6px #fff;
-  position: absolute;
-  z-index: 9000;
-  color: #fff;
-  background-color: #333;
-  padding: 8px;
-  &.error {
-    color: #ff8080;
-  }
-  &.success {
-    color: #80ff80;
-  }
-}
-
-.embeddable-utility-panel {
-  position: absolute;
-  z-index: 10000;
-
-  &.bottom-aligned {
-    bottom: 40px;
-    right: 10px;
-  }
-
-  &.top-aligned {
-    top: 40px;
-    left: 10px;
-  }
-
-  background: $darkBackground;
-  color: $white;
-  width: 480px;
-  border-radius: 4px;
-  box-shadow: 0 0 6px $whiteShadow;
-  padding: 12px;
-}
-
-.embeddable-utility-panel {
-  .form {
-    font-family: $baseFont;
-    font-size: $baseFontSize * 1.2;
-    line-height: $baseLineHeight * 1.2;
-    .control-group {
-      margin-bottom: $baseLineHeight / 2;
-    }
-    .controls {
-      input {
-        border-radius: 4px;
-      }
-      input.input-small {
-        width: 80px;
-      }
-    }
-
-    .form-actions {
-      padding-top: 20px;
-      .btn {
-        cursor: pointer;
-        float: right;
-      }
-    }
-  }
-}
-
-.CodeMirror {
-  font-family: Monaco !important;
-  font-weight: 500;
-  font-size: 16px;
-  line-height: 24px;
-}
-
-.CodeMirror-gutters {
-  border: 0px !important;
-}
-
-
-.btn i {
-  margin-right: 6px;
-}
-
-ul.inline {
-  margin: 0px;
-  padding: 0px;
-
-  li {
-    display: inline;
-    list-style-type: none;
-    padding-left: 6px;
-    padding-right: 6px;
-    border-right: 1px solid;
-    cursor: pointer;
-
-    &:first-child {
-      padding-left: 0px;
-    }
-
-    &:last-child {
-      border: 0px;
     }
   }
 }

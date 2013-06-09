@@ -1,2 +1,2 @@
-a.toolbar-button title="#{ @tooltip }"
+a.button title="#{ @tooltip }"
   span class="icon icon-#{ @icon }"

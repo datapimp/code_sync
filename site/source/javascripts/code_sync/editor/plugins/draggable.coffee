@@ -1,2 +1,3 @@
 CodeSync.plugins.Draggable= setup: (editor)->
-  editor.$el.draggable(handle:".drag-handle")
+  editor.draggableElement ||= editor.$el
+  editor.draggableElement.draggable(handle: ".drag-handle")

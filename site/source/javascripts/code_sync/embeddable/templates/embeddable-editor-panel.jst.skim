@@ -5,13 +5,6 @@
     |&nbsp;
   section.right
     |&nbsp;
+  .clearfix
 
 .editor-component
-
-.toolbar.bottom.empty
-  section.left
-    |&nbsp;
-  section.middle
-    |&nbsp;
-  section.right
-    |&nbsp;

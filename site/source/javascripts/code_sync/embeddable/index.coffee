@@ -6,6 +6,9 @@
 #= require ./plugins/file_controls
 #= require ./plugins/mode_selector
 #= require ./plugins/element_sync
+#= require ./plugins/positionable
+#= require ./plugins/slide_drawer
+
 
 #= require_self
 
@@ -31,6 +34,9 @@ CodeSync.Embeddable.createIn = (container, options={})->
 
   embeddable = new CodeSync.EmbeddableView(options)
   embeddable.renderIn(container, options)
+
+  embeddable.draggableElement = container unless container.is('body')
+  embeddable.positionableElement = container unless container.is('body')
 
   CodeSync.Embeddable.instances[embeddable.cid] = embeddable
 

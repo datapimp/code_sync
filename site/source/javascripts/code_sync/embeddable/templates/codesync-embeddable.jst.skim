@@ -1,11 +1,18 @@
 .panels-wrapper
 
-.global-toolbar
+.toolbar.global-toolbar.clearfix
   section.left
+    .button.toggle-preferences
+      i.icon.icon-cog
 
   section.center
-    .button
-      i.icon.icon-align-justify.drag-handle
+    a.button.drag-handle title="drag this editor around"
+      i.icon.icon-align-justify
+
+    a.button.visibility-handle title="slide the editor in and out of view"
+      i.icon.icon-double-angle-down.slide-in
+      i.icon.icon-double-angle-up.slide-out
+
   section.right
     .button
-      i.icon.icon-cog.icon-cogs.toggle-preferences
+

@@ -12,12 +12,29 @@ CodeSync.plugins.EmbeddablePreferences = Backbone.View.extend
   events:
     "change select": "setOption"
     "click .cancel": "hide"
+    "click .set-default-preferences": "setDefaultPreferences"
+
     "keyup input" : _.debounce ((e)-> @setOption(e)), 850
 
-  initialize: (@options)=>
+  initialize: (@options={})->
     _.extend(@,@options)
-    true
+
+    @embeddable.once "after:render", ()=>
+      if defaults = localStorage.getItem('codesync-default-preferences')
+        if _.isString(defaults)
+          for name, value of JSON.parse(defaults)
+            @["set#{ _.str.capitalize(name) }"](value)
+
     Backbone.View::initialize.apply(@, arguments)
+
+  setDefaultPreferences: ()->
+    localStorage.setItem 'codesync-default-preferences', JSON.stringify
+      height: @embeddable.height
+      width: @embeddable.width
+      layout: @embeddable.layout
+      position: @embeddable.position?.value
+      keyMap: @embeddable.keyMap
+      theme: @embeddable.theme
 
   setOption: (e)->
     target  = @$(e.target)
@@ -26,24 +43,32 @@ CodeSync.plugins.EmbeddablePreferences = Backbone.View.extend
 
     @["set#{ _.str.capitalize(name) }"](value)
 
+  setTheme: (option)->
+    @embeddable.theme = option
+    @embeddable.$el.attr('data-theme', option )
+    @embeddable.each (editor)-> editor.editor.setTheme(option)
+
+  setKeyMap: (option)->
+    @embeddable.keyMap = option
+    @embeddable.$el.attr('data-keymap', option )
+    @embeddable.each (editor)-> editor.editor.setKeyMap(option)
+
   setHeight: (option)->
+    @embeddable.height = option
     @embeddable.$el.css('height', option)
 
   setWidth:(option)->
+    @embeddable.width = option
     @embeddable.$el.css('width', option)
 
-  setLayout: ()->
+  setLayout: (option)->
+    @embeddable.layout = option
     @embeddable.$el.attr('data-layout', option)
 
   setPosition:(option)->
     @embeddable.$el.attr('data-position', option)
-
-    if option is "top" || option is "bottom"
-      # TODO
-      true
-
-    if option is "draggable"
-      @embeddable.$el.draggable()
+    @embeddable.position.value = option
+    @embeddable.position.set(option)
 
   show: ()->
     @visible = true
@@ -64,6 +89,10 @@ CodeSync.plugins.EmbeddablePreferences = Backbone.View.extend
   setValues: ()->
     @$("input[name='height']").val( @embeddable.$el.height() )
     @$("input[name='width']").val( @embeddable.$el.width() )
+    @$('.layout-selector').val( @embeddable.$el.attr('data-layout') )
+    @$('.theme-selector').val( @embeddable.$el.attr('data-theme') )
+    @$('.position-selector').val( @embeddable.$el.attr('data-position') )
+    @$('.keymap-selector').val( @embeddable.$el.attr('data-keymap') )
 
   render: ()->
     return @ if @rendered
