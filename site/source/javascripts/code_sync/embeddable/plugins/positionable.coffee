@@ -1,7 +1,3 @@
-slideDrawer =
-  slideToggle: ()->
-    alert 'sup'
-
 CodeSync.plugins.Positionable =
   setup: (embeddable, options)->
     embeddable.position =  {}

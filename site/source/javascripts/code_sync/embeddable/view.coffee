@@ -110,6 +110,9 @@ CodeSync.EmbeddableView = Backbone.View.extend
   map: (args...)->
     _(@panels).map(args...)
 
+  activePanel: ()->
+    @detect (panel)-> panel.active is true
+
   render: ()->
     @$el.html(CodeSync.template(@template))
     _.defer ()=>

@@ -15,4 +15,6 @@
 
   section.right
     .button
+      a.button.toggle-document-loader title="load a document from your project"
+        i.icon.icon-search
 

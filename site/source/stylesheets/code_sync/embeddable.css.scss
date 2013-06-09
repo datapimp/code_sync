@@ -43,7 +43,6 @@ $toolbarBackground: #343434;
 
   &.animating {
     .global-toolbar {
-      opacity: 0 !important;
     }
   }
 
@@ -72,7 +71,7 @@ $toolbarBackground: #343434;
 
     .CodeMirror, .editor-component {
       width: 100%;
-      height: $embeddableHeight - ($toolbarHeight);
+      height: $embeddableHeight - ($toolbarHeight * 2);
     }
 
   }
@@ -185,3 +184,18 @@ $toolbarBackground: #343434;
   }
 }
 
+.codesync-embeddable {
+  border-radius: 4px !important;
+  section {
+    border-radius: 4px !important;
+  }
+  .panels-wrapper, .global-toolbar, .toolbar, .editor-component {
+    border-radius: 4px !important;
+  }
+  .embeddable-editor-panel.first {
+    border-radius: 4px;
+  }
+  .embeddable-editor-panel.last {
+    border-radius: 4px;
+  }
+}
