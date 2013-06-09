@@ -82,8 +82,12 @@ CodeSync.EditorPanel = Backbone.View.extend
       keyBindings: @keyBindings
       startMode: @startMode
       restrictMode: true
+      onCodeMirrorSetup: (codeMirror, component)=>
+        console.log "Setting up codemirror bindings on", @, component
+        @setupCodeMirrorBindings(codeMirror, component)
 
     @editor.parent = @
+
 
     unless @editor.rendered is true
       @$('.editor-component').html(@editor.render().el)
@@ -103,7 +107,9 @@ CodeSync.EditorPanel = Backbone.View.extend
 
   rearrange: ()->
     el        = @$el
-    parent    = @$el.parents('.codesync-embeddable')
+    parent    = @parent
+
+    parentEl  = @$el.parents('.codesync-embeddable')
     width     = @$el.width()
     height    = @$el.height()
     original  = @$el.position().left
@@ -112,7 +118,7 @@ CodeSync.EditorPanel = Backbone.View.extend
 
     if @$el.is(".animating.ui-draggable")
       @$el.draggable('destroy').removeClass('animating')
-      parent.removeClass('rearranging')
+      parentEl.removeClass('rearranging')
       return
 
     @$el.addClass('animating').draggable
@@ -121,11 +127,12 @@ CodeSync.EditorPanel = Backbone.View.extend
       snap: ".embeddable-editor-panel"
       containment: ".codesync-embeddable"
       start: ()->
-        parent.addClass 'rearranging'
+        parentEl.addClass 'rearranging'
       stop: ()->
         all.removeClass('animating')
         _.delay ()->
-          parent.removeClass('rearranging')
+          parentEl.removeClass('rearranging')
+          parent?.redraw()
         , 400
 
     @$el.siblings('.embeddable-editor-panel').droppable
@@ -138,7 +145,8 @@ CodeSync.EditorPanel = Backbone.View.extend
         me.animate(left: "#{ original }px" )
 
         _.delay ()->
-          parent.removeClass('rearranging')
+          parentEl.removeClass('rearranging')
+          parent?.redraw()
         , 400
 
   selectLanguage: ()->
@@ -153,3 +161,7 @@ CodeSync.EditorPanel = Backbone.View.extend
 
   setTheme: ()->
     @editor.setTheme.apply(@editor, arguments)
+
+  setupCodeMirrorBindings: (codeMirror, component)->
+    codeMirror.on "focus", ()=>
+      @trigger "focus", @, component, codeMirror

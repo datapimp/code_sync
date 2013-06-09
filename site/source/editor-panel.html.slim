@@ -2,7 +2,7 @@
 - content_for(:head) do
   == stylesheet_link_tag 'code_sync/embeddable', 'code_sync/embeddable-utility'
 
-#editor-container style="height: 500px; width: 800px;"
+#editor-container style=""
 
 javascript:
   var codesync  = new CodeSync.Client(),
@@ -21,5 +21,5 @@ javascript:
   }
 
   $(function(){
-    CodeSync.Embeddable.createIn(container, {width: 1500, empty: true});
+    CodeSync.Embeddable.createIn(container, {width: 960, height: 600, empty: true});
   })

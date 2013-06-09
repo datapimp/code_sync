@@ -50,46 +50,46 @@
 }
 
 .codesync-embeddable {
-ul.inline {
-  margin: 0px;
-  padding: 0px;
+  ul.inline {
+    margin: 0px;
+    padding: 0px;
 
-  li {
-    display: inline;
-    list-style-type: none;
-    padding-left: 6px;
-    padding-right: 6px;
-    border-right: 1px solid;
-    cursor: pointer;
+    li {
+      display: inline;
+      list-style-type: none;
+      padding-left: 6px;
+      padding-right: 6px;
+      border-right: 1px solid;
+      cursor: pointer;
 
-    &:first-child {
-      padding-left: 0px;
+      &:first-child {
+        padding-left: 0px;
+      }
+
+      &:last-child {
+        border: 0px;
+      }
     }
+  }
 
-    &:last-child {
-      border: 0px;
+  .status-message {
+    width: 88%;
+    left: 20%;
+    bottom: 0%;
+    border-radius: 4px;
+    box-shadow: 0 0 6px #fff;
+    position: absolute;
+    z-index: 9000;
+    color: #fff;
+    background: rgba(25,25,25,0.2);
+    padding: 8px;
+    &.error {
+      color: #ff8080;
+    }
+    &.success {
+      color: #80ff80;
     }
   }
-}
-
-.status-message {
-  width: 88%;
-  left: 10%;
-  bottom: 0%;
-  border-radius: 4px;
-  box-shadow: 0 0 6px #fff;
-  position: absolute;
-  z-index: 9000;
-  color: #fff;
-  background-color: opacify(#333,0.5);
-  padding: 8px;
-  &.error {
-    color: #ff8080;
-  }
-  &.success {
-    color: #80ff80;
-  }
-}
 }
 
 

@@ -49,11 +49,36 @@ CodeSync.EmbeddableView = Backbone.View.extend
     panel.renderIn(@editorPanelWrapper)
 
     @trigger "editor:added", panel
+
+    panel.on "focus", ()=>
+      panel.$el.siblings('.embeddable-editor-panel').removeClass('active')
+      panel.$el.addClass('active')
+
+
     panel
 
   setLayout: (layout)->
     @trigger "layout:change", @layout, @layout=layout
     @$el.attr('data-layout', @layout)
+
+  redraw: ()->
+    @height ||= @$el.height()
+    @width ||= @$el.width()
+
+    toolbarHeight = @$('.global-toolbar').height()
+    @$('.CodeMirror, .editor-compoent, .embeddable-editor-panel').height(@height - toolbarHeight)
+
+    count = @panels.length
+    itemWidth = @width / count
+
+    @panels = _(@panels).sortBy (panel)-> panel.$el.css('left')
+
+    for panel, index in @panels
+      el = panel.$el
+      el.removeClass('first').removeClass('last')
+      el.addClass('first') if index is 0
+      el.addClass('last') if index is count - 1
+      el.css('left', itemWidth * index)
 
   renderEditors: ()->
     @editors ||= {}
@@ -85,6 +110,7 @@ CodeSync.EmbeddableView = Backbone.View.extend
   render: ()->
     @$el.html(CodeSync.template(@template))
     _.defer ()=>
+      @redraw()
       @trigger "after:render"
     @
 

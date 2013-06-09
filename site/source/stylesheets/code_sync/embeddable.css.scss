@@ -63,6 +63,7 @@ $toolbarBackground: #343434;
   .panels-wrapper {
     height: $embeddableHeight - $toolbarHeight;
   }
+
   .embeddable-editor-panel {
     position: absolute;
     height: $embeddableHeight - ($toolbarHeight);

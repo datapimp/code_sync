@@ -37,8 +37,7 @@ CodeSync.EditorComponent = Backbone.View.extend
 
     @startMode        = @modes.get(@startMode) || CodeSync.Modes.defaultMode()
 
-    @on "codemirror:setup", ()=>
-      @loadDefaultDocument()
+    @on "codemirror:setup", ()=> @loadDefaultDocument()
 
     @enableLiveMode(@liveModeThrottle) if @liveMode is true
 
@@ -85,7 +84,8 @@ CodeSync.EditorComponent = Backbone.View.extend
 
     @codeMirror.on "change", _.debounce(((changeObj)=> @trigger "editor:change", @codeMirror.getValue(), changeObj), @editorChangeThrottle)
 
-    @trigger "codemirror:setup", @codeMirror
+    @trigger "codemirror:setup", @codeMirror, @
+    @onCodeMirrorSetup?(@codeMirror, @)
 
     @
 
@@ -159,7 +159,6 @@ CodeSync.EditorComponent = Backbone.View.extend
       doNotSave: true
       name: @defaultDocumentName || "codesync"
       display: "CodeSync"
-      content: ("hahahahha\n" for n in [1,2,3,4,5,6,6])
 
     options = _.extend(defaultOptions, @document)
 

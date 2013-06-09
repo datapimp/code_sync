@@ -59,13 +59,12 @@ CodeSync.plugins.EmbeddablePreferences = Backbone.View.extend
   setHeight: (height)->
     @embeddable.height = height
     @embeddable.$el.css('height', height)
+    @embeddable.redraw()
 
-    toolbarHeight = @embeddable.$('.global-toolbar').height()
-    @embeddable.$('.CodeMirror, .editor-compoent, .embeddable-editor-panel').height(height - toolbarHeight)
-
-  setWidth:(option)->
-    @embeddable.width = option
-    @embeddable.$el.css('width', option)
+  setWidth:(width)->
+    @embeddable.width = width
+    @embeddable.$el.css('width', width)
+    @embeddable.redraw()
 
   setLayout: (option)->
     @embeddable.layout = option
