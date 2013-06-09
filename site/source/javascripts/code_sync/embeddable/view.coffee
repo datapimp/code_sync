@@ -54,6 +54,9 @@ CodeSync.EmbeddableView = Backbone.View.extend
       panel.$el.siblings('.embeddable-editor-panel').removeClass('active')
       panel.$el.addClass('active')
 
+      panel.active = true
+      for other in @panels when other isnt panel
+        other.active = false
 
     panel
 
