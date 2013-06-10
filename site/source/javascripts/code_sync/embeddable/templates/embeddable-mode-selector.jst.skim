@@ -1,4 +1,4 @@
-.control-group
+.field
   label Select a language
   ul.inline.option-selector
     - for mode in @restrictedModes()

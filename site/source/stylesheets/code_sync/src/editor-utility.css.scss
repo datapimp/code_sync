@@ -38,7 +38,7 @@
 }
 
 .editor-utility {
-  .form {
+  .form-control {
     padding: 20px;
     .control-group {
       label {
@@ -51,7 +51,7 @@
         min-height: 100px;
       }
     }
-    .form-actions {
+    .form-control-actions {
       padding-top: $baseLineHeight / 2;
       clear: both;
       width: 100%;
@@ -65,7 +65,7 @@
 }
 
 .editor-utility {
-  .form-actions {
+  .form-control-actions {
     a.btn {
       margin-right: 4px;
     }

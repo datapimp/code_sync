@@ -1,13 +1,13 @@
 form
   - if @enableMode
-    .control-group.mode-selector
+    .field.mode-selector
       label
         | Language
       .controls
         select name="mode"
 
   - if @enableKeyBindings
-    .control-group
+    .field
       label
         | KeyBindings
       .controls
@@ -16,7 +16,7 @@ form
           option value="vim" Vim
 
   - if @enableTheme
-    .control-group
+    .field
       label
         | Theme
       .controls
@@ -27,21 +27,21 @@ form
           option value="xq-light" XQ Light
 
   - if @enableEndpoint
-    .control-group
+    .field
       label
         | Asset Compiler Endpoint
       .controls
         input type="text" name="asset_endpoint" value="#{ CodeSync.get('assetCompilationEndpoint') }"
 
   - if @enableHotKey
-    .control-group
+    .field
       label
         | Hotkey
       .controls
         input type="text" name="editor_hotkey" value="#{ CodeSync.get('editorToggleHotkey') }"
 
   - if @enablePosition
-    .control-group
+    .field
       label
         | Position
       .controls

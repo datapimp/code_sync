@@ -120,5 +120,5 @@ CodeSync.plugins.EmbeddablePreferences.setup = (embeddable,options={})->
   panel = new CodeSync.plugins.EmbeddablePreferences(options)
   panel.embeddable = @
 
-  @preferencesPanel = panel
+  console.log @preferencesPanel = panel
 

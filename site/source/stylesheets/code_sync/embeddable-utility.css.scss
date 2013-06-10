@@ -4,6 +4,10 @@
   position: absolute;
   z-index: 10000;
 
+  .toolbar a {
+    color: $toolbarTextColor !important;
+  }
+
   &.bottom-aligned {
     bottom: 40px;
     right: 10px;
@@ -23,7 +27,7 @@
 }
 
 .embeddable-utility-panel {
-  .form {
+  .form-control {
     font-family: $baseFont;
     font-size: $baseFontSize * 1.2;
     line-height: $baseLineHeight * 1.2;
@@ -39,7 +43,7 @@
       }
     }
 
-    .form-actions {
+    .form-control-actions {
       padding-top: 20px;
       .btn {
         cursor: pointer;

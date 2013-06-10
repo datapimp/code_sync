@@ -4,6 +4,9 @@ module CodeSync
       enabled = (app.config.enable_code_sync_manager == true) rescue false
       forbid_saving = (app.config.forbid_code_sync_save) rescue false
 
+
+      binding.pry
+
       if enabled && !$rails_rake_task
         CodeSync::Manager.start(sprockets: app.assets,
                                 forked: true,

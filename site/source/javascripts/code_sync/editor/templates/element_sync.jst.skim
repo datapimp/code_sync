@@ -3,10 +3,10 @@
     h3 Template / DOM Sync
     p Use this to compile a template to any part of the DOM
 
-  .row-fluid.selector-info
-    .span9
+  .fluid-row.selector-info
+    .gspan9
       input name="css-selector" placeholder="Enter a CSS selector to sync with"
-    .span3
+    .gspan3
       .btn-group.actions
         a.btn.done-button title="Finish syncing with his element"
           i.icon.icon-check
@@ -16,8 +16,8 @@
           i.icon.icon-hair-cross
         a.btn.set-template-options title="Specify template code"
           i.icon.icon-code
-  .row-fluid
-    .span9
+  .fluid-row
+    .gspan9
       .element-sync-status
-    .span3
+    .gspan3
       .search-scope-description

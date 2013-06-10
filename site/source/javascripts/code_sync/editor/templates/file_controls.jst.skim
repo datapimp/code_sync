@@ -1,29 +1,29 @@
 .form
-  .row-fluid
-    .span6
-      .control-group.name.required
+  .fluid-row
+    .gspan6
+      .field.name.required
         label Filename
         .controls
           input#document_name.modifiable type="text" name="name" placeholder="Enter a name for this file" value="#{ @name }"
-    .span6
+    .gspan6
       - if @folder?
-        .control-group.folder
+        .field.folder
           label Folder
           .controls
             input#document_folder.modifiable type="text" name="folder" placeholder="Where will this file be stored? Relative to the project root" value="#{ @folder }"
 
   - if @path?.length > 0
-    .control-group.current-file-location
+    .field.current-file-location
       label Current file location
       .controls
         input.read-only type="text" name="path" value="#{ @path }"
   - else
-    .control-group.new-file-location
+    .field.new-file-location
       label New file location
       .controls
         input#document_path.read-only type="text" name="path" value="#{ @newPath }"
 
-  .control-group
+  .field
     .btn-group
       .btn.compile
         | Compile

@@ -1,9 +1,9 @@
-.row-fluid
-  .span6
+.fluid-row
+  .gspan6
     #canvas-url-control.controls
-  .span6
-    .row-fluid
-      .span4
+  .gspan6
+    .fluid-row
+      .gspan4
         #resource-loader.controls
           ul
             li.label
@@ -15,7 +15,7 @@
             li.label
               a.btn.toggle-stylesheet-loader
                 | Stylesheets
-      .span4
+      .gspan4
         #layout-selector.controls data-setting="layout" data-value="3"
           ul
             li.label Layout
@@ -27,7 +27,7 @@
               i.icon.icon-three-dots
             li.toggle-custom-layout-selector
               | Custom
-      .span4
+      .gspan4
         #target-selector.controls data-setting="target" data-value="canvas"
           ul
             li.label Scope

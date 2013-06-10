@@ -2,7 +2,7 @@
   .card-view
     .card.menu.active.boom
       - if @packages.length >= 1
-        .control-group
+        .field
           %label Select a package
           .controls
             %select{:name=>"load_package"}
@@ -11,25 +11,25 @@
                 %option{:value=>name}
                   #{ name }
 
-      .control-group
+      .field
         %label
           Enter a list of javascript Urls
         .controls
           %textarea{:name=>"package_text"}
-      .form-actions
+      .action-row
         %a.btn.btn-primary.submit
           Load Resources
         %a.btn.finished
           Cancel
 
     .card.results
-      .control-group
+      .field
         %label Package Name
         %input{:type=>"text",:name=>"package_name"}
 
       %ul.results-container
 
-      .form-actions
+      .action-row
         %a.btn.btn-primary.save-as-package
           Save As Package
         %a.btn.finished

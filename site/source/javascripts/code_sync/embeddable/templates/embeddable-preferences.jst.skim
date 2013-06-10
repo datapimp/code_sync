@@ -1,7 +1,7 @@
-.form
-  .row-fluid
-    .span4
-      .control-group
+.form-control
+  .fluid-row
+    .gspan4
+      .field
         label Theme
         .controls
           select.theme-selector name="theme"
@@ -9,15 +9,15 @@
             option value="lesser-dark" Lesser Dark
             option value="ambiance" Ambiance
             option value="xq-light" XQ Light
-      .control-group
+      .field
         label Keybindings
         .controls
           select.keymap-selector name="keyMap"
             option value="" Default
             option value="vim" Vim
 
-    .span4
-      .control-group.layout-selector
+    .gspan4
+      .field.layout-selector
         label Editors
         .controls
           select.layout-selector name="layout"
@@ -27,7 +27,7 @@
             option value="1" One
 
 
-      .control-group.position-selector
+      .field.position-selector
         label Positioning
         .controls
           select.position-selector name="position"
@@ -36,19 +36,19 @@
             option value="bottom" Bottom Drawer
             option value="top" Top Drawer
 
-    .span4
-      .control-group
+    .gspan4
+      .field
         label Height
         .controls
           input.input-small type="text" name="height"
 
-      .control-group
+      .field
         label Width
         .controls
           input.input-small type="text" name="width"
 
 
-  .form-actions
+  .action-row
     a.btn.btn-primary.set-default-preferences
       i.icon.icon-save
       | Save As Defaults
