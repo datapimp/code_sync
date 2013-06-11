@@ -10,6 +10,8 @@ gem "faye"
 gem "thor"
 gem "listen"
 gem "rack-webconsole-pry"
+gem "haml_coffee_assets"
+gem "font-awesome-rails"
 
 group :development, :test do
   gem 'rspec'
