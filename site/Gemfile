@@ -11,3 +11,4 @@ gem "skim"
 gem "sass"
 gem "haml_coffee_assets"
 gem "code_sync", path: File.join("..")
+gem "font-awesome-rails"
