@@ -12,6 +12,8 @@ CodeSync.detectGlobalChangeTriggers = (type,attributes={})->
   # load the whole shebang
   true
 
+CodeSync.onScriptChange = CodeSync.onTemplateChange = CodeSync.onStyleChange = ()-> true
+
 CodeSync.processChangeNotification = (attributes={}, options={})->
   {type,compiled,content} = attributes
 

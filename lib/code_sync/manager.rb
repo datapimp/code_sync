@@ -199,7 +199,7 @@ module CodeSync
       end
 
       def root
-        base = options[:root] || options[:assets_directory] || Dir.pwd()
+        options[:root] || options[:assets_directory] || Dir.pwd()
       end
 
       def internal
@@ -225,14 +225,8 @@ module CodeSync
         end
 
         @watcher ||= Listen.to(root)
-                      .filter(assets_filter)
+                      .filter(CodeSync.watch_assets_filter)
                       .latency(1)
-      end
-
-      # TODO
-      # Provide for configurability
-      def assets_filter
-       /(\.coffee|\.css|\.jst|\.mustache\.js|\.sass)/
       end
 
       def method_missing meth, *args, &block

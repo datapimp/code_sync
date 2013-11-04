@@ -4,19 +4,18 @@ module CodeSync
   require 'code_sync/version'
   require 'code_sync/manager'
   require 'code_sync/processors'
+  require 'middleman_extension' if defined?(Middleman)
+  require "code_sync/rails" if defined?(::Rails)
 
-  if defined?(Middleman)
-    require 'middleman_extension'
-  end
+  mattr_accessor :watch_assets_filter
 
-  if defined?(::Rails)
-    require "code_sync/rails"
+  def self.watch_assets_filter
+    @@watch_assets_filter ||= /(\.coffee|\.css|\.jst|\.mustache\.js|\.sass|\.emblem|\.hbs|\.handlebars)/
   end
 
   def self.gem_assets_root
     File.join(File.dirname(__FILE__), '..')
   end
-
 end
 
 # When using outside of Rails.
