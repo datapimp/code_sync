@@ -113,7 +113,7 @@ module CodeSync
     end
 
     def project_asset_directories
-      directories = env.paths.select {|path| path.include?(root) }
+      env.paths.select {|path| path.include?(root) }
     end
 
     def project_assets
@@ -122,7 +122,7 @@ module CodeSync
       end
 
       files.reject! {|path| path.match(/\.min\.js/) || path.match(/\-min\.js/) }
-      files.select! {|path| path.match(/\.jst|\.mustache|\.skim|\.hamlc|\.scss|\.sass|\.coffee|\.css|\.js/)}
+      files.select! {|path| path.match(/\.jst|\.mustache|\.skim|\.hamlc|\.less|\.scss|\.sass|\.coffee|\.css|\.js/)}
 
       files.map do |file|
         asset         = env.find_asset(file)
