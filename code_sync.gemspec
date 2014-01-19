@@ -17,8 +17,9 @@ Gem::Specification.new do |s|
   s.add_dependency 'sprockets'
   s.add_dependency 'pry'
   s.add_dependency 'thor'
-  s.add_dependency 'slim'
-  s.add_dependency 'skim'
+  s.add_dependency 'slim', '~> 2.0.2'
+  s.add_dependency 'skim', '~> 0.9.3'
+  s.add_dependency 'haml_coffee_assets', '~> 1.16.0'
   s.add_dependency 'rack-webconsole-pry'
   s.add_dependency 'rb-fsevent', '~> 0.9'
 

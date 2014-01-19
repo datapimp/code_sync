@@ -7,7 +7,7 @@ module CodeSync
       if enabled && !$rails_rake_task
         CodeSync::Manager.start(sprockets: app.assets,
                                 forked: true,
-                                root: File.join(::Rails.root,'app','assets'),
+                                root: ::Rails.root.join('app','assets'),
                                 forbid_saving: !!forbid_saving)
       end
     end
